@@ -2,8 +2,13 @@
   "name": "@generates/kdot",
   "description": "A tool for developing, deploying, and running CI on Kubernetes",
   "version": "0.0.0",
+  "author": {
+    "name": "Ian Walter",
+    "url": "https://ianwalter.dev"
+  },
   "license": "SEE LICENSE IN LICENSE",
   "type": "module",
+  "module": "index.js",
   "bin": {
     "kdot": "cli.js"
   },
@@ -12,6 +17,28 @@
     "index.js",
     "lib"
   ],
+  "homepage": "https://github.com/generates/kdot#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/generates/kdot.git",
+    "directory": "packages/kdot"
+  },
+  "keywords": [
+    "kubernetes",
+    "deployment",
+    "development",
+    "management"
+  ],
+  "bugs": {
+    "url": "https://github.com/generates/kdot/issues"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/ianwalter"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@kubernetes/client-node": "^0.13.2",
     "common-tags": "^1.8.0",
