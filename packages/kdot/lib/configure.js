@@ -4,13 +4,16 @@ import { core, apps } from './k8sApi.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const labels = { managedBy: 'kdot' }
-const toServicePort = p => ({ port: p.localPort, targetPort: p.port })
+
+function toServicePort (p) {
+  return { ...p.servicePort ? { port: p.servicePort } : {}, targetPort: p.port }
+}
 
 export default async function configure (input) {
   let custom
   if (input.custom) {
     try {
-      // TODO: handle array.
+      // FIXME: handle array.
       const mod = await import(input.custom)
       custom = mod.default
     } catch (err) {
@@ -37,10 +40,13 @@ export default async function configure (input) {
   }
 
   // Break apps down into individual Kubernetes resources.
+  cfg.enabledApps = []
   cfg.deployments = []
   cfg.services = []
   for (const [name, app] of Object.entries(cfg.apps)) {
     if (!app.disabled) {
+      cfg.enabledApps.push({ name, ...app })
+
       // If a namespace isn't specified for the app, assign the top-level
       // namespace to it.
       if (!app.namespace) app.namespace = cfg.namespace

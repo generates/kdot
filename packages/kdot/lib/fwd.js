@@ -12,8 +12,8 @@ const logger = createLogger({ namespace: 'kdot', level: 'info' })
  */
 export default async function fwd (cfg) {
   try {
-    for (const service of cfg.services) {
-      const { name, namespace } = service.metadata
+    for (const app of cfg.enabledApps) {
+      const namespace = app.namespace || cfg.namespace
 
       // FIXME: Maybe we can implement our own local load balancer to simulate
       // the service and distribute traffic to all of the pods instead of just
@@ -24,16 +24,18 @@ export default async function fwd (cfg) {
         undefined,
         undefined,
         undefined,
-        `app=${name}`
+        `app=${app.name}`
       )
 
-      for (const p of service.spec.ports) {
+      for (const p of app.ports) {
+        const localPort = p.localPort || p.port
+
         await new Promise((resolve, reject) => {
           const server = net.createServer(socket => {
             pfwd.portForward(
               namespace,
               pod.metadata.name,
-              [p.targetPort],
+              [p.port],
               socket,
               undefined,
               socket
@@ -47,10 +49,10 @@ export default async function fwd (cfg) {
             reject(err)
           })
 
-          server.listen(p.port, 'localhost', () => {
+          server.listen(localPort, 'localhost', () => {
             logger.success(oneLine`
-              Forwarding http://localhost:${p.port} to
-              ${pod.metadata.name}:${p.targetPort}
+              Forwarding http://localhost:${localPort} to
+              ${pod.metadata.name}:${p.port}
             `)
             resolve()
           })
