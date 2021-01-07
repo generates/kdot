@@ -78,7 +78,7 @@ export default async function configure (input) {
               containers: [
                 {
                   name,
-                  image: app.image,
+                  image: `${app.image.repo}:${app.image.tag || 'latest'}`,
                   ports: app.ports?.map(p => ({ containerPort: p.port })),
                   env
                 }
