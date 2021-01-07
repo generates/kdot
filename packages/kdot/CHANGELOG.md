@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.4
+
+### Patch Changes
+
+- a26bd82: Fixing port config and log
+
 ## 0.0.3
 
 ### Patch Changes
