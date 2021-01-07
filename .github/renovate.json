@@ -1,0 +1,10 @@
+{
+  "platform": "github",
+  "branchPrefix": "deps/",
+  "trustLevel": "high",
+  "onboarding": false,
+  "repositories": [
+    "generates/generates",
+    "ianwalter/nrg"
+  ]
+}
