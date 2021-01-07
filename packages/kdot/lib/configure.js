@@ -6,7 +6,7 @@ const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const labels = { managedBy: 'kdot' }
 
 function toServicePort (p) {
-  return { ...p.servicePort ? { port: p.servicePort } : {}, targetPort: p.port }
+  return { port: p.servicePot || p.port, targetPort: p.port }
 }
 
 export default async function configure (input) {
@@ -17,7 +17,7 @@ export default async function configure (input) {
       const mod = await import(input.custom)
       custom = mod.default
     } catch (err) {
-      logger.error('Error importing custom configuration', err)
+      logger.debug('Error importing custom configuration', err)
     }
   }
 
