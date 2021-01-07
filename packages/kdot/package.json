@@ -40,6 +40,11 @@
     "access": "public"
   },
   "dependencies": {
+    "@generates/cli": "^0.0.8",
+    "@generates/dotter": "^1.0.5",
+    "@generates/logger": "^0.0.9",
+    "@generates/merger": "^0.1.2",
+    "@generates/package-updater": "^0.0.2",
     "@kubernetes/client-node": "^0.13.2",
     "common-tags": "^1.8.0",
     "killable": "^1.0.1"
