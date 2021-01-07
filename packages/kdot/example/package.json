@@ -5,7 +5,7 @@
     "apps": {
       "web": {
         "image": {
-          "name": "ianwalter/example"
+          "repo": "ianwalter/example"
         },
         "ports": [
           {
