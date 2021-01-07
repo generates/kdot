@@ -1,5 +1,5 @@
 # kdot
->
+> A tool for developing, deploying, and running CI on Kubernetes
 
 
 &nbsp;
