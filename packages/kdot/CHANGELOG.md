@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.3
+
+### Patch Changes
+
+- 9e7b13b: Adding missing generates packages
+
 ## 0.0.2
 
 ### Patch Changes
