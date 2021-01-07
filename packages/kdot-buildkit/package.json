@@ -1,3 +1,5 @@
 {
-  "name": "@generates/kdot-buildkit"
+  "private": true,
+  "name": "@generates/kdot-buildkit",
+  "version": "0.0.0"
 }
