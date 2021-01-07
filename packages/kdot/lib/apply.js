@@ -13,7 +13,7 @@ export default async function apply (cfg) {
       if (resource.kind === 'Namespace') {
         if (!uid) {
           await core.createNamespace(resource)
-          logger.info('Created Namespace:', name)
+          logger.success('Created Namespace:', name)
         }
       } else if (resource.kind === 'Deployment') {
         if (uid) {
@@ -47,7 +47,7 @@ export default async function apply (cfg) {
           logger.success('Updated Service:', name)
         } else {
           await core.createNamespacedService(namespace, resource)
-          logger.info('Created Service:', name)
+          logger.success('Created Service:', name)
         }
       }
     } catch (err) {
