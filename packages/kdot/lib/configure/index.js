@@ -1,8 +1,9 @@
 import { merge } from '@generates/merger'
 import { createLogger } from '@generates/logger'
-import { core, apps } from './k8sApi.js'
+import { core, apps } from '../k8sApi.js'
+import configureSecrets from './secrets.js'
 
-const logger = createLogger({ namespace: 'kdot', level: 'info' })
+const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
 const labels = { managedBy: 'kdot' }
 
 function toServicePort (p) {
@@ -32,18 +33,18 @@ export default async function configure (input) {
   // If there is a top-level namespace, add it to the resources array.
   cfg.namespaces = []
   if (cfg.namespace !== 'default') {
-    const namespace = {
-      kind: 'Namespace',
-      metadata: { name: cfg.namespace, labels }
-    }
+    const metadata = { name: cfg.namespace, labels }
+    const namespace = { kind: 'Namespace', metadata }
     cfg.namespaces.push(namespace)
   }
+
+  // Configure top-level secrets.
+  cfg.secrets = configureSecrets({ secrets: cfg.secrets })
 
   // Break apps down into individual Kubernetes resources.
   cfg.enabledApps = []
   cfg.deployments = []
   cfg.services = []
-  cfg.secrets = []
   for (const [name, app] of Object.entries(cfg.apps)) {
     if (!app.disabled) {
       cfg.enabledApps.push({ name, ...app })
@@ -55,10 +56,8 @@ export default async function configure (input) {
       // If there is a app-level namespace that is different from the
       // top-level namespace, add it to the resources array.
       if (app.namespace !== cfg.namespace) {
-        const namespace = {
-          kind: 'Namespace',
-          metadata: { name: app.namespace, labels }
-        }
+        const metadata = { name: app.namespace, labels }
+        const namespace = { kind: 'Namespace', metadata }
         cfg.namespaces.push(namespace)
       }
 
@@ -69,56 +68,14 @@ export default async function configure (input) {
         env = Object.entries(app.env).map(([name, value]) => ({ name, value }))
       }
 
+      // Configure app-level secrets and secret references.
       if (app.secrets) {
         env = env || []
-        for (const given of app.secrets) {
-          const secret = {
-            kind: 'Secret',
-            metadata: { name: given.name || app.name },
-            data: {}
-          }
-
-          let addSecret = false
-          for (const value of given.values) {
-            if (typeof value === 'string') {
-              const envValue = process.env[value]
-              if (envValue) {
-                addSecret = true
-                secret.data[value] = envValue
-                const secretKeyRef = { name: secret.name, key: value }
-                env.push({ name: value, valueFrom: { secretKeyRef } })
-              } else {
-                logger.warn('todo')
-              }
-            } else if (typeof value === 'object') {
-              for (const [secretKey, envKey] of Object.entries(value)) {
-                const envValue = process.env[envKey]
-                if (envValue) {
-                  addSecret = true
-                  secret.data[secretKey] = envValue
-                  const secretKeyRef = { name: secret.name, key: secretKey }
-                  env.push({ name: secretKey, valueFrom: { secretKeyRef } })
-                } else {
-                  logger.warn('todo')
-                }
-              }
-            }
-          }
-
-          for (const key of given.keys) {
-            if (typeof key === 'string') {
-              const secretKeyRef = { name: secret.name, key }
-              env.push({ name: key, valueFrom: { secretKeyRef } })
-            } else if (typeof key === 'object') {
-              for (const [secretKey, envKey] of Object.entries(key)) {
-                const secretKeyRef = { name: secret.name, key: secretKey }
-                env.push({ name: envKey, valueFrom: { secretKeyRef } })
-              }
-            }
-          }
-
-          if (addSecret) cfg.secrets.push(secret)
-        }
+        cfg.secrets.push(...configureSecrets({
+          secrets: app.secrets,
+          name: app.name,
+          env
+        }))
       }
 
       const deployment = {
@@ -151,15 +108,8 @@ export default async function configure (input) {
       if (app.ports?.length) {
         const service = {
           kind: 'Service',
-          metadata: {
-            name,
-            namespace: app.namespace,
-            labels
-          },
-          spec: {
-            selector: appLabel,
-            ports: app.ports.map(toServicePort)
-          }
+          metadata: { name, namespace: app.namespace, labels },
+          spec: { selector: appLabel, ports: app.ports.map(toServicePort) }
         }
         cfg.services.push(service)
       }

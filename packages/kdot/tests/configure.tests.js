@@ -1,7 +1,7 @@
 import path from 'path'
 import { createRequire } from 'module'
 import { test } from '@ianwalter/bff'
-import configure from '../lib/configure.js'
+import configure from '../lib/configure/index.js'
 
 const require = createRequire(import.meta.url)
 const packageJson = require('../example/package.json')
