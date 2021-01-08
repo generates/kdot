@@ -43,6 +43,7 @@ export default async function configure (input) {
   cfg.enabledApps = []
   cfg.deployments = []
   cfg.services = []
+  cfg.secrets = []
   for (const [name, app] of Object.entries(cfg.apps)) {
     if (!app.disabled) {
       cfg.enabledApps.push({ name, ...app })
@@ -66,6 +67,43 @@ export default async function configure (input) {
       let env
       if (app.env) {
         env = Object.entries(app.env).map(([name, value]) => ({ name, value }))
+      }
+
+      if (app.secrets) {
+        env = env || []
+        for (const given of app.secrets) {
+          const secret = {
+            kind: 'Secret',
+            metadata: { name: given.name || app.name },
+            data: {}
+          }
+
+          for (const value of given.values) {
+            if (typeof value === 'string') {
+              const envValue = process.env[value]
+              if (envValue) {
+                secret.data[value] = envValue
+                const secretKeyRef = { name: secret.name, key: value }
+                env.push({ name: value, valueFrom: { secretKeyRef } })
+              } else {
+                logger.warn('todo')
+              }
+            } else if (typeof value === 'object') {
+              for (const [secretKey, envKey] of Object.entries(value)) {
+                const envValue = process.env[envKey]
+                if (envValue) {
+                  secret.data[secretKey] = envValue
+                  const secretKeyRef = { name: secret.name, key: secretKey }
+                  env.push({ name: secretKey, valueFrom: { secretKeyRef } })
+                } else {
+                  logger.warn('todo')
+                }
+              }
+            }
+          }
+
+          cfg.secrets.push(secret)
+        }
       }
 
       const deployment = {
@@ -141,6 +179,17 @@ export default async function configure (input) {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
       cfg.resources.push(merge({}, existing, service))
+    }
+  }
+
+  if (cfg.secrets.length) {
+    for (const secret of cfg.secrets) {
+      const { name, namespace } = secret.metadata.name
+      const { body: { items } } = await core.listNamespacedSecret(namespace)
+      const existing = items.find(i => {
+        return i.metadata.name === name && i.metadata.namespace === namespace
+      })
+      if (!existing) cfg.resources.push(secret)
     }
   }
 

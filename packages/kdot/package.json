@@ -12,6 +12,9 @@
   "bin": {
     "kdot": "cli.js"
   },
+  "scripts": {
+    "test": "bff tests/configure.tests.js"
+  },
   "files": [
     "cli.js",
     "index.js",
