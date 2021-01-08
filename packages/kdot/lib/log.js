@@ -30,6 +30,7 @@ export default async function log (cfg) {
 
       for (const [index, pod] of pods.entries()) {
         const color = colors[index % 7]
+        const podName = chalk.bold[color](pod.metadata.name)
 
         await new Promise((resolve, reject) => {
           klog.log(
@@ -38,11 +39,7 @@ export default async function log (cfg) {
             undefined,
             new stream.Transform({
               transform (chunk, encoding, callback) {
-                const msg = chunk.toString()
-                const preface = msg.slice(0, 4)
-                const rest = msg.slice(4)
-                const name = chalk.bold[color](pod.metadata.name)
-                process.stdout.write(preface + `${name} • ` + rest)
+                process.stdout.write(`${podName} • ` + chunk.toString())
                 callback()
               }
             }),
