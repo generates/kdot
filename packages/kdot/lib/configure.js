@@ -78,10 +78,12 @@ export default async function configure (input) {
             data: {}
           }
 
+          let addSecret = false
           for (const value of given.values) {
             if (typeof value === 'string') {
               const envValue = process.env[value]
               if (envValue) {
+                addSecret = true
                 secret.data[value] = envValue
                 const secretKeyRef = { name: secret.name, key: value }
                 env.push({ name: value, valueFrom: { secretKeyRef } })
@@ -92,6 +94,7 @@ export default async function configure (input) {
               for (const [secretKey, envKey] of Object.entries(value)) {
                 const envValue = process.env[envKey]
                 if (envValue) {
+                  addSecret = true
                   secret.data[secretKey] = envValue
                   const secretKeyRef = { name: secret.name, key: secretKey }
                   env.push({ name: secretKey, valueFrom: { secretKeyRef } })
@@ -102,7 +105,19 @@ export default async function configure (input) {
             }
           }
 
-          cfg.secrets.push(secret)
+          for (const key of given.keys) {
+            if (typeof key === 'string') {
+              const secretKeyRef = { name: secret.name, key }
+              env.push({ name: key, valueFrom: { secretKeyRef } })
+            } else if (typeof key === 'object') {
+              for (const [secretKey, envKey] of Object.entries(key)) {
+                const secretKeyRef = { name: secret.name, key: secretKey }
+                env.push({ name: envKey, valueFrom: { secretKeyRef } })
+              }
+            }
+          }
+
+          if (addSecret) cfg.secrets.push(secret)
         }
       }
 
