@@ -8,7 +8,8 @@ export default function configureSecrets (opts) {
   const secrets = []
 
   for (const given of opts.secrets) {
-    const metadata = { name: given.name || opts.name }
+    const name = given.name || opts.name
+    const metadata = { namespace: opts.namespace, name }
     const secret = { kind: 'Secret', metadata, data: {} }
 
     // Specifying secrets with values will queue those secrets to be
@@ -22,14 +23,13 @@ export default function configureSecrets (opts) {
           if (envValue) {
             addSecret = true
             secret.data[value] = envValue
-            const secretKeyRef = { name: secret.name, key: value }
+            const secretKeyRef = { name, key: value }
             if (opts.env) {
               opts.env.push({ name: value, valueFrom: { secretKeyRef } })
             }
           } else {
             logger.warn(oneLine`
-              Not adding "${value}" to secret "${metadata.name}" because it's
-              undefined
+              Not adding "${value}" to secret "${name}" because it's undefined
             `)
           }
         } else if (typeof value === 'object') {
@@ -38,13 +38,13 @@ export default function configureSecrets (opts) {
             if (envValue) {
               addSecret = true
               secret.data[secretKey] = envValue
-              const secretKeyRef = { name: secret.name, key: secretKey }
+              const secretKeyRef = { name, key: secretKey }
               if (opts.env) {
                 opts.env.push({ name: secretKey, valueFrom: { secretKeyRef } })
               }
             } else {
               logger.warn(oneLine`
-                Not adding "${envKey}" to secret "${metadata.name}" because it's
+                Not adding "${envKey}" to secret "${name}" because it's
                 undefined
               `)
             }
@@ -58,11 +58,11 @@ export default function configureSecrets (opts) {
     if (opts.name && given.keys) {
       for (const key of given.keys) {
         if (typeof key === 'string') {
-          const valueFrom = { secretKeyRef: { name: secret.name, key } }
+          const valueFrom = { secretKeyRef: { name, key } }
           if (opts.env) opts.env.push({ name: key, valueFrom })
         } else if (typeof key === 'object') {
           for (const [secretKey, envKey] of Object.entries(key)) {
-            const secretKeyRef = { name: secret.name, key: secretKey }
+            const secretKeyRef = { name, key: secretKey }
             if (opts.env) {
               opts.env.push({ name: envKey, valueFrom: { secretKeyRef } })
             }

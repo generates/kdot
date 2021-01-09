@@ -39,7 +39,7 @@ export default async function configure (input) {
   }
 
   // Configure top-level secrets.
-  cfg.secrets = configureSecrets({ secrets: cfg.secrets })
+  cfg.secrets = configureSecrets({ secrets: cfg.secrets, namespace })
 
   // Break apps down into individual Kubernetes resources.
   cfg.enabledApps = []
@@ -73,6 +73,7 @@ export default async function configure (input) {
         env = env || []
         cfg.secrets.push(...configureSecrets({
           secrets: app.secrets,
+          namespace: app.namespace,
           name: app.name,
           env
         }))
@@ -149,7 +150,7 @@ export default async function configure (input) {
 
   if (cfg.secrets.length) {
     for (const secret of cfg.secrets) {
-      const { name, namespace } = secret.metadata.name
+      const { name, namespace } = secret.metadata
       const { body: { items } } = await core.listNamespacedSecret(namespace)
       const existing = items.find(i => {
         return i.metadata.name === name && i.metadata.namespace === namespace
