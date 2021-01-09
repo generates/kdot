@@ -283,11 +283,6 @@
     getopts "^2.2.5"
     read-pkg-up "^7.0.1"
 
-"@generates/dotter@^1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@generates/dotter/-/dotter-1.0.5.tgz#82cd80a045563fff43feaf81590c7fa5de7f912c"
-  integrity sha512-XTrYUGpayRwetZsbc1EX/rUSFinbGLsg5dpwAYcyQORhSOOb5jZOfSwvmj9+fbZAO6fGW7Hrl9z0LjgJzpdMSA==
-
 "@generates/dotter@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@generates/dotter/-/dotter-2.0.0.tgz#680523dbe6782ad8b924082258898378472106e5"
