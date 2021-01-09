@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@generates/cli": "^0.0.10",
-    "@generates/dotter": "^1.0.5",
+    "@generates/dotter": "^2.0.0",
     "@generates/logger": "^0.1.0",
     "@generates/merger": "^0.1.2",
     "@generates/package-updater": "^0.0.2",
