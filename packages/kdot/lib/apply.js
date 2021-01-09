@@ -50,7 +50,8 @@ export default async function apply (cfg) {
           logger.success('Created Service:', name)
         }
       } else if (resource.kind === 'Secret') {
-        core.createNamespacedSecret(namespace)
+        await core.createNamespacedSecret(namespace, resource)
+        logger.success('Created Secret:', name)
       }
     } catch (err) {
       const level = cfg.input.failFast ? 'fatal' : 'error'
