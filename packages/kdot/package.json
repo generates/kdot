@@ -43,7 +43,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@generates/cli": "^0.0.8",
+    "@generates/cli": "^0.0.10",
     "@generates/dotter": "^1.0.5",
     "@generates/logger": "^0.0.9",
     "@generates/merger": "^0.1.2",
