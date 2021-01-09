@@ -1,8 +1,9 @@
 import { merge } from '@generates/merger'
 import { createLogger } from '@generates/logger'
-import { core, apps } from './k8sApi.js'
+import { core, apps } from '../k8sApi.js'
+import configureSecrets from './secrets.js'
 
-const logger = createLogger({ namespace: 'kdot', level: 'info' })
+const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
 const labels = { managedBy: 'kdot' }
 
 function toServicePort (p) {
@@ -32,12 +33,13 @@ export default async function configure (input) {
   // If there is a top-level namespace, add it to the resources array.
   cfg.namespaces = []
   if (cfg.namespace !== 'default') {
-    const namespace = {
-      kind: 'Namespace',
-      metadata: { name: cfg.namespace, labels }
-    }
+    const metadata = { name: cfg.namespace, labels }
+    const namespace = { kind: 'Namespace', metadata }
     cfg.namespaces.push(namespace)
   }
+
+  // Configure top-level secrets.
+  cfg.secrets = configureSecrets({ secrets: cfg.secrets, namespace })
 
   // Break apps down into individual Kubernetes resources.
   cfg.enabledApps = []
@@ -54,10 +56,8 @@ export default async function configure (input) {
       // If there is a app-level namespace that is different from the
       // top-level namespace, add it to the resources array.
       if (app.namespace !== cfg.namespace) {
-        const namespace = {
-          kind: 'Namespace',
-          metadata: { name: app.namespace, labels }
-        }
+        const metadata = { name: app.namespace, labels }
+        const namespace = { kind: 'Namespace', metadata }
         cfg.namespaces.push(namespace)
       }
 
@@ -66,6 +66,17 @@ export default async function configure (input) {
       let env
       if (app.env) {
         env = Object.entries(app.env).map(([name, value]) => ({ name, value }))
+      }
+
+      // Configure app-level secrets and secret references.
+      if (app.secrets) {
+        env = env || []
+        cfg.secrets.push(...configureSecrets({
+          secrets: app.secrets,
+          namespace: app.namespace,
+          name: app.name,
+          env
+        }))
       }
 
       const deployment = {
@@ -98,15 +109,8 @@ export default async function configure (input) {
       if (app.ports?.length) {
         const service = {
           kind: 'Service',
-          metadata: {
-            name,
-            namespace: app.namespace,
-            labels
-          },
-          spec: {
-            selector: appLabel,
-            ports: app.ports.map(toServicePort)
-          }
+          metadata: { name, namespace: app.namespace, labels },
+          spec: { selector: appLabel, ports: app.ports.map(toServicePort) }
         }
         cfg.services.push(service)
       }
@@ -141,6 +145,17 @@ export default async function configure (input) {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
       cfg.resources.push(merge({}, existing, service))
+    }
+  }
+
+  if (cfg.secrets.length) {
+    for (const secret of cfg.secrets) {
+      const { name, namespace } = secret.metadata
+      const { body: { items } } = await core.listNamespacedSecret(namespace)
+      const existing = items.find(i => {
+        return i.metadata.name === name && i.metadata.namespace === namespace
+      })
+      if (!existing) cfg.resources.push(secret)
     }
   }
 

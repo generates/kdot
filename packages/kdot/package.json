@@ -12,6 +12,9 @@
   "bin": {
     "kdot": "cli.js"
   },
+  "scripts": {
+    "test": "bff tests/configure.tests.js"
+  },
   "files": [
     "cli.js",
     "index.js",
@@ -47,6 +50,7 @@
     "@generates/package-updater": "^0.0.2",
     "@kubernetes/client-node": "^0.13.2",
     "common-tags": "^1.8.0",
+    "dotenv": "^8.2.0",
     "killable": "^1.0.1"
   }
 }

@@ -3,7 +3,7 @@
 import path from 'path'
 import cli from '@generates/cli'
 import * as kdot from './index.js'
-import configure from './lib/configure.js'
+import configure from './lib/configure/index.js'
 
 const { _: [command, ...args], packageJson, ...input } = cli({
   name: 'kdot',
