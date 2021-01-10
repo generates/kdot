@@ -51,10 +51,7 @@ export default async function configure ({ ext, ...input }) {
   }
 
   // Configure top-level secrets.
-  cfg.secrets = configureSecrets({
-    secrets: cfg.secrets,
-    namespace: cfg.namespace
-  })
+  cfg.secrets = configureSecrets(cfg)
 
   // Break apps down into individual Kubernetes resources.
   cfg.enabledApps = []
@@ -78,20 +75,12 @@ export default async function configure ({ ext, ...input }) {
 
       const appLabel = { app: name }
 
+      // Configure app-level secrets and secret references.
+      if (app.secrets) cfg.secrets.push(...configureSecrets(app, true))
+
       let env
       if (app.env) {
         env = Object.entries(app.env).map(([name, value]) => ({ name, value }))
-      }
-
-      // Configure app-level secrets and secret references.
-      if (app.secrets) {
-        env = env || []
-        cfg.secrets.push(...configureSecrets({
-          secrets: app.secrets,
-          namespace: app.namespace,
-          name: app.name,
-          env
-        }))
       }
 
       const deployment = {
@@ -173,8 +162,6 @@ export default async function configure ({ ext, ...input }) {
       if (!existing) cfg.resources.push(secret)
     }
   }
-
-  logger.debug('Resources', cfg.resources)
 
   return cfg
 }

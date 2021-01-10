@@ -9,13 +9,14 @@ function encode (value) {
   return buffer.toString('base64')
 }
 
-export default function configureSecrets (opts) {
+export default function configureSecrets (item, isApp) {
   const secrets = []
+  const env = isApp ? (item.env || {}) : null
 
-  if (opts.secrets) {
-    for (const given of opts.secrets) {
-      const name = given.name || opts.name
-      const metadata = { namespace: opts.namespace, name }
+  if (item.secrets) {
+    for (const given of item.secrets) {
+      const name = given.name || item.name
+      const metadata = { namespace: item.namespace, name }
       const secret = { kind: 'Secret', metadata, data: {} }
 
       // Specifying secrets with values will queue those secrets to be
@@ -30,9 +31,7 @@ export default function configureSecrets (opts) {
               addSecret = true
               secret.data[value] = encode(envValue)
               const secretKeyRef = { name, key: value }
-              if (opts.env) {
-                opts.env.push({ name: value, valueFrom: { secretKeyRef } })
-              }
+              if (env) env[value] = { valueFrom: { secretKeyRef } }
             } else {
               logger.warn(oneLine`
                 Not adding "${value}" to secret "${name}" because it's undefined
@@ -45,7 +44,7 @@ export default function configureSecrets (opts) {
                 addSecret = true
                 secret.data[secretKey] = encode(envValue)
                 const valueFrom = { secretKeyRef: { name, key: secretKey } }
-                if (opts.env) opts.env.push({ name: secretKey, valueFrom })
+                if (env) env[secretKey] = { valueFrom }
               } else {
                 logger.warn(oneLine`
                   Not adding "${envKey}" to secret "${name}" because it's
@@ -59,17 +58,15 @@ export default function configureSecrets (opts) {
 
       // Specifying secrets with keys will allow top-level secrets to be
       // used by apps as environment variables.
-      if (opts.name && given.keys) {
+      if (isApp && given.keys) {
         for (const key of given.keys) {
           if (typeof key === 'string') {
             const valueFrom = { secretKeyRef: { name, key } }
-            if (opts.env) opts.env.push({ name: key, valueFrom })
+            if (env) env[key] = { valueFrom }
           } else if (typeof key === 'object') {
             for (const [secretKey, envKey] of Object.entries(key)) {
               const secretKeyRef = { name, key: secretKey }
-              if (opts.env) {
-                opts.env.push({ name: envKey, valueFrom: { secretKeyRef } })
-              }
+              if (env) env[envKey] = { valueFrom: { secretKeyRef } }
             }
           }
         }
@@ -80,6 +77,10 @@ export default function configureSecrets (opts) {
       if (addSecret) secrets.push(secret)
     }
   }
+
+  if (env?.lenth) item.env = env
+
+  console.log('ITEM', { isApp, item, env })
 
   return secrets
 }
