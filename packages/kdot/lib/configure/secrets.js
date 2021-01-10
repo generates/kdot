@@ -62,7 +62,7 @@ export default function configureSecrets (item, isApp) {
           if (typeof key === 'string') {
             if (env) env[key] = { secretKeyRef: { name, key } }
           } else if (typeof key === 'object') {
-            for (const [secretKey, envKey] of Object.entries(key)) {
+            for (const [envKey, secretKey] of Object.entries(key)) {
               if (env) env[envKey] = { secretKeyRef: { name, key: secretKey } }
             }
           }
