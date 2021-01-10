@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.6
+
+### Patch Changes
+
+- 737dee0: Refactoring config logic
+
 ## 0.0.5
 
 ### Patch Changes
