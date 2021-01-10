@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.10
+
+### Patch Changes
+
+- d99b1f6: Fixing backwards envKey and secretKey
+
 ## 0.0.9
 
 ### Patch Changes
