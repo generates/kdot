@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.7
+
+### Patch Changes
+
+- 5aad676: base64 encoding secret data
+
 ## 0.0.6
 
 ### Patch Changes
