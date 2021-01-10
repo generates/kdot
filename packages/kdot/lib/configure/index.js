@@ -13,6 +13,11 @@ function toServicePort (p) {
   return { port: p.servicePot || p.port, targetPort: p.port }
 }
 
+function toEnv ([name, value]) {
+  if (typeof value === 'object') return { name, valueFrom: value }
+  return { name, value }
+}
+
 export default async function configure ({ ext, ...input }) {
   const cfg = { input, namespace: 'default' }
 
@@ -79,9 +84,7 @@ export default async function configure ({ ext, ...input }) {
       if (app.secrets) cfg.secrets.push(...configureSecrets(app, true))
 
       let env
-      if (app.env) {
-        env = Object.entries(app.env).map(([name, value]) => ({ name, value }))
-      }
+      if (app.env) env = Object.entries(app.env).map(toEnv)
 
       const deployment = {
         kind: 'Deployment',

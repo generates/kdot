@@ -30,8 +30,7 @@ export default function configureSecrets (item, isApp) {
             if (envValue) {
               addSecret = true
               secret.data[value] = encode(envValue)
-              const secretKeyRef = { name, key: value }
-              if (env) env[value] = { valueFrom: { secretKeyRef } }
+              if (env) env[value] = { secretKeyRef: { name, key: value } }
             } else {
               logger.warn(oneLine`
                 Not adding "${value}" to secret "${name}" because it's undefined
@@ -43,8 +42,8 @@ export default function configureSecrets (item, isApp) {
               if (envValue) {
                 addSecret = true
                 secret.data[secretKey] = encode(envValue)
-                const valueFrom = { secretKeyRef: { name, key: secretKey } }
-                if (env) env[secretKey] = { valueFrom }
+                const secretKeyRef = { name, key: secretKey }
+                if (env) env[secretKey] = { secretKeyRef }
               } else {
                 logger.warn(oneLine`
                   Not adding "${envKey}" to secret "${name}" because it's
@@ -61,12 +60,10 @@ export default function configureSecrets (item, isApp) {
       if (isApp && given.keys) {
         for (const key of given.keys) {
           if (typeof key === 'string') {
-            const valueFrom = { secretKeyRef: { name, key } }
-            if (env) env[key] = { valueFrom }
+            if (env) env[key] = { secretKeyRef: { name, key } }
           } else if (typeof key === 'object') {
             for (const [secretKey, envKey] of Object.entries(key)) {
-              const secretKeyRef = { name, key: secretKey }
-              if (env) env[envKey] = { valueFrom: { secretKeyRef } }
+              if (env) env[envKey] = { secretKeyRef: { name, key: secretKey } }
             }
           }
         }
@@ -79,8 +76,6 @@ export default function configureSecrets (item, isApp) {
   }
 
   if (env?.lenth) item.env = env
-
-  console.log('ITEM', { isApp, item, env })
 
   return secrets
 }
