@@ -23,9 +23,10 @@ const { _: [command, ...args], packageJson, ...input } = cli({
     }
   },
   options: {
-    custom: {
+    config: {
       alias: 'c',
-      default: 'k.custom.js'
+      description: 'The name of the config to use',
+      default: 'default'
     },
     ext: {
       alias: 'e',
@@ -46,18 +47,6 @@ const { _: [command, ...args], packageJson, ...input } = cli({
 
 //
 input.args = args
-
-// Use the "kdot" property in the project's package.json as the base
-// configuration.
-input.base = packageJson.kdot
-
-// Resolve the file paths for the custom configuration files relative to the
-// current working directory so they can be imported as modules.
-if (input.custom) {
-  input.custom = Array.isArray(input.custom)
-    ? input.custom.map(f => path.resolve(f))
-    : path.resolve(input.custom)
-}
 
 // Consolidate the configuration into a single set of values.
 const cfg = await configure(input)
