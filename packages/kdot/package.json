@@ -1,7 +1,7 @@
 {
   "name": "@generates/kdot",
   "description": "A tool for developing, deploying, and running CI on Kubernetes",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": {
     "name": "Ian Walter",
     "url": "https://ianwalter.dev"
@@ -43,9 +43,9 @@
     "access": "public"
   },
   "dependencies": {
-    "@generates/cli": "^0.0.8",
-    "@generates/dotter": "^1.0.5",
-    "@generates/logger": "^0.0.9",
+    "@generates/cli": "^0.0.10",
+    "@generates/dotter": "^2.0.0",
+    "@generates/logger": "^0.1.0",
     "@generates/merger": "^0.1.2",
     "@generates/package-updater": "^0.0.2",
     "@kubernetes/client-node": "^0.13.2",
