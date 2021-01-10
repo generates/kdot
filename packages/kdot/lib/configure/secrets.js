@@ -4,6 +4,11 @@ import { oneLine } from 'common-tags'
 
 const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
 
+function encode (value) {
+  const buffer = Buffer.from(value)
+  return buffer.toString('base64')
+}
+
 export default function configureSecrets (opts) {
   const secrets = []
 
@@ -23,7 +28,7 @@ export default function configureSecrets (opts) {
             const envValue = process.env[value]
             if (envValue) {
               addSecret = true
-              secret.data[value] = envValue
+              secret.data[value] = encode(envValue)
               const secretKeyRef = { name, key: value }
               if (opts.env) {
                 opts.env.push({ name: value, valueFrom: { secretKeyRef } })
@@ -38,7 +43,7 @@ export default function configureSecrets (opts) {
               const envValue = process.env[envKey]
               if (envValue) {
                 addSecret = true
-                secret.data[secretKey] = envValue
+                secret.data[secretKey] = encode(envValue)
                 const valueFrom = { secretKeyRef: { name, key: secretKey } }
                 if (opts.env) opts.env.push({ name: secretKey, valueFrom })
               } else {
