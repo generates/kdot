@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.9
+
+### Patch Changes
+
+- ffd2f78: Fixing secret valueFrom issue
+
 ## 0.0.8
 
 ### Patch Changes
