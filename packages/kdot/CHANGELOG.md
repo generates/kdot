@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.8
+
+### Patch Changes
+
+- d61df18: Fixing secret logic
+
 ## 0.0.7
 
 ### Patch Changes
