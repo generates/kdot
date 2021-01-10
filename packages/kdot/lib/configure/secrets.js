@@ -7,73 +7,73 @@ const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
 export default function configureSecrets (opts) {
   const secrets = []
 
-  for (const given of opts.secrets) {
-    const name = given.name || opts.name
-    const metadata = { namespace: opts.namespace, name }
-    const secret = { kind: 'Secret', metadata, data: {} }
+  if (opts.secrets) {
+    for (const given of opts.secrets) {
+      const name = given.name || opts.name
+      const metadata = { namespace: opts.namespace, name }
+      const secret = { kind: 'Secret', metadata, data: {} }
 
-    // Specifying secrets with values will queue those secrets to be
-    // created if they don't exist and be used by apps as environment
-    // variables.
-    let addSecret = false
-    if (given.values) {
-      for (const value of given.values) {
-        if (typeof value === 'string') {
-          const envValue = process.env[value]
-          if (envValue) {
-            addSecret = true
-            secret.data[value] = envValue
-            const secretKeyRef = { name, key: value }
-            if (opts.env) {
-              opts.env.push({ name: value, valueFrom: { secretKeyRef } })
-            }
-          } else {
-            logger.warn(oneLine`
-              Not adding "${value}" to secret "${name}" because it's undefined
-            `)
-          }
-        } else if (typeof value === 'object') {
-          for (const [secretKey, envKey] of Object.entries(value)) {
-            const envValue = process.env[envKey]
+      // Specifying secrets with values will queue those secrets to be
+      // created if they don't exist and be used by apps as environment
+      // variables.
+      let addSecret = false
+      if (given.values) {
+        for (const value of given.values) {
+          if (typeof value === 'string') {
+            const envValue = process.env[value]
             if (envValue) {
               addSecret = true
-              secret.data[secretKey] = envValue
-              const secretKeyRef = { name, key: secretKey }
+              secret.data[value] = envValue
+              const secretKeyRef = { name, key: value }
               if (opts.env) {
-                opts.env.push({ name: secretKey, valueFrom: { secretKeyRef } })
+                opts.env.push({ name: value, valueFrom: { secretKeyRef } })
               }
             } else {
               logger.warn(oneLine`
-                Not adding "${envKey}" to secret "${name}" because it's
-                undefined
+                Not adding "${value}" to secret "${name}" because it's undefined
               `)
             }
-          }
-        }
-      }
-    }
-
-    // Specifying secrets with keys will allow top-level secrets to be
-    // used by apps as environment variables.
-    if (opts.name && given.keys) {
-      for (const key of given.keys) {
-        if (typeof key === 'string') {
-          const valueFrom = { secretKeyRef: { name, key } }
-          if (opts.env) opts.env.push({ name: key, valueFrom })
-        } else if (typeof key === 'object') {
-          for (const [secretKey, envKey] of Object.entries(key)) {
-            const secretKeyRef = { name, key: secretKey }
-            if (opts.env) {
-              opts.env.push({ name: envKey, valueFrom: { secretKeyRef } })
+          } else if (typeof value === 'object') {
+            for (const [secretKey, envKey] of Object.entries(value)) {
+              const envValue = process.env[envKey]
+              if (envValue) {
+                addSecret = true
+                secret.data[secretKey] = envValue
+                const valueFrom = { secretKeyRef: { name, key: secretKey } }
+                if (opts.env) opts.env.push({ name: secretKey, valueFrom })
+              } else {
+                logger.warn(oneLine`
+                  Not adding "${envKey}" to secret "${name}" because it's
+                  undefined
+                `)
+              }
             }
           }
         }
       }
-    }
 
-    // Add the secret if it's a secret that may need to be created and is
-    // not just referencing a top-level secret.
-    if (addSecret) secrets.push(secret)
+      // Specifying secrets with keys will allow top-level secrets to be
+      // used by apps as environment variables.
+      if (opts.name && given.keys) {
+        for (const key of given.keys) {
+          if (typeof key === 'string') {
+            const valueFrom = { secretKeyRef: { name, key } }
+            if (opts.env) opts.env.push({ name: key, valueFrom })
+          } else if (typeof key === 'object') {
+            for (const [secretKey, envKey] of Object.entries(key)) {
+              const secretKeyRef = { name, key: secretKey }
+              if (opts.env) {
+                opts.env.push({ name: envKey, valueFrom: { secretKeyRef } })
+              }
+            }
+          }
+        }
+      }
+
+      // Add the secret if it's a secret that may need to be created and is
+      // not just referencing a top-level secret.
+      if (addSecret) secrets.push(secret)
+    }
   }
 
   return secrets

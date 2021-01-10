@@ -1,8 +1,11 @@
+import { createRequire } from 'module'
+import path from 'path'
 import { merge } from '@generates/merger'
 import { createLogger } from '@generates/logger'
 import { core, apps } from '../k8sApi.js'
 import configureSecrets from './secrets.js'
 
+const require = createRequire(import.meta.url)
 const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
 const labels = { managedBy: 'kdot' }
 
@@ -10,20 +13,29 @@ function toServicePort (p) {
   return { port: p.servicePot || p.port, targetPort: p.port }
 }
 
-export default async function configure (input) {
-  let custom
-  if (input.custom) {
+export default async function configure ({ ext, ...input }) {
+  const cfg = { input, namespace: 'default' }
+
+  const configs = Array.isArray(input.config) ? input.config : [input.config]
+  for (const config of configs) {
+    const dirname = path.dirname(config)
+    const basename = path.basename(config)
+    const js = path.resolve(dirname, `k.${basename}.js`)
+    const json = path.resolve(dirname, `k.${basename}.json`)
+
     try {
-      // FIXME: handle array.
-      const mod = await import(input.custom)
-      custom = mod.default
+      const mod = await import(js)
+      merge(cfg, mod.default)
     } catch (err) {
-      logger.debug('Error importing custom configuration', err)
+      logger.debug('Error importing config file', err)
+    }
+
+    try {
+      merge(cfg, require(json))
+    } catch (err) {
+      logger.debug('Error importing json config file', err)
     }
   }
-
-  const { base, ext, namespace = 'default' } = input
-  const cfg = merge({ namespace, input, base, custom }, base, custom, ext)
 
   logger.debug('Initial configuration', cfg)
 
@@ -39,7 +51,10 @@ export default async function configure (input) {
   }
 
   // Configure top-level secrets.
-  cfg.secrets = configureSecrets({ secrets: cfg.secrets, namespace })
+  cfg.secrets = configureSecrets({
+    secrets: cfg.secrets,
+    namespace: cfg.namespace
+  })
 
   // Break apps down into individual Kubernetes resources.
   cfg.enabledApps = []
