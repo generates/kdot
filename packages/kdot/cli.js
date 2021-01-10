@@ -23,9 +23,10 @@ const { _: [command, ...args], packageJson, ...input } = cli({
     }
   },
   options: {
-    custom: {
+    config: {
       alias: 'c',
-      default: 'k.custom.js'
+      description: 'The name of the config to use',
+      default: 'default'
     },
     ext: {
       alias: 'e',
