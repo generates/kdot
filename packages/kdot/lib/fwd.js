@@ -50,9 +50,10 @@ export default async function fwd (cfg) {
           })
 
           server.listen(localPort, 'localhost', () => {
+            const name = p.name ? `(${p.name})` : ''
             logger.success(oneLine`
               Forwarding http://localhost:${localPort} to
-              ${pod.metadata.name}:${p.port}
+              ${pod.metadata.name}:${p.port} ${name}
             `)
             resolve()
           })
