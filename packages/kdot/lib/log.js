@@ -16,8 +16,9 @@ const colors = [
 
 export default async function log (cfg) {
   try {
-    for (const deployment of cfg.deployments) {
+    for (const [index, deployment] of cfg.deployments.entries()) {
       const { name, namespace } = deployment.metadata
+      const color = colors[index % 7]
 
       const { body: { items: pods } } = await core.listNamespacedPod(
         namespace,
@@ -28,28 +29,24 @@ export default async function log (cfg) {
         `app=${name}`
       )
 
-      for (const [index, pod] of pods.entries()) {
-        const color = colors[index % 7]
-        const podName = chalk.bold[color](pod.metadata.name)
+      for (const pod of pods) {
+        const podName = chalk.dim(pod.metadata.name.replace(`${name}-`, ''))
+        const logName = `${chalk.bold[color](name)} • ${podName}`
 
-        await new Promise((resolve, reject) => {
-          klog.log(
-            namespace,
-            pod.metadata.name,
-            undefined,
-            new stream.Transform({
-              transform (chunk, encoding, callback) {
-                process.stdout.write(`${podName} • ` + chunk.toString())
-                callback()
-              }
-            }),
-            err => {
-              if (err) return reject(err)
-              resolve()
-            },
-            { follow: true }
-          )
-        })
+        klog.log(
+          namespace,
+          pod.metadata.name,
+          undefined,
+          new stream.Transform({
+            transform (chunk, encoding, callback) {
+              process.stdout.write(`${logName} • ` + chunk.toString())
+              callback()
+            }
+          }),
+          undefined,
+          // FIXME: Add config for tailLines
+          { follow: true, tailLines: 100 }
+        )
       }
     }
   } catch (err) {
