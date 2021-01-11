@@ -75,7 +75,7 @@ export default function configureSecrets (item, isApp) {
     }
   }
 
-  if (env?.lenth) item.env = env
+  if (env && Object.keys(env).length) item.env = env
 
   return secrets
 }

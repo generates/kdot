@@ -9,8 +9,8 @@ const require = createRequire(import.meta.url)
 const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
 const labels = { managedBy: 'kdot' }
 
-function toServicePort (p) {
-  return { port: p.servicePot || p.port, targetPort: p.port }
+function toServicePort ({ localPort, ...port }) {
+  return port
 }
 
 function toEnv ([name, value]) {
