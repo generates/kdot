@@ -1,5 +1,13 @@
 # @generates/kdot
 
+## 0.0.11
+
+### Patch Changes
+
+- 8cefa7a: Add port name to fwd success if defined
+- c36d03c: Fixing service port config and env secret reference
+- 992368a: Fix #18: multiple log output issue
+
 ## 0.0.10
 
 ### Patch Changes
