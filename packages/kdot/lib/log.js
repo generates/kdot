@@ -43,7 +43,12 @@ export default async function log (cfg) {
               callback()
             }
           }),
-          undefined,
+          function done (err) {
+            err = JSON.parse(err)
+            logger.write('\n')
+            logger.error(`Logs exited for "${name}":`, err.message || err)
+            logger.write('\n')
+          },
           // FIXME: Add config for tailLines
           { follow: true, tailLines: 100 }
         )
