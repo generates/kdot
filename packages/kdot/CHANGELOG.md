@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.0.13
+
+### Patch Changes
+
+- 2a781ab: Adding retry count to port forward for #22
+- 8a29307: Trying to fix log done handler
+
 ## 0.0.12
 
 ### Patch Changes
