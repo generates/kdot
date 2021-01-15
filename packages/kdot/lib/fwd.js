@@ -38,7 +38,8 @@ export default async function fwd (cfg) {
               [p.port],
               socket,
               undefined,
-              socket
+              socket,
+              3
             )
           })
 
