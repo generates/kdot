@@ -66,7 +66,11 @@ export default async function configure ({ ext, ...input }) {
   cfg.services = []
   for (const [name, app] of Object.entries(cfg.apps)) {
     if (!app.disabled) {
-      cfg.enabledApps.push({ name, ...app })
+      //
+      app.name = name
+
+      //
+      cfg.enabledApps.push(app)
 
       // If a namespace isn't specified for the app, assign the top-level
       // namespace to it.
