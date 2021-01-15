@@ -2,8 +2,9 @@ import { createRequire } from 'module'
 import path from 'path'
 import { merge } from '@generates/merger'
 import { createLogger } from '@generates/logger'
-import { core, apps } from '../k8sApi.js'
+import { core, apps, sched } from '../k8sApi.js'
 import configureSecrets from './secrets.js'
+import configurePriorityClass from './priorityClass.js'
 
 const require = createRequire(import.meta.url)
 const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
@@ -60,6 +61,7 @@ export default async function configure ({ ext, ...input }) {
 
   // Break apps down into individual Kubernetes resources.
   cfg.enabledApps = []
+  cfg.priorityClasses = []
   cfg.deployments = []
   cfg.services = []
   for (const [name, app] of Object.entries(cfg.apps)) {
@@ -83,8 +85,12 @@ export default async function configure ({ ext, ...input }) {
       // Configure app-level secrets and secret references.
       if (app.secrets) cfg.secrets.push(...configureSecrets(app, true))
 
+      // Map environment variables from key-value pairs to Objects in an Array.
       let env
       if (app.env) env = Object.entries(app.env).map(toEnv)
+
+      //
+      if (app.priority) configurePriorityClass(cfg, app)
 
       const deployment = {
         kind: 'Deployment',
@@ -130,6 +136,15 @@ export default async function configure ({ ext, ...input }) {
       const { name } = namespace.metadata
       const existing = items.find(n => n.metadata.name === name)
       cfg.resources.push(existing || namespace)
+    }
+  }
+
+  if (cfg.priorityClasses.length) {
+    const { body: { items } } = await sched.listPriorityClass()
+    for (const priorityClass of cfg.priorityClasses) {
+      const { name } = priorityClass.metadata
+      const existing = items.find(i => i.metadata.name === name)
+      if (!existing) cfg.resources.push(priorityClass)
     }
   }
 
