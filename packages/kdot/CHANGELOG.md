@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.12
+
+### Patch Changes
+
+- 28aa28f: Fix #23: logs error
+
 ## 0.0.11
 
 ### Patch Changes
