@@ -94,7 +94,8 @@ export default async function configure ({ ext, ...input }) {
       if (app.env) env = Object.entries(app.env).map(toEnv)
 
       //
-      if (app.priority) configurePriorityClass(cfg, app)
+      const hasPriority = Number.isInteger(app.priority)
+      if (hasPriority) configurePriorityClass(cfg, app)
 
       const deployment = {
         kind: 'Deployment',
@@ -117,7 +118,10 @@ export default async function configure ({ ext, ...input }) {
                   env
                 }
               ]
-            }
+            },
+            ...hasPriority
+              ? { priorityClassName: `priority-${app.priority}` }
+              : {}
           }
         }
       }
