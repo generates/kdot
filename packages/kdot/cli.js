@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
 import path from 'path'
+import fs from 'fs'
 import cli from '@generates/cli'
+import execa from 'execa'
 import * as kdot from './index.js'
 import configure from './lib/configure/index.js'
 
@@ -41,9 +43,32 @@ const { _: [command, ...args], packageJson, ...input } = cli({
       alias: 'f',
       description: 'Specifies whether to exit on the first failure',
       default: false
+    },
+    detach: {
+      alias: 'd',
+      description: `
+        Detached mode: run the command in the background (helpful for
+        environments like continuous integration).
+      `
     }
   }
 })
+
+if (input.detach) {
+  const logStream = fs.createWriteStream('./kdot.log')
+  await new Promise((resolve, reject) => {
+    logStream.on('open', () => {
+      const opts = { detached: true, stdio: ['ignore', logStream, logStream] }
+      const p = execa('./cli.js', [], opts)
+      console.log('PID', p.pid)
+      resolve()
+    })
+  })
+} else {
+  process.stdout.write('process', process)
+}
+
+process.exit(0)
 
 //
 input.args = args
