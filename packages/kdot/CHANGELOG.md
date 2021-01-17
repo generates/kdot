@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.14
+
+### Patch Changes
+
+- a8dc5b3: Using args for active apps and --prop for get
+
 ## 0.0.13
 
 ### Patch Changes
