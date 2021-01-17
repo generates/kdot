@@ -26,7 +26,7 @@ const { _: [command, ...args], packageJson, ...input } = cli({
     config: {
       alias: 'c',
       description: 'The name of the config to use',
-      default: 'default'
+      default: 'personal'
     },
     ext: {
       alias: 'e',
@@ -41,6 +41,9 @@ const { _: [command, ...args], packageJson, ...input } = cli({
       alias: 'f',
       description: 'Specifies whether to exit on the first failure',
       default: false
+    },
+    prop: {
+      description: ''
     }
   }
 })

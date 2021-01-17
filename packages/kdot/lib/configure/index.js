@@ -59,12 +59,13 @@ export default async function configure ({ ext, ...input }) {
   cfg.secrets = configureSecrets(cfg)
 
   // Break apps down into individual Kubernetes resources.
-  cfg.enabledApps = []
+  cfg.activeApps = []
   cfg.deployments = []
   cfg.services = []
   for (const [name, app] of Object.entries(cfg.apps)) {
-    if (!app.disabled) {
-      cfg.enabledApps.push({ name, ...app })
+    const enabled = app.enabled !== false && input.args.length === 0
+    if (enabled || input.args.includes(name)) {
+      cfg.activeApps.push({ name, ...app })
 
       // If a namespace isn't specified for the app, assign the top-level
       // namespace to it.

@@ -5,8 +5,7 @@ const logger = createLogger({ namespace: 'kdot', level: 'info' })
 
 export default async function get (cfg) {
   try {
-    const [path] = cfg.input.args
-    logger.info(`cfg.${path}:`, dotter.get(cfg, path))
+    logger.info(`cfg.${cfg.input.prop}:`, dotter.get(cfg, cfg.input.prop))
   } catch (err) {
     logger.error(err)
   }

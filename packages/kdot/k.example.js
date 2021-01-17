@@ -1,10 +1,14 @@
 export default {
   namespace: 'dev',
   apps: {
+    redis: {
+      image: { repo: 'redis', tag: '6' },
+      ports: [{ port: 6379, localPort: 8500 }]
+    },
     web: {
       image: { repo: 'ianwalter/example' },
       ports: [
-        { port: 8000, localPort: 9000 }
+        { port: 8000, localPort: 8501 }
       ],
       env: { PORT: '8000', APP_ENV: 'production' },
       secrets: [
