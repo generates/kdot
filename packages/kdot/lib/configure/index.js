@@ -122,20 +122,24 @@ export default async function configure ({ ext, ...input }) {
           spec: { selector: appLabel, ports: app.ports.map(toServicePort) }
         }
         cfg.services.push(service)
-      }
 
-      if (app.hosts?.length) {
-        const service = {
-          kind: 'Ingress',
-          metadata: { name, namespace: app.namespace, labels },
-          spec: { tls: {}, rules: {} }
+        const hostPorts = app.ports.filter(p => p.host)
+        if (hostPorts.length) {
+          const metadata = { name, namespace: app.namespace, labels }
+          const tls = { hosts: [], secretName: `${name}-tls` }
+          const spec = { tls, rules: [] }
+          const ingress = { kind: 'Ingress', metadata, spec }
+
+          for (const p of hostPorts) {
+            const pathType = p.pathType || 'Prefix'
+            const service = { name, port: { number: p.port } }
+            const path = { path: p.path || '/', pathType, backend: { service } }
+            ingress.spec.rules.push({ http: { paths: [path] } })
+            ingress.spec.tls.hosts.push(p.host)
+          }
+
+          cfg.ingresses.push(ingress)
         }
-
-        for (const host of app.hosts) {
-
-        }
-
-        cfg.ingresses.push(service)
       }
     }
   }
