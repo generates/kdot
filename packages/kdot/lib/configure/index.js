@@ -2,7 +2,7 @@ import { createRequire } from 'module'
 import path from 'path'
 import { merge } from '@generates/merger'
 import { createLogger } from '@generates/logger'
-import { core, apps } from '../k8sApi.js'
+import { core, apps, net } from '../k8sApi.js'
 import configureSecrets from './secrets.js'
 
 const require = createRequire(import.meta.url)
@@ -172,6 +172,17 @@ export default async function configure ({ ext, ...input }) {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
       cfg.resources.push(merge({}, existing, service))
+    }
+  }
+
+  if (cfg.ingresses.length) {
+    const { body: { items } } = await net.listIngressForAllNamespaces()
+    for (const ingress of cfg.ingresses) {
+      const { name, namespace } = ingress.metadata
+      const existing = items.find(i => {
+        return i.metadata.name === name && i.metadata.namespace === namespace
+      })
+      cfg.resources.push(merge({}, existing, ingress))
     }
   }
 

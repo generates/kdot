@@ -1,5 +1,5 @@
 import { createLogger } from '@generates/logger'
-import { core, apps } from './k8sApi.js'
+import { core, apps, net } from './k8sApi.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 
@@ -52,6 +52,22 @@ export default async function apply (cfg) {
       } else if (resource.kind === 'Secret') {
         await core.createNamespacedSecret(namespace, resource)
         logger.success('Created Secret:', name)
+      } else if (resource.kind === 'Ingress') {
+        if (uid) {
+          await net.patchNamespacedIngress(
+            name,
+            namespace,
+            resource,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            { headers: { 'Content-Type': 'application/merge-patch+json' } }
+          )
+        } else {
+          await net.createNamespacedIngress(namespace, resource)
+          logger.success('Created Ingress:', name)
+        }
       }
     } catch (err) {
       const level = cfg.input.failFast ? 'fatal' : 'error'
