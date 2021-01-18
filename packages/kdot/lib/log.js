@@ -45,12 +45,12 @@ export default async function log (cfg) {
           }),
           function done (err) {
             try {
-              err = JSON.parse(err)
+              if (err) err = JSON.parse(err)
             } catch (e) {
               // Ignore JSON parse error.
             }
             logger.write('\n')
-            logger.error(`Logs exited for "${name}":`, err?.message || err)
+            logger.error(`Logs exited for "${name}"`, err?.message || err || '')
             logger.write('\n')
           },
           // FIXME: Add config for tailLines
