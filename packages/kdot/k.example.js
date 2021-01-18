@@ -13,6 +13,9 @@ export default {
       env: { PORT: '8000', APP_ENV: 'production' },
       secrets: [
         { name: 'hiipower', values: ['NUM'] }
+      ],
+      hosts: [
+        'test.example.com'
       ]
     }
   }

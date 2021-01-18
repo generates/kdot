@@ -62,6 +62,7 @@ export default async function configure ({ ext, ...input }) {
   cfg.activeApps = []
   cfg.deployments = []
   cfg.services = []
+  cfg.ingresses = []
   for (const [name, app] of Object.entries(cfg.apps)) {
     const enabled = app.enabled !== false && input.args.length === 0
     if (enabled || input.args.includes(name)) {
@@ -121,6 +122,20 @@ export default async function configure ({ ext, ...input }) {
           spec: { selector: appLabel, ports: app.ports.map(toServicePort) }
         }
         cfg.services.push(service)
+      }
+
+      if (app.hosts?.length) {
+        const service = {
+          kind: 'Ingress',
+          metadata: { name, namespace: app.namespace, labels },
+          spec: { tls: {}, rules: {} }
+        }
+
+        for (const host of app.hosts) {
+
+        }
+
+        cfg.ingresses.push(service)
       }
     }
   }
