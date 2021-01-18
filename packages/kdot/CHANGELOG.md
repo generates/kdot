@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.15
+
+### Patch Changes
+
+- cbf41f3: Adding ingress support
+
 ## 0.0.14
 
 ### Patch Changes
