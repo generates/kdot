@@ -123,19 +123,19 @@ export default async function configure ({ ext, ...input }) {
         }
         cfg.services.push(service)
 
-        const hostPorts = app.ports.filter(p => p.host)
+        const hostPorts = app.ports.filter(p => p.hosts)
         if (hostPorts.length) {
           const metadata = { name, namespace: app.namespace, labels }
-          const tls = { hosts: [], secretName: `${name}-tls` }
-          const spec = { tls, rules: [] }
+          const spec = { rules: [] }
           const ingress = { kind: 'Ingress', metadata, spec }
 
           for (const p of hostPorts) {
             const pathType = p.pathType || 'Prefix'
             const service = { name, port: { number: p.port } }
             const path = { path: p.path || '/', pathType, backend: { service } }
-            ingress.spec.rules.push({ http: { paths: [path] } })
-            ingress.spec.tls.hosts.push(p.host)
+            for (const host of p.hosts) {
+              ingress.spec.rules.push({ host, http: { paths: [path] } })
+            }
           }
 
           cfg.ingresses.push(ingress)

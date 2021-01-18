@@ -64,6 +64,7 @@ export default async function apply (cfg) {
             undefined,
             { headers: { 'Content-Type': 'application/merge-patch+json' } }
           )
+          logger.success('Updated Ingress:', name)
         } else {
           await net.createNamespacedIngress(namespace, resource)
           logger.success('Created Ingress:', name)
