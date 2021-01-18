@@ -2,7 +2,7 @@ import { createRequire } from 'module'
 import path from 'path'
 import { merge } from '@generates/merger'
 import { createLogger } from '@generates/logger'
-import { core, apps } from '../k8sApi.js'
+import { core, apps, net } from '../k8sApi.js'
 import configureSecrets from './secrets.js'
 
 const require = createRequire(import.meta.url)
@@ -62,6 +62,7 @@ export default async function configure ({ ext, ...input }) {
   cfg.activeApps = []
   cfg.deployments = []
   cfg.services = []
+  cfg.ingresses = []
   for (const [name, app] of Object.entries(cfg.apps)) {
     const enabled = app.enabled !== false && input.args.length === 0
     if (enabled || input.args.includes(name)) {
@@ -121,6 +122,24 @@ export default async function configure ({ ext, ...input }) {
           spec: { selector: appLabel, ports: app.ports.map(toServicePort) }
         }
         cfg.services.push(service)
+
+        const hostPorts = app.ports.filter(p => p.hosts)
+        if (hostPorts.length) {
+          const metadata = { name, namespace: app.namespace, labels }
+          const spec = { rules: [] }
+          const ingress = { kind: 'Ingress', metadata, spec }
+
+          for (const p of hostPorts) {
+            const pathType = p.pathType || 'Prefix'
+            const service = { name, port: { number: p.port } }
+            const path = { path: p.path || '/', pathType, backend: { service } }
+            for (const host of p.hosts) {
+              ingress.spec.rules.push({ host, http: { paths: [path] } })
+            }
+          }
+
+          cfg.ingresses.push(ingress)
+        }
       }
     }
   }
@@ -153,6 +172,17 @@ export default async function configure ({ ext, ...input }) {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
       cfg.resources.push(merge({}, existing, service))
+    }
+  }
+
+  if (cfg.ingresses.length) {
+    const { body: { items } } = await net.listIngressForAllNamespaces()
+    for (const ingress of cfg.ingresses) {
+      const { name, namespace } = ingress.metadata
+      const existing = items.find(i => {
+        return i.metadata.name === name && i.metadata.namespace === namespace
+      })
+      cfg.resources.push(merge({}, existing, ingress))
     }
   }
 
