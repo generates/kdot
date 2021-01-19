@@ -83,14 +83,14 @@ export default async function configure ({ ext, ...input }) {
 
       const appLabel = { app: name }
 
-      // Map env key-value pairs into env objects.
-      if (app.env) app.env = Object.entries(app.env).map(toEnv)
-
       // Configure app-level ConfigMaps and ConfigMap Volumes.
       if (app.configMaps) await configureConfigMaps(cfg, app)
 
       // Configure app-level Secrets and Secret references.
       if (app.secrets) configureSecrets(cfg, app)
+
+      // Map env key-value pairs into env objects.
+      if (app.env) app.env = Object.entries(app.env).map(toEnv)
 
       cfg.deployments.push({
         kind: 'Deployment',
