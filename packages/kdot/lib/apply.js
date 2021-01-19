@@ -7,7 +7,7 @@ const logger = createLogger({ namespace: 'kdot', level: 'info' })
  * Add configured apps to the cluster.
  */
 export default async function apply (cfg) {
-  for (const resource of cfg.resources) {
+  for (const resource of cfg.resources.all) {
     const { uid, name, namespace } = resource.metadata
     try {
       if (resource.kind === 'Namespace') {

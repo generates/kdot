@@ -12,7 +12,7 @@ const logger = createLogger({ namespace: 'kdot', level: 'info' })
  */
 export default async function fwd (cfg) {
   try {
-    for (const app of cfg.activeApps) {
+    for (const app of cfg.apps.filter(a => a.enabled)) {
       const namespace = app.namespace || cfg.namespace
 
       // FIXME: Maybe we can implement our own local load balancer to simulate
