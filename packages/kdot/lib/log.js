@@ -16,7 +16,7 @@ const colors = [
 
 export default async function log (cfg) {
   try {
-    for (const [index, deployment] of cfg.deployments.entries()) {
+    for (const [index, deployment] of cfg.resources.deployments.entries()) {
       const { name, namespace } = deployment.metadata
       const color = colors[index % 7]
 

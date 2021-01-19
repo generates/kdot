@@ -50,8 +50,22 @@ export default async function apply (cfg) {
           logger.success('Created Service:', name)
         }
       } else if (resource.kind === 'Secret') {
-        await core.createNamespacedSecret(namespace, resource)
-        logger.success('Created Secret:', name)
+        if (uid) {
+          await core.patchNamespacedSecret(
+            name,
+            namespace,
+            resource,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            { headers: { 'Content-Type': 'application/merge-patch+json' } }
+          )
+          logger.success('Updated Secret:', name)
+        } else {
+          await core.createNamespacedSecret(namespace, resource)
+          logger.success('Created Secret:', name)
+        }
       } else if (resource.kind === 'Ingress') {
         if (uid) {
           await net.patchNamespacedIngress(

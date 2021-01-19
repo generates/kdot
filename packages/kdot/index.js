@@ -15,7 +15,7 @@ export {
 }
 
 export async function start (cfg) {
-  await apply(cfg)
+  if (cfg.input.update) await apply(cfg)
   await fwd(cfg)
   await log(cfg)
 }
