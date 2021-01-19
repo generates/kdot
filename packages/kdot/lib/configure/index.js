@@ -112,7 +112,16 @@ export default async function configure ({ ext, ...input }) {
                   ...app.command ? { command: app.command } : {},
                   ...app.env ? { env: app.env } : {},
                   ...app.volumeMounts ? { volumeMounts: app.volumeMounts } : {},
-                  ...app.resources ? { resources: app.resources } : {}
+                  ...app.resources ? { resources: app.resources } : {},
+                  ...app.livenessProbe
+                    ? { livenessProbe: app.livenessProbe }
+                    : {},
+                  ...app.readinessProbe
+                    ? { readinessProbe: app.readinessProbe }
+                    : {},
+                  ...app.startupProbe
+                    ? { startupProbe: app.startupProbe }
+                    : {}
                 }
               ],
               ...app.volumes ? { volumes: app.volumes } : {}
