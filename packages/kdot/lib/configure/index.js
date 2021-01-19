@@ -167,6 +167,7 @@ export default async function configure ({ ext, ...input }) {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
       if (existing) configMap.metadata.uid = existing.metadata.uid
+      cfg.resources.push(configMap)
     }
   }
 
