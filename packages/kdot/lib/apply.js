@@ -69,6 +69,23 @@ export default async function apply (cfg) {
           await net.createNamespacedIngress(namespace, resource)
           logger.success('Created Ingress:', name)
         }
+      } else if (resource.kind === 'ConfigMap') {
+        if (uid) {
+          await core.patchNamespacedConfigMap(
+            name,
+            namespace,
+            resource,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            { headers: { 'Content-Type': 'application/merge-patch+json' } }
+          )
+          logger.success('Updated ConfigMap:', name)
+        } else {
+          await core.createNamespacedConfigMap(namespace, resource)
+          logger.success('Created ConfigMap:', name)
+        }
       }
     } catch (err) {
       const level = cfg.input.failFast ? 'fatal' : 'error'

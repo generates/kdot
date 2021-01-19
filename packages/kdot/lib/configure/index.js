@@ -159,6 +159,28 @@ export default async function configure ({ ext, ...input }) {
     }
   }
 
+  if (cfg.configMaps?.length) {
+    for (const configMap of cfg.configMaps) {
+      const { name, namespace } = configMap.metadata
+      const { body: { items } } = await core.listNamespacedConfigMap(namespace)
+      const existing = items.find(i => {
+        return i.metadata.name === name && i.metadata.namespace === namespace
+      })
+      if (existing) configMap.metadata.uid = existing.metadata.uid
+    }
+  }
+
+  if (cfg.secrets?.length) {
+    for (const secret of cfg.secrets) {
+      const { name, namespace } = secret.metadata
+      const { body: { items } } = await core.listNamespacedSecret(namespace)
+      const existing = items.find(i => {
+        return i.metadata.name === name && i.metadata.namespace === namespace
+      })
+      if (!existing) cfg.resources.push(secret)
+    }
+  }
+
   if (cfg.deployments.length) {
     const { body: { items } } = await apps.listDeploymentForAllNamespaces()
     for (const deployment of cfg.deployments) {
@@ -181,7 +203,7 @@ export default async function configure ({ ext, ...input }) {
     }
   }
 
-  if (cfg.ingresses.length) {
+  if (cfg.ingresses?.length) {
     const { body: { items } } = await net.listIngressForAllNamespaces()
     for (const ingress of cfg.ingresses) {
       const { name, namespace } = ingress.metadata
@@ -189,17 +211,6 @@ export default async function configure ({ ext, ...input }) {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
       cfg.resources.push(merge({}, existing, ingress))
-    }
-  }
-
-  if (cfg.secrets.length) {
-    for (const secret of cfg.secrets) {
-      const { name, namespace } = secret.metadata
-      const { body: { items } } = await core.listNamespacedSecret(namespace)
-      const existing = items.find(i => {
-        return i.metadata.name === name && i.metadata.namespace === namespace
-      })
-      if (!existing) cfg.resources.push(secret)
     }
   }
 
