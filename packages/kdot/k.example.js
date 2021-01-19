@@ -13,7 +13,13 @@ export default {
       env: { PORT: '8000', APP_ENV: 'production' },
       secrets: [
         { name: 'hiipower', values: ['NUM'] }
+      ],
+      configMaps: [
+        { name: 'getit', mountPath: '/etc/getit', files: ['package.json'] }
       ]
     }
-  }
+  },
+  secrets: [
+    { name: 'blackerberry', values: ['SWEETER_JUICE'] }
+  ]
 }

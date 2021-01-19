@@ -44,6 +44,11 @@ const { _: [command, ...args], packageJson, ...input } = cli({
     },
     prop: {
       description: ''
+    },
+    update: {
+      alias: 'u',
+      description: 'Run apply to update resources before executing command',
+      default: false
     }
   }
 })

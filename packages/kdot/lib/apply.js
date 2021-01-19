@@ -7,7 +7,7 @@ const logger = createLogger({ namespace: 'kdot', level: 'info' })
  * Add configured apps to the cluster.
  */
 export default async function apply (cfg) {
-  for (const resource of cfg.resources) {
+  for (const resource of cfg.resources.all) {
     const { uid, name, namespace } = resource.metadata
     try {
       if (resource.kind === 'Namespace') {
@@ -50,8 +50,22 @@ export default async function apply (cfg) {
           logger.success('Created Service:', name)
         }
       } else if (resource.kind === 'Secret') {
-        await core.createNamespacedSecret(namespace, resource)
-        logger.success('Created Secret:', name)
+        if (uid) {
+          await core.patchNamespacedSecret(
+            name,
+            namespace,
+            resource,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            { headers: { 'Content-Type': 'application/merge-patch+json' } }
+          )
+          logger.success('Updated Secret:', name)
+        } else {
+          await core.createNamespacedSecret(namespace, resource)
+          logger.success('Created Secret:', name)
+        }
       } else if (resource.kind === 'Ingress') {
         if (uid) {
           await net.patchNamespacedIngress(
@@ -68,6 +82,23 @@ export default async function apply (cfg) {
         } else {
           await net.createNamespacedIngress(namespace, resource)
           logger.success('Created Ingress:', name)
+        }
+      } else if (resource.kind === 'ConfigMap') {
+        if (uid) {
+          await core.patchNamespacedConfigMap(
+            name,
+            namespace,
+            resource,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            { headers: { 'Content-Type': 'application/merge-patch+json' } }
+          )
+          logger.success('Updated ConfigMap:', name)
+        } else {
+          await core.createNamespacedConfigMap(namespace, resource)
+          logger.success('Created ConfigMap:', name)
         }
       }
     } catch (err) {
