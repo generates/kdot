@@ -18,5 +18,8 @@ export default {
         { name: 'getit', mountPath: '/etc/getit', files: ['package.json'] }
       ]
     }
-  }
+  },
+  secrets: [
+    { name: 'blackerberry', values: ['SWEETER_JUICE'] }
+  ]
 }

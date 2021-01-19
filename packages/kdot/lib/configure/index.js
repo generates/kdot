@@ -45,29 +45,28 @@ export default async function configure ({ ext, ...input }) {
 
   logger.debug('Initial configuration', cfg)
 
-  // Initialize the array of resources.
-  cfg.resources = []
+  // Initialize the map of resources.
+  cfg.resources = { all: [], namespaces: [], deployments: [], services: [] }
 
   // If there is a top-level namespace, add it to the resources array.
-  cfg.namespaces = []
   if (cfg.namespace !== 'default') {
     const metadata = { name: cfg.namespace, labels }
     const namespace = { kind: 'Namespace', metadata }
-    cfg.namespaces.push(namespace)
+    cfg.resources.namespaces.push(namespace)
   }
 
   // Configure top-level secrets.
   if (cfg.secrets) configureSecrets(cfg)
 
   // Break apps down into individual Kubernetes resources.
-  cfg.activeApps = []
-  cfg.deployments = []
-  cfg.services = []
-  cfg.ingresses = []
   for (const [name, app] of Object.entries(cfg.apps)) {
     const enabled = app.enabled !== false && input.args.length === 0
     if (enabled || input.args.includes(name)) {
-      cfg.activeApps.push({ name, ...app })
+      //
+      app.enabled = true
+
+      // Set app name to the key that was used to define it.
+      app.name = name
 
       // If a namespace isn't specified for the app, assign the top-level
       // namespace to it.
@@ -78,7 +77,7 @@ export default async function configure ({ ext, ...input }) {
       if (app.namespace !== cfg.namespace) {
         const metadata = { name: app.namespace, labels }
         const namespace = { kind: 'Namespace', metadata }
-        cfg.namespaces.push(namespace)
+        cfg.resources.namespaces.push(namespace)
       }
 
       const appLabel = { app: name }
@@ -92,7 +91,7 @@ export default async function configure ({ ext, ...input }) {
       // Map env key-value pairs into env objects.
       if (app.env) app.env = Object.entries(app.env).map(toEnv)
 
-      cfg.deployments.push({
+      cfg.resources.deployments.push({
         kind: 'Deployment',
         metadata: {
           name,
@@ -127,7 +126,7 @@ export default async function configure ({ ext, ...input }) {
           metadata: { name, namespace: app.namespace, labels },
           spec: { selector: appLabel, ports: app.ports.map(toServicePort) }
         }
-        cfg.services.push(service)
+        cfg.resources.services.push(service)
 
         const hostPorts = app.ports.filter(p => p.hosts)
         if (hostPorts.length) {
@@ -144,76 +143,83 @@ export default async function configure ({ ext, ...input }) {
             }
           }
 
-          cfg.ingresses.push(ingress)
+          cfg.resources.ingresses = cfg.resources.ingresses || []
+          cfg.resources.ingresses.push(ingress)
         }
       }
     }
   }
 
-  if (cfg.namespaces.length) {
+  if (cfg.resources.namespaces.length) {
     const { body: { items } } = await core.listNamespace()
-    for (const namespace of cfg.namespaces) {
+    for (const namespace of cfg.resources.namespaces) {
       const { name } = namespace.metadata
       const existing = items.find(n => n.metadata.name === name)
-      cfg.resources.push(existing || namespace)
+      cfg.resources.all.push(existing || namespace)
     }
   }
 
-  if (cfg.configMaps?.length) {
-    for (const configMap of cfg.configMaps) {
+  if (cfg.resources.configMaps?.length) {
+    for (const configMap of cfg.resources.configMaps) {
       const { name, namespace } = configMap.metadata
       const { body: { items } } = await core.listNamespacedConfigMap(namespace)
       const existing = items.find(i => {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
       if (existing) configMap.metadata.uid = existing.metadata.uid
-      cfg.resources.push(configMap)
+      cfg.resources.all.push(configMap)
     }
   }
 
-  if (cfg.secrets?.length) {
-    for (const secret of cfg.secrets) {
+  if (cfg.resources.secrets?.length) {
+    for (const secret of cfg.resources.secrets) {
       const { name, namespace } = secret.metadata
       const { body: { items } } = await core.listNamespacedSecret(namespace)
       const existing = items.find(i => {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
-      if (!existing) cfg.resources.push(secret)
+      if (existing) secret.metadata.uid = existing.metadata.uid
+      cfg.resources.all.push(secret)
     }
   }
 
-  if (cfg.deployments.length) {
+  if (cfg.resources.deployments.length) {
     const { body: { items } } = await apps.listDeploymentForAllNamespaces()
-    for (const deployment of cfg.deployments) {
+    for (const deployment of cfg.resources.deployments) {
       const { name, namespace } = deployment.metadata
       const existing = items.find(i => {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
-      cfg.resources.push(merge({}, existing, deployment))
+      if (existing) deployment.metadata.uid = existing.metadata.uid
+      cfg.resources.all.push(deployment)
     }
   }
 
-  if (cfg.services.length) {
+  if (cfg.resources.services.length) {
     const { body: { items } } = await core.listServiceForAllNamespaces()
-    for (const service of cfg.services) {
+    for (const service of cfg.resources.services) {
       const { name, namespace } = service.metadata
       const existing = items.find(i => {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
-      cfg.resources.push(merge({}, existing, service))
+      if (existing) service.metadata.uid = existing.metadata.uid
+      cfg.resources.all.push(service)
     }
   }
 
-  if (cfg.ingresses?.length) {
+  if (cfg.resources.ingresses?.length) {
     const { body: { items } } = await net.listIngressForAllNamespaces()
-    for (const ingress of cfg.ingresses) {
+    for (const ingress of cfg.resources.ingresses) {
       const { name, namespace } = ingress.metadata
       const existing = items.find(i => {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
-      cfg.resources.push(merge({}, existing, ingress))
+      if (existing) ingress.metadata.uid = existing.metadata.uid
+      cfg.resources.all.push(ingress)
     }
   }
+
+  logger.debug('Resources configuration', cfg.resources)
 
   return cfg
 }

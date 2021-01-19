@@ -15,8 +15,8 @@ export default function configureSecrets (cfg, owner) {
   const secrets = owner?.secrets || cfg.secrets
   const namespace = owner?.namespace || cfg.namespace
 
-  // Create a fresh array for configured Secrets.
-  cfg.secrets = []
+  // Create an array of configured Secrets if it doesn't exist.
+  cfg.resources.secrets = cfg.resources.secrets || []
 
   // Create the app env property if it doesn't exist so that the secrets can
   // be made available to the app as environment variables.
@@ -79,6 +79,6 @@ export default function configureSecrets (cfg, owner) {
 
     // Add the secret if it's a secret that may need to be created and is
     // not just referencing a top-level secret.
-    if (addSecret) cfg.secrets.push(secret)
+    if (addSecret) cfg.resources.secrets.push(secret)
   }
 }
