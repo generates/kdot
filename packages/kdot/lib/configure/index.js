@@ -111,7 +111,8 @@ export default async function configure ({ ext, ...input }) {
                   ports: app.ports?.map(p => ({ containerPort: p.port })),
                   ...app.command ? { command: app.command } : {},
                   ...app.env ? { env: app.env } : {},
-                  ...app.volumeMounts ? { volumeMounts: app.volumeMounts } : {}
+                  ...app.volumeMounts ? { volumeMounts: app.volumeMounts } : {},
+                  ...app.resources ? { resources: app.resources } : {}
                 }
               ],
               ...app.volumes ? { volumes: app.volumes } : {}
