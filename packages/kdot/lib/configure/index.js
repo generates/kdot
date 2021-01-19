@@ -3,6 +3,7 @@ import path from 'path'
 import { merge } from '@generates/merger'
 import { createLogger } from '@generates/logger'
 import { core, apps, net } from '../k8sApi.js'
+import configureConfigMaps from './configMaps.js'
 import configureSecrets from './secrets.js'
 
 const require = createRequire(import.meta.url)
@@ -56,7 +57,7 @@ export default async function configure ({ ext, ...input }) {
   }
 
   // Configure top-level secrets.
-  cfg.secrets = configureSecrets(cfg)
+  if (cfg.secrets) configureSecrets(cfg)
 
   // Break apps down into individual Kubernetes resources.
   cfg.activeApps = []
@@ -82,13 +83,16 @@ export default async function configure ({ ext, ...input }) {
 
       const appLabel = { app: name }
 
-      // Configure app-level secrets and secret references.
-      if (app.secrets) cfg.secrets.push(...configureSecrets(app, true))
+      // Map env key-value pairs into env objects.
+      if (app.env) app.env = Object.entries(app.env).map(toEnv)
 
-      let env
-      if (app.env) env = Object.entries(app.env).map(toEnv)
+      // Configure app-level ConfigMaps and ConfigMap Volumes.
+      if (app.configMaps) configureConfigMaps(cfg, app)
 
-      const deployment = {
+      // Configure app-level Secrets and Secret references.
+      if (app.secrets) configureSecrets(cfg, app)
+
+      cfg.deployments.push({
         kind: 'Deployment',
         metadata: {
           name,
@@ -106,14 +110,16 @@ export default async function configure ({ ext, ...input }) {
                   name,
                   image: `${app.image.repo}:${app.image.tag || 'latest'}`,
                   ports: app.ports?.map(p => ({ containerPort: p.port })),
-                  env
+                  ...app.command ? { command: app.command } : {},
+                  ...app.env ? { env: app.env } : {},
+                  ...app.volumeMounts ? { volumeMounts: app.volumeMounts } : {}
                 }
-              ]
+              ],
+              ...app.volumes ? { volumes: app.volumes } : {}
             }
           }
         }
-      }
-      cfg.deployments.push(deployment)
+      })
 
       if (app.ports?.length) {
         const service = {

@@ -9,73 +9,76 @@ function encode (value) {
   return buffer.toString('base64')
 }
 
-export default function configureSecrets (item, isApp) {
-  const secrets = []
-  const env = isApp ? (item.env || {}) : null
+export default function configureSecrets (cfg, owner) {
+  // Determine which Secrets to configure and which namespace to use (top-level
+  // or app-level),
+  const secrets = owner?.secrets || cfg.secrets
+  const namespace = owner?.namespace || cfg.namespace
 
-  if (item.secrets) {
-    for (const given of item.secrets) {
-      const name = given.name || item.name
-      const metadata = { namespace: item.namespace, name }
-      const secret = { kind: 'Secret', metadata, data: {} }
+  // Create a fresh array for configured Secrets.
+  cfg.secrets = []
 
-      // Specifying secrets with values will queue those secrets to be
-      // created if they don't exist and be used by apps as environment
-      // variables.
-      let addSecret = false
-      if (given.values) {
-        for (const value of given.values) {
-          if (typeof value === 'string') {
-            const envValue = process.env[value]
+  // Create the app env property if it doesn't exist so that the secrets can
+  // be made available to the app as environment variables.
+  if (owner) owner.env = owner.env || {}
+
+  for (const given of secrets) {
+    const name = given.name || owner.name
+    const secret = { kind: 'Secret', metadata: { namespace, name }, data: {} }
+
+    // Specifying secrets with values will queue those secrets to be
+    // created if they don't exist and be used by apps as environment
+    // variables.
+    let addSecret = false
+    if (given.values) {
+      for (const value of given.values) {
+        if (typeof value === 'string') {
+          const envValue = process.env[value]
+          if (envValue) {
+            addSecret = true
+            secret.data[value] = encode(envValue)
+            const secretKeyRef = { name, key: value }
+            if (owner.env) owner.env[value] = { secretKeyRef }
+          } else {
+            logger.warn(oneLine`
+              Not adding "${value}" to secret "${name}" because it's undefined
+            `)
+          }
+        } else if (typeof value === 'object') {
+          for (const [secretKey, envKey] of Object.entries(value)) {
+            const envValue = process.env[envKey]
             if (envValue) {
               addSecret = true
-              secret.data[value] = encode(envValue)
-              if (env) env[value] = { secretKeyRef: { name, key: value } }
+              secret.data[secretKey] = encode(envValue)
+              const secretKeyRef = { name, key: secretKey }
+              if (owner.env) owner.env[secretKey] = { secretKeyRef }
             } else {
               logger.warn(oneLine`
-                Not adding "${value}" to secret "${name}" because it's undefined
+                Not adding "${envKey}" to secret "${name}" because it's
+                undefined
               `)
             }
-          } else if (typeof value === 'object') {
-            for (const [secretKey, envKey] of Object.entries(value)) {
-              const envValue = process.env[envKey]
-              if (envValue) {
-                addSecret = true
-                secret.data[secretKey] = encode(envValue)
-                const secretKeyRef = { name, key: secretKey }
-                if (env) env[secretKey] = { secretKeyRef }
-              } else {
-                logger.warn(oneLine`
-                  Not adding "${envKey}" to secret "${name}" because it's
-                  undefined
-                `)
-              }
-            }
           }
         }
       }
-
-      // Specifying secrets with keys will allow top-level secrets to be
-      // used by apps as environment variables.
-      if (isApp && given.keys) {
-        for (const key of given.keys) {
-          if (typeof key === 'string') {
-            if (env) env[key] = { secretKeyRef: { name, key } }
-          } else if (typeof key === 'object') {
-            for (const [envKey, secretKey] of Object.entries(key)) {
-              if (env) env[envKey] = { secretKeyRef: { name, key: secretKey } }
-            }
-          }
-        }
-      }
-
-      // Add the secret if it's a secret that may need to be created and is
-      // not just referencing a top-level secret.
-      if (addSecret) secrets.push(secret)
     }
+
+    // Specifying secrets with keys will allow top-level secrets to be
+    // used by apps as environment variables.
+    if (owner?.env && given.keys) {
+      for (const key of given.keys) {
+        if (typeof key === 'string') {
+          owner.env[key] = { secretKeyRef: { name, key } }
+        } else if (typeof key === 'object') {
+          for (const [envKey, secretKey] of Object.entries(key)) {
+            owner.env[envKey] = { secretKeyRef: { name, key: secretKey } }
+          }
+        }
+      }
+    }
+
+    // Add the secret if it's a secret that may need to be created and is
+    // not just referencing a top-level secret.
+    if (addSecret) cfg.secrets.push(secret)
   }
-
-  if (env && Object.keys(env).length) item.env = env
-
-  return secrets
 }
