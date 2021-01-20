@@ -1,13 +1,14 @@
 import { createLogger, chalk } from '@generates/logger'
 import { oneLine } from 'common-tags'
 import prompt from '@generates/prompt'
-import { kc, core, apps, net } from './k8sApi.js'
+import { kc, core, apps, net, sched } from './k8sApi.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const emojis = {
   ConfigMap: '🗄️',
   Deployment: '🚀',
   Namespace: '📛',
+  PriorityClass: '🔢',
   Secret: '🤐',
   Service: '🛎️'
 }
@@ -134,6 +135,9 @@ export default async function apply (cfg) {
           await core.createNamespacedConfigMap(namespace, resource)
           logger.success('Created ConfigMap:', name)
         }
+      } else if (resource.kind === 'PriorityClass') {
+        await sched.createPriorityClass(resource)
+        logger.success('Created PriorityClass:', name)
       }
     } catch (err) {
       const level = cfg.input.failFast ? 'fatal' : 'error'

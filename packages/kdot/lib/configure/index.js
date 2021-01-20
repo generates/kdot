@@ -2,9 +2,10 @@ import { createRequire } from 'module'
 import path from 'path'
 import { merge } from '@generates/merger'
 import { createLogger } from '@generates/logger'
-import { core, apps, net } from '../k8sApi.js'
+import { core, apps, net, sched } from '../k8sApi.js'
 import configureConfigMaps from './configMaps.js'
 import configureSecrets from './secrets.js'
+import configurePriorityClass from './priorityClass.js'
 
 const require = createRequire(import.meta.url)
 const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
@@ -88,8 +89,11 @@ export default async function configure ({ ext, ...input }) {
       // Configure app-level Secrets and Secret references.
       if (app.secrets) configureSecrets(cfg, app)
 
-      // Map env key-value pairs into env objects.
+      // Map environment variables from key-value pairs to Objects in an Array.
       if (app.env) app.env = Object.entries(app.env).map(toEnv)
+
+      const hasPriority = Number.isInteger(app.priority)
+      if (hasPriority) configurePriorityClass(cfg, app)
 
       cfg.resources.deployments.push({
         kind: 'Deployment',
@@ -124,7 +128,10 @@ export default async function configure ({ ext, ...input }) {
                     : {}
                 }
               ],
-              ...app.volumes ? { volumes: app.volumes } : {}
+              ...app.volumes ? { volumes: app.volumes } : {},
+              ...hasPriority
+                ? { priorityClassName: `priority-${app.priority}` }
+                : {}
             }
           }
         }
@@ -190,6 +197,15 @@ export default async function configure ({ ext, ...input }) {
       })
       if (existing) secret.metadata.uid = existing.metadata.uid
       cfg.resources.all.push(secret)
+    }
+  }
+
+  if (cfg.resources.priorityClasses?.length) {
+    const { body: { items } } = await sched.listPriorityClass()
+    for (const priorityClass of cfg.resources.priorityClasses) {
+      const { name } = priorityClass.metadata
+      const existing = items.find(i => i.metadata.name === name)
+      if (!existing) cfg.resources.all.push(priorityClass)
     }
   }
 
