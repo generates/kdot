@@ -1,5 +1,15 @@
 # @generates/kdot
 
+## 0.0.16
+
+### Patch Changes
+
+- 9a4b3f4: Adding prompt to apply and del commands
+- 2384116: Adding support for priority
+- c63918d: Adding support for resources config
+- 0d60045: Adding support for ConfigMap volumes
+- 41ce265: Adding support for probes
+
 ## 0.0.15
 
 ### Patch Changes
