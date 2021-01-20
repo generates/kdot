@@ -6,26 +6,53 @@ import { core, pfwd } from './k8sApi.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 
+async function getPod (namespace, name) {
+  // FIXME: Maybe we can implement our own local load balancer to simulate
+  // the service and distribute traffic to all of the pods instead of just
+  // the first one?
+  const { body: { items: [pod] } } = await core.listNamespacedPod(
+    namespace,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    `app=${name}`
+  )
+  return pod
+}
+
 /**
  * Setup port forwarding between configured apps in the cluster and the
  * local host.
  */
 export default async function fwd (cfg) {
   try {
-    for (const app of Object.values(cfg.apps).filter(a => a.enabled)) {
+    const apps = Object.values(cfg.apps).filter(a => a.enabled)
+    for (const [index, app] of apps.entries()) {
       const namespace = app.namespace || cfg.namespace
 
-      // FIXME: Maybe we can implement our own local load balancer to simulate
-      // the service and distribute traffic to all of the pods instead of just
-      // the first one.
-      const { body: { items: [pod] } } = await core.listNamespacedPod(
-        namespace,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        `app=${app.name}`
-      )
+      const pod = await getPod(namespace, app.name)
+
+      if (pod.status.phase !== 'Running') {
+        await new Promise((resolve, reject) => {
+          const clearInterval = setInterval(
+            () => {
+              const pod = await getPod(namespace, app.name)
+              if (pod.status.phase === 'Running') {
+                clearInterval()
+                resolve()
+                // TODO: add time limit.
+              } else if (pod.status.phase === 'TODO:') {
+                clearInterval()
+                reject(new Error('TODO:'))
+              }
+            },
+            3
+          )
+        })
+      }
+
+      // TODO: move the rest to promise.then so other forwards are not blocked.
 
       for (const p of app.ports) {
         const localPort = p.localPort || p.port
