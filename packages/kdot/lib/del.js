@@ -1,13 +1,38 @@
-import { createLogger } from '@generates/logger'
-import { core } from './k8sApi.js'
+import { createLogger, chalk } from '@generates/logger'
+import prompt from '@generates/prompt'
+import { oneLine } from 'common-tags'
+import { kc, core } from './k8sApi.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
+const noYesOptions = [
+  { label: 'No', value: false },
+  { label: 'Yes', value: true }
+]
 
 /**
  * Remove ephemeral apps from the cluster.
  */
 export default async function del (cfg) {
   if (cfg.namespace !== 'default') {
+    if (cfg.input.prompt) {
+      console.log('ctx', kc.currentContext)
+      try {
+        const namespace = chalk.yellow(cfg.namespace)
+        const cluster = chalk.yellow(kc.currentContext)
+        const response = await prompt.select(
+          oneLine`
+            Are you sure you want to delete the ${namespace} namespace and all
+            resources associated with it from ${cluster}?
+          `,
+          { options: noYesOptions }
+        )
+        if (response === 'No') return
+      } catch (err) {
+        logger.debug(err)
+        return
+      }
+    }
+
     await core.deleteNamespace(
       cfg.namespace,
       undefined,

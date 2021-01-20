@@ -1,12 +1,46 @@
-import { createLogger } from '@generates/logger'
-import { core, apps, net } from './k8sApi.js'
+import { createLogger, chalk } from '@generates/logger'
+import { oneLine } from 'common-tags'
+import prompt from '@generates/prompt'
+import { kc, core, apps, net } from './k8sApi.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
+const emojis = {
+  ConfigMap: '🗄️',
+  Deployment: '🚀',
+  Namespace: '📛',
+  Secret: '🤐',
+  Service: '🛎️'
+}
+
+function logUpdate (resource) {
+  const change = resource.metadata.uid
+    ? chalk.blue('Update')
+    : chalk.green('Create')
+  const name = chalk.yellow(resource.metadata.name)
+  const message = `${change} ${resource.kind}: ${name}`
+  logger.log(emojis[resource.kind] || '☸️', message)
+}
 
 /**
  * Add configured apps to the cluster.
  */
 export default async function apply (cfg) {
+  if (cfg.input.prompt) {
+    try {
+      logger.write('\n')
+      cfg.resources.all.forEach(logUpdate)
+      const cluster = chalk.yellow(kc.currentContext)
+      const question = oneLine`
+        Are you sure you want to apply all of these changes to ${cluster}?
+      `
+      const response = await prompt.select(question)
+      if (response === 'No') return
+    } catch (err) {
+      logger.debug(err)
+      return
+    }
+  }
+
   for (const resource of cfg.resources.all) {
     const { uid, name, namespace } = resource.metadata
     try {

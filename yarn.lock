@@ -338,6 +338,15 @@
     read-pkg-up "^6.0.0"
     write-pkg "^4.0.0"
 
+"@generates/prompt@^0.0.0":
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/@generates/prompt/-/prompt-0.0.0.tgz#5639a1748d58d7503a0850f4784cb0f3d484cdbf"
+  integrity sha512-Yz1niDLmRwjyXMlxbDT0lY54pJEqli8hLOMTcEBOWlmkXBuANtAhy7e04nfkW8VrDwiWyXrzAckF0iadSWEZsw==
+  dependencies:
+    "@ianwalter/print" "^8.1.0"
+    external-editor "^3.1.0"
+    sisteransi "^1.0.5"
+
 "@ianwalter/bff@^10.0.0":
   version "10.0.1"
   resolved "https://registry.yarnpkg.com/@ianwalter/bff/-/bff-10.0.1.tgz#d631e3e2f182ef1e9b94d18221a7d1a48574d7db"
@@ -454,6 +463,11 @@
   resolved "https://registry.yarnpkg.com/@ianwalter/merge/-/merge-6.0.0.tgz#7d7facccc86fb407571c78de00a0bd2adca395cb"
   integrity sha512-Ohskh/vqQFgW2Abaxd3kPYz/uNqoUmCSjU8kB8SoRieQqIOyXit1pFKYW4HmcoRcDFbktpWmS1QpIBoF74DGBg==
 
+"@ianwalter/merge@^9.0.1":
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/@ianwalter/merge/-/merge-9.0.1.tgz#bbbf15e1daec5fef7e28633d9e8060a62018a72d"
+  integrity sha512-Wu7eAZEsfuW0FJsVsdsNaWAtlY/6Viy74HQpZ8A81KutjhNO5cyPRkiBGletuX9kDUTOdSwWJokPnu/o4yE3KA==
+
 "@ianwalter/print@^5.0.0":
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/@ianwalter/print/-/print-5.3.0.tgz#f5a73bbe387075d0ac5fb654943c81c181082d84"
@@ -468,6 +482,24 @@
     has-emoji "^1.1.0"
     marked "^0.8.0"
     marked-terminal "^4.0.0"
+    strip-ansi "^6.0.0"
+
+"@ianwalter/print@^8.1.0":
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@ianwalter/print/-/print-8.1.0.tgz#5358b9c0a93a01451bb6c18a9a241a360556eb4a"
+  integrity sha512-1C3oH2YYpfPsRELDK2GDLEyzUNqBu4RMFrkbL+IFG5QrigAKX0wC64gjcmXkgGI9wGUEQ0R3vjnR/yMzC+Yymw==
+  dependencies:
+    "@ianwalter/chromafi" "^1.0.1"
+    "@ianwalter/cli" "^4.1.0"
+    "@ianwalter/clone" "^6.0.1"
+    "@ianwalter/cloneable" "^2.0.0"
+    "@ianwalter/dot" "^1.0.4"
+    "@ianwalter/merge" "^9.0.1"
+    chalk "^4.1.0"
+    has-ansi "^4.0.0"
+    has-emoji "^1.1.0"
+    marked "^1.1.1"
+    marked-terminal "^4.1.0"
     strip-ansi "^6.0.0"
 
 "@ianwalter/renovate-config@^1.4.0":
@@ -4298,6 +4330,11 @@ signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.3.tgz#a1410c2edd8f077b08b4e253c8eacfcaf057461c"
   integrity sha512-VUJ49FC8U1OxwZLxIbTTrDvLnf/6TDgxZcK8wxR8zs13xpx7xbG60ndBlhNrFi2EMuFRoeDoJO7wthSLq42EjA==
+
+sisteransi@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/sisteransi/-/sisteransi-1.0.5.tgz#134d681297756437cc05ca01370d3a7a571075ed"
+  integrity sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==
 
 slash@^3.0.0:
   version "3.0.0"
