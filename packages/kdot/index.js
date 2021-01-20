@@ -15,7 +15,11 @@ export {
 }
 
 export async function start (cfg) {
-  if (cfg.input.update) await apply(cfg)
+  // Don't update existing resources when running apply through start unless
+  // explicitly specified.
+  if (cfg.input.update === undefined) cfg.input.update = false
+
+  await apply(cfg)
   await fwd(cfg)
   await log(cfg)
 }

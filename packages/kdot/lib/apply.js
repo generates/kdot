@@ -26,7 +26,11 @@ function logUpdate (resource) {
  * Add configured apps to the cluster.
  */
 export default async function apply (cfg) {
-  if (cfg.input.prompt) {
+  const resources = cfg.input.update === false
+    ? cfg.resources.all.filter(r => !r.metadata.uid)
+    : cfg.resources.all
+
+  if (cfg.input.prompt && resources.length) {
     try {
       logger.write('\n')
       cfg.resources.all.forEach(logUpdate)
@@ -38,11 +42,11 @@ export default async function apply (cfg) {
       if (response === 'No') return
     } catch (err) {
       logger.debug(err)
-      return
+      process.exit(0)
     }
   }
 
-  for (const resource of cfg.resources.all) {
+  for (const resource of resources) {
     const { uid, name, namespace } = resource.metadata
     try {
       if (resource.kind === 'Namespace') {
