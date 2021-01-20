@@ -10,7 +10,7 @@ async function getPod (namespace, name) {
   // FIXME: Maybe we can implement our own local load balancer to simulate
   // the service and distribute traffic to all of the pods instead of just
   // the first one?
-  const { body: { items: [pod] } } = await core.listNamespacedPod(
+  const { body: { items } } = await core.listNamespacedPod(
     namespace,
     undefined,
     undefined,
@@ -18,7 +18,86 @@ async function getPod (namespace, name) {
     undefined,
     `app=${name}`
   )
-  return pod
+  return items.find(p => p.status.phase === 'Running') || items[0]
+}
+
+const interval = 3
+const maxChecks = 20
+async function getRunningPod (namespace, name) {
+  const pod = await getPod(namespace, name)
+  if (pod.status.phase === 'Running') {
+    return pod
+  } else {
+    return new Promise((resolve, reject) => {
+      let checks = 0
+      const clearInterval = setInterval(
+        async () => {
+          try {
+            const pod = await getPod(namespace, name)
+            checks++
+            if (pod.status.phase === 'Running') {
+              clearInterval()
+              resolve(pod)
+            } else if (checks >= maxChecks) {
+              clearInterval()
+              const t = `${maxChecks * interval} seconds`
+              reject(new Error(`Can't get running pod, timeout after: ${t}`))
+            } else if (pod.status.phase !== 'Pending') {
+              clearInterval()
+              const p = pod.status.phase
+              reject(new Error(`Can't get running pod, phase: ${p}`))
+            }
+          } catch (err) {
+            reject(err)
+          }
+        },
+        interval * 1000
+      )
+    })
+  }
+}
+
+function forwardPort (pod, portConfig) {
+  const server = net.createServer(socket => {
+    pfwd.portForward(
+      pod.metadata.namespace,
+      pod.metadata.name,
+      [portConfig.port],
+      socket,
+      undefined,
+      socket,
+      3
+    )
+  })
+
+  killable(server)
+
+  server.on('error', err => {
+    // Inform the user that there was an error.
+    logger.error('Handling forwarding server error', err.message || '')
+
+    // Terminate the existing forwarding server.
+    server.kill()
+
+    // Attempt to get a running pod.
+    getRunningPod(pod.metadata.namespace, pod.metadata.name)
+      // Set up a new forwarding server.
+      .then(pod => forwardPort(pod, portConfig))
+      // Inform the user if a running pod can't be retrieved.
+      .catch(err => logger.error(
+        'Failed to get a running pod to forward to',
+        err
+      ))
+  })
+
+  server.listen(portConfig.port, 'localhost', () => {
+    const localPort = portConfig.localPort || portConfig.port
+    const name = portConfig.name ? `(${portConfig.name})` : ''
+    logger.success(oneLine`
+      Forwarding http://localhost:${localPort} to
+      ${pod.metadata.name}:${portConfig.port} ${name}
+    `)
+  })
 }
 
 /**
@@ -26,69 +105,13 @@ async function getPod (namespace, name) {
  * local host.
  */
 export default async function fwd (cfg) {
-  try {
-    const apps = Object.values(cfg.apps).filter(a => a.enabled)
-    for (const [index, app] of apps.entries()) {
-      const namespace = app.namespace || cfg.namespace
-
-      const pod = await getPod(namespace, app.name)
-
-      if (pod.status.phase !== 'Running') {
-        await new Promise((resolve, reject) => {
-          const clearInterval = setInterval(
-            () => {
-              const pod = await getPod(namespace, app.name)
-              if (pod.status.phase === 'Running') {
-                clearInterval()
-                resolve()
-                // TODO: add time limit.
-              } else if (pod.status.phase === 'TODO:') {
-                clearInterval()
-                reject(new Error('TODO:'))
-              }
-            },
-            3
-          )
-        })
-      }
-
-      // TODO: move the rest to promise.then so other forwards are not blocked.
-
-      for (const p of app.ports) {
-        const localPort = p.localPort || p.port
-
-        await new Promise((resolve, reject) => {
-          const server = net.createServer(socket => {
-            pfwd.portForward(
-              namespace,
-              pod.metadata.name,
-              [p.port],
-              socket,
-              undefined,
-              socket,
-              3
-            )
-          })
-
-          killable(server)
-
-          server.on('error', err => {
-            server.kill()
-            reject(err)
-          })
-
-          server.listen(localPort, 'localhost', () => {
-            const name = p.name ? `(${p.name})` : ''
-            logger.success(oneLine`
-              Forwarding http://localhost:${localPort} to
-              ${pod.metadata.name}:${p.port} ${name}
-            `)
-            resolve()
-          })
-        })
-      }
+  const apps = Object.values(cfg.apps).filter(a => a.enabled)
+  await Promise.all(apps.map(async app => {
+    try {
+      const pod = await getRunningPod(app.namespace || cfg.namespace, app.name)
+      for (const port of app.ports) forwardPort(pod, port)
+    } catch (err) {
+      logger.error(err)
     }
-  } catch (err) {
-    logger.error(err)
-  }
+  }))
 }
