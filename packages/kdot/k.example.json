@@ -3,7 +3,8 @@
     "web": {
       "env": {
         "APP_MSG": "Donald Trump is chump, know how we feel punk"
-      }
+      },
+      "priority": 1000
     }
   }
 }
