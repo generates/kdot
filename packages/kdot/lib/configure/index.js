@@ -172,7 +172,7 @@ export default async function configure ({ ext, ...input }) {
     for (const namespace of cfg.resources.namespaces) {
       const { name } = namespace.metadata
       const existing = items.find(n => n.metadata.name === name)
-      cfg.resources.all.push(existing || namespace)
+      if (!existing) cfg.resources.all.push(namespace)
     }
   }
 

@@ -15,7 +15,6 @@ const noYesOptions = [
 export default async function del (cfg) {
   if (cfg.namespace !== 'default') {
     if (cfg.input.prompt) {
-      console.log('ctx', kc.currentContext)
       try {
         const namespace = chalk.yellow(cfg.namespace)
         const cluster = chalk.yellow(kc.currentContext)
