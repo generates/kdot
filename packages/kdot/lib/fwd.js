@@ -40,7 +40,7 @@ async function getRunningPod (namespace, name) {
             const pod = await getPod(namespace, name)
             checks++
 
-            logger.debug('fwd • Pod status check', pod)
+            logger.debug('Pod status check', pod)
 
             const isRunning = pod?.status.phase === 'Running'
             if (isRunning && !pod?.metadata.deletionTimestamp) {
