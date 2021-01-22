@@ -1,10 +1,13 @@
 import net from 'net'
-import { createLogger } from '@generates/logger'
 import killable from 'killable'
+import { createLogger } from '@generates/logger'
 import { oneLine } from 'common-tags'
-import { core, pfwd } from './k8sApi.js'
+import { core, k8s, kc } from './k8sApi.js'
 
-const logger = createLogger({ namespace: 'kdot', level: 'info' })
+const logger = createLogger({ namespace: 'kdot.fwd', level: 'info' })
+const byIsRunning = p => (
+  p.status.phase === 'Running' && !p.metadata.deletionTimestamp
+)
 
 async function getPod (namespace, name) {
   // FIXME: Maybe we can implement our own local load balancer to simulate
@@ -18,85 +21,106 @@ async function getPod (namespace, name) {
     undefined,
     `app=${name}`
   )
-  return items.find(p => p.status.phase === 'Running') || items[0]
+  return items.find(byIsRunning) || items[0]
 }
 
-const interval = 3
+const intervalSeconds = 3
 const maxChecks = 20
 async function getRunningPod (namespace, name) {
   const pod = await getPod(namespace, name)
-  if (pod.status.phase === 'Running') {
+  if (pod?.status.phase === 'Running' && !pod?.metadata.deletionTimestamp) {
+    logger.debug('Got running pod', pod.metadata)
     return pod
   } else {
     return new Promise((resolve, reject) => {
       let checks = 0
-      const clearInterval = setInterval(
+      const interval = setInterval(
         async () => {
           try {
             const pod = await getPod(namespace, name)
             checks++
-            if (pod.status.phase === 'Running') {
-              clearInterval()
+
+            logger.debug('fwd • Pod status check', pod)
+
+            const isRunning = pod?.status.phase === 'Running'
+            if (isRunning && !pod?.metadata.deletionTimestamp) {
+              clearInterval(interval)
+              logger.debug('Got running pod', pod.metadata)
               resolve(pod)
             } else if (checks >= maxChecks) {
-              clearInterval()
-              const t = `${maxChecks * interval} seconds`
+              clearInterval(interval)
+              const t = `${maxChecks * intervalSeconds} seconds`
               reject(new Error(`Can't get running pod, timeout after: ${t}`))
-            } else if (pod.status.phase !== 'Pending') {
-              clearInterval()
-              const p = pod.status.phase
-              reject(new Error(`Can't get running pod, phase: ${p}`))
+            } else if (pod?.status.phase === 'Failed') {
+              clearInterval(interval)
+              reject(new Error(`Can't get running pod, pod failed: ${name}`))
             }
           } catch (err) {
             reject(err)
           }
         },
-        interval * 1000
+        intervalSeconds * 1000
       )
     })
   }
 }
 
-function forwardPort (pod, portConfig) {
-  const server = net.createServer(socket => {
-    pfwd.portForward(
-      pod.metadata.namespace,
-      pod.metadata.name,
-      [portConfig.port],
-      socket,
-      undefined,
-      socket,
-      3
-    )
-  })
+function forwardPort (app, pod, portConfig) {
+  const portName = portConfig.name ? `(${portConfig.name})` : ''
 
-  killable(server)
+  return new Promise((resolve, reject) => {
+    let server
+    try {
+      const { name, namespace } = pod.metadata
 
-  server.on('error', err => {
-    // Inform the user that there was an error.
-    logger.error('Handling forwarding server error', err.message || '')
+      //
+      server = net.createServer(async socket => {
+        //
+        const portForwarder = new k8s.PortForward(kc)
+        await portForwarder.portForward(
+          namespace,
+          name,
+          [portConfig.port],
+          socket,
+          undefined,
+          socket
+        )
+      })
 
-    // Terminate the existing forwarding server.
-    server.kill()
+      //
+      killable(server)
 
-    // Attempt to get a running pod.
-    getRunningPod(pod.metadata.namespace, pod.metadata.name)
-      // Set up a new forwarding server.
-      .then(pod => forwardPort(pod, portConfig))
-      // Inform the user if a running pod can't be retrieved.
-      .catch(err => logger.error(
-        'Failed to get a running pod to forward to',
-        err
-      ))
-  })
+      process.on('unhandledRejection', async ({ error }) => {
+        if (error.message.includes('Unexpected server response')) {
+          logger.debug('Unhandled rejection', error)
+          logger.warn('Port forwarding disconnected for:', name)
 
-  server.listen(portConfig.port, 'localhost', () => {
-    const localPort = portConfig.localPort || portConfig.port
-    const name = portConfig.name ? `(${portConfig.name})` : ''
-    logger.success(oneLine`
-      Forwarding http://localhost:${localPort} to
-      ${pod.metadata.name}:${portConfig.port} ${name}
-    `)
+          //
+          server.kill()
+
+          // Attempt to get a running pod.
+          const pod = await getRunningPod(namespace, app.name)
+
+          //
+          server = await forwardPort(app, pod, portConfig)
+        } else {
+          logger.error('Unhandled rejection', error)
+        }
+      })
+
+      //
+      const localPort = portConfig.localPort || portConfig.port
+      server.listen(localPort, 'localhost', () => {
+        logger.success(oneLine`
+          Forwarding for ${app.name} http://localhost:${localPort} to
+          ${pod.metadata.name}:${portConfig.port} ${portName}
+        `)
+        resolve(server)
+      })
+    } catch (err) {
+      if (server) server.kill()
+      reject(err)
+    }
   })
 }
 
@@ -109,7 +133,7 @@ export default async function fwd (cfg) {
   await Promise.all(apps.map(async app => {
     try {
       const pod = await getRunningPod(app.namespace || cfg.namespace, app.name)
-      for (const port of app.ports) forwardPort(pod, port)
+      for (const p of app.ports) await forwardPort(app, pod, p)
     } catch (err) {
       logger.error(err)
     }
