@@ -52,10 +52,10 @@ async function getRunningPod (namespace, name) {
               const t = `${maxChecks * intervalSeconds} seconds`
               reject(new Error(`Can't get running pod, timeout after: ${t}`))
             } else if (pod?.status.phase === 'Failed') {
-              clearInterval(interval)
-              reject(new Error(`Can't get running pod, pod failed: ${name}`))
+              throw new Error(`Can't get running pod, pod failed: ${name}`)
             }
           } catch (err) {
+            clearInterval(interval)
             reject(err)
           }
         },

@@ -48,11 +48,11 @@ async function getRunningPods (namespace, name) {
               logger.debug('Got running pods', pods.map(p => p.metadata.name))
               resolve(pods)
             } else if (checks >= maxChecks) {
-              clearInterval(interval)
               const t = `${maxChecks * intervalSeconds} seconds`
-              reject(new Error(`Can't get running pods, timeout after: ${t}`))
+              throw new Error(`Can't get running pods, timeout after: ${t}`)
             }
           } catch (err) {
+            clearInterval(interval)
             reject(err)
           }
         },
