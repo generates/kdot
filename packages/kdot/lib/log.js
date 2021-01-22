@@ -14,49 +14,49 @@ const colors = [
   'white'
 ]
 
+const streamedPods = []
+async function streamLogs (app) {
+  const { body: { items: pods } } = await core.listNamespacedPod(
+    app.namespace,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    `app=${app.name}`
+  )
+
+  for (const pod of pods.filter(p => !streamedPods.includes(p.metadata.name))) {
+    const podName = chalk.dim(pod.metadata.name.replace(`${app.name}-`, ''))
+    const logName = `${chalk.bold[app.color](app.name)} • ${podName}`
+
+    await klog.log(
+      app.namespace,
+      pod.metadata.name,
+      undefined,
+      new stream.Transform({
+        transform (chunk, encoding, callback) {
+          process.stdout.write(`${logName} • ` + chunk.toString(), callback)
+        }
+      }),
+      function done () {
+        logger.warn('Logs done for:', app.name)
+        streamLogs(app)
+      },
+      // FIXME: Add config for tailLines
+      { follow: true, tailLines: 100 }
+    )
+
+    //
+    streamedPods.push(pod.metadata.name)
+  }
+}
+
 export default async function log (cfg) {
   try {
-    for (const [index, deployment] of cfg.resources.deployments.entries()) {
-      const { name, namespace } = deployment.metadata
-      const color = colors[index % 7]
-
-      const { body: { items: pods } } = await core.listNamespacedPod(
-        namespace,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        `app=${name}`
-      )
-
-      for (const pod of pods) {
-        const podName = chalk.dim(pod.metadata.name.replace(`${name}-`, ''))
-        const logName = `${chalk.bold[color](name)} • ${podName}`
-
-        klog.log(
-          namespace,
-          pod.metadata.name,
-          undefined,
-          new stream.Transform({
-            transform (chunk, encoding, callback) {
-              process.stdout.write(`${logName} • ` + chunk.toString())
-              callback()
-            }
-          }),
-          function done (err) {
-            try {
-              if (err) err = JSON.parse(err)
-            } catch (e) {
-              // Ignore JSON parse error.
-            }
-            logger.write('\n')
-            logger.error(`Logs exited for "${name}"`, err?.message || err || '')
-            logger.write('\n')
-          },
-          // FIXME: Add config for tailLines
-          { follow: true, tailLines: 100 }
-        )
-      }
+    const apps = Object.values(cfg.apps).filter(a => a.enabled)
+    for (const [index, app] of apps.entries()) {
+      app.color = colors[index % 7]
+      await streamLogs(app)
     }
   } catch (err) {
     logger.error(err)
