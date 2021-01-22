@@ -1,5 +1,13 @@
 # @generates/kdot
 
+## 0.0.17
+
+### Patch Changes
+
+- 78cf533: Fix existing namespace issue
+- ae231ab: Adding support for fwd and log reconnection
+- 5750ee8: Improving start logic
+
 ## 0.0.16
 
 ### Patch Changes
