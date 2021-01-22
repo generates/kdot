@@ -90,8 +90,9 @@ function forwardPort (app, pod, portConfig) {
       // the port forward has to be recreated.
       killable(server)
 
-      process.on('unhandledRejection', async ({ error }) => {
-        if (error.message.includes('Unexpected server response')) {
+      process.on('unhandledRejection', async ({ target, error }) => {
+        const hasErr = error.message.includes('Unexpected server response: 404')
+        if (hasErr && target._url.includes(name)) {
           logger.debug('Unhandled rejection', error)
           logger.warn('Port forwarding disconnected for:', name)
 
@@ -108,8 +109,6 @@ function forwardPort (app, pod, portConfig) {
             const msg = 'Recreating the port forward failed for:'
             logger.error(msg, app.name, err || '')
           }
-        } else {
-          logger.error('Unhandled rejection', error)
         }
       })
 
