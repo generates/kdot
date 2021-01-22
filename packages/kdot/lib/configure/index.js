@@ -135,24 +135,24 @@ export default async function configure ({ ext, ...input }) {
               ],
               ...volumes ? { volumes } : {},
               ...hasPriority
-                ? { priorityClassName: `priority-${app.priority}` }
+                ? { priorityClassName: `priority-${priority}` }
                 : {}
             }
           }
         }
       })
 
-      if (app.ports?.length) {
+      if (ports?.length) {
         const service = {
           kind: 'Service',
-          metadata: { name, namespace: app.namespace, labels },
-          spec: { selector: appLabel, ports: app.ports.map(toServicePort) }
+          metadata: { name, namespace, labels },
+          spec: { selector: appLabel, ports: ports.map(toServicePort) }
         }
         cfg.resources.services.push(service)
 
-        const hostPorts = app.ports.filter(p => p.hosts)
+        const hostPorts = ports.filter(p => p.hosts)
         if (hostPorts.length) {
-          const metadata = { name, namespace: app.namespace, labels }
+          const metadata = { name, namespace, labels }
           const spec = { rules: [] }
           const ingress = { kind: 'Ingress', metadata, spec }
 
