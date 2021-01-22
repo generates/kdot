@@ -66,16 +66,15 @@ async function getRunningPod (namespace, name) {
 }
 
 function forwardPort (app, pod, portConfig) {
-  const portName = portConfig.name ? `(${portConfig.name})` : ''
-
   return new Promise((resolve, reject) => {
     let server
     try {
       const { name, namespace } = pod.metadata
 
-      //
+      // Create the server the local server that will forward requests to the
+      // pod.
       server = net.createServer(async socket => {
-        //
+        // Create the WebSocket that will transport requests and responses.
         const portForwarder = new k8s.PortForward(kc)
         await portForwarder.portForward(
           namespace,
@@ -87,7 +86,8 @@ function forwardPort (app, pod, portConfig) {
         )
       })
 
-      //
+      // Keep track of sockets so that the server can be killed quickly in case
+      // the port forward has to be recreated.
       killable(server)
 
       process.on('unhandledRejection', async ({ error }) => {
@@ -95,22 +95,28 @@ function forwardPort (app, pod, portConfig) {
           logger.debug('Unhandled rejection', error)
           logger.warn('Port forwarding disconnected for:', name)
 
-          //
-          server.kill()
+          try {
+            // Kill the existing server.
+            server.kill()
 
-          // Attempt to get a running pod.
-          const pod = await getRunningPod(namespace, app.name)
+            // Attempt to get a running pod.
+            const pod = await getRunningPod(namespace, app.name)
 
-          //
-          server = await forwardPort(app, pod, portConfig)
+            // Create a new port forward to the new pod.
+            server = await forwardPort(app, pod, portConfig)
+          } catch (err) {
+            const msg = 'Recreating the port forward failed for:'
+            logger.error(msg, app.name, err || '')
+          }
         } else {
           logger.error('Unhandled rejection', error)
         }
       })
 
-      //
+      // Instruct the local server to listen on a port.
       const localPort = portConfig.localPort || portConfig.port
       server.listen(localPort, 'localhost', () => {
+        const portName = portConfig.name ? `(${portConfig.name})` : ''
         logger.success(oneLine`
           Forwarding for ${app.name} http://localhost:${localPort} to
           ${pod.metadata.name}:${portConfig.port} ${portName}
