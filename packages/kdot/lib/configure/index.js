@@ -63,19 +63,33 @@ export default async function configure ({ ext, ...input }) {
   for (const [name, app] of Object.entries(cfg.apps)) {
     const enabled = app.enabled !== false && input.args.length === 0
     if (enabled || input.args.includes(name)) {
+      // If a namespace isn't specified for the app, assign the top-level
+      // namespace to it.
+      if (!app.namespace) app.namespace = cfg.namespace
+
+      //
+      const {
+        namespace,
+        configMaps,
+        secrets,
+        env,
+        priority,
+        replicas = 1,
+        image,
+        ports,
+        volumes,
+        ...rest
+      } = app
+
       //
       app.enabled = true
 
       // Set app name to the key that was used to define it.
       app.name = name
 
-      // If a namespace isn't specified for the app, assign the top-level
-      // namespace to it.
-      if (!app.namespace) app.namespace = cfg.namespace
-
       // If there is a app-level namespace that is different from the
       // top-level namespace, add it to the resources array.
-      if (app.namespace !== cfg.namespace) {
+      if (namespace !== cfg.namespace) {
         const metadata = { name: app.namespace, labels }
         const namespace = { kind: 'Namespace', metadata }
         cfg.resources.namespaces.push(namespace)
@@ -84,15 +98,16 @@ export default async function configure ({ ext, ...input }) {
       const appLabel = { app: name }
 
       // Configure app-level ConfigMaps and ConfigMap Volumes.
-      if (app.configMaps) await configureConfigMaps(cfg, app)
+      if (configMaps) await configureConfigMaps(cfg, app)
 
       // Configure app-level Secrets and Secret references.
-      if (app.secrets) configureSecrets(cfg, app)
+      if (secrets) configureSecrets(cfg, app)
 
       // Map environment variables from key-value pairs to Objects in an Array.
       if (app.env) app.env = Object.entries(app.env).map(toEnv)
 
-      const hasPriority = Number.isInteger(app.priority)
+      //
+      const hasPriority = Number.isInteger(priority)
       if (hasPriority) configurePriorityClass(cfg, app)
 
       cfg.resources.deployments.push({
@@ -103,7 +118,7 @@ export default async function configure ({ ext, ...input }) {
           labels: { ...labels, ...appLabel }
         },
         spec: {
-          replicas: app.replicas || 1,
+          replicas,
           selector: { matchLabels: appLabel },
           template: {
             metadata: { labels: { ...labels, ...appLabel } },
@@ -111,24 +126,14 @@ export default async function configure ({ ext, ...input }) {
               containers: [
                 {
                   name,
-                  image: `${app.image.repo}:${app.image.tag || 'latest'}`,
-                  ports: app.ports?.map(p => ({ containerPort: p.port })),
-                  ...app.command ? { command: app.command } : {},
-                  ...app.env ? { env: app.env } : {},
-                  ...app.volumeMounts ? { volumeMounts: app.volumeMounts } : {},
-                  ...app.resources ? { resources: app.resources } : {},
-                  ...app.livenessProbe
-                    ? { livenessProbe: app.livenessProbe }
-                    : {},
-                  ...app.readinessProbe
-                    ? { readinessProbe: app.readinessProbe }
-                    : {},
-                  ...app.startupProbe
-                    ? { startupProbe: app.startupProbe }
-                    : {}
+                  image: typeof image === 'string'
+                    ? image
+                    : `${image.repo}:${image.tag || 'latest'}`,
+                  ports: ports?.map(p => ({ containerPort: p.port })),
+                  ...rest
                 }
               ],
-              ...app.volumes ? { volumes: app.volumes } : {},
+              ...volumes ? { volumes } : {},
               ...hasPriority
                 ? { priorityClassName: `priority-${app.priority}` }
                 : {}
