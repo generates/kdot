@@ -33,7 +33,7 @@ export default async function apply (cfg) {
   if (cfg.input.prompt && resources.length) {
     try {
       logger.write('\n')
-      cfg.resources.all.forEach(logUpdate)
+      resources.forEach(logUpdate)
       const cluster = chalk.yellow(kc.currentContext)
       const question = oneLine`
         Are you sure you want to apply all of these changes to ${cluster}?

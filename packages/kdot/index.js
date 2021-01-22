@@ -20,6 +20,6 @@ export async function start (cfg) {
   if (cfg.input.update === undefined) cfg.input.update = false
 
   await apply(cfg)
-  await fwd(cfg)
   await log(cfg)
+  await fwd(cfg)
 }
