@@ -1,5 +1,5 @@
 import net from 'net'
-import killable from 'killable'
+import enableDestroy from 'server-destroy'
 import { createLogger } from '@generates/logger'
 import { oneLine } from 'common-tags'
 import { core, k8s, kc } from './k8sApi.js'
@@ -88,7 +88,7 @@ function forwardPort (app, pod, portConfig) {
 
       // Keep track of sockets so that the server can be killed quickly in case
       // the port forward has to be recreated.
-      killable(server)
+      enableDestroy(server)
 
       process.on('unhandledRejection', async ({ target, error }) => {
         const hasErr = error.message.includes('Unexpected server response: 404')
@@ -98,7 +98,7 @@ function forwardPort (app, pod, portConfig) {
 
           try {
             // Kill the existing server.
-            server.kill()
+            server.destroy()
 
             // Attempt to get a running pod.
             const pod = await getRunningPod(namespace, app.name)
@@ -123,7 +123,7 @@ function forwardPort (app, pod, portConfig) {
         resolve(server)
       })
     } catch (err) {
-      if (server) server.kill()
+      if (server) server.destroy()
       reject(err)
     }
   })
