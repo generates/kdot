@@ -78,7 +78,8 @@ async function streamLogs (app, color) {
           process.stdout.write(`${logName} • ` + chunk.toString(), callback)
         }
       }),
-      function done () {
+      function done (err) {
+        if (err) logger.error(err)
         logger.warn('Logs done for:', app.name)
         streamLogs(app)
       },
