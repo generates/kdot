@@ -32,7 +32,8 @@ async function applyResource ({ app, ...resource }) {
         logger.success('Created Namespace:', name)
       }
     } else if (resource.kind === 'Deployment') {
-      //
+      // If the app depends on other apps, wait for the other apps to have
+      // running pods before creating the dependent app's Deployment.
       if (app.dependsOn?.length) {
         const toWait = name => getRunningPod(namespace, name)
         await Promise.all(app.dependsOn.map(toWait))
@@ -158,13 +159,15 @@ export default async function apply (cfg) {
     }
   }
 
-  //
+  // Create or update top-level resources before app-level resources in case
+  // the apps depend on them.
   const topLevelResources = resources.filter(r => !r.app)
   if (topLevelResources.length) await Promise.all(resources.map(applyResource))
 
-  //
+  // Create the app-level resources.
   await Promise.all(Object.entries(cfg.app).map(async ([name]) => {
-    const appResources = resources.filter(r => r.app.name === name)
-    if (appResources.length) await Promise.all(appResources.map(applyResource))
+    for (const resource of resources.filter(r => r.app.name === name)) {
+      await applyResource(resource)
+    }
   }))
 }
