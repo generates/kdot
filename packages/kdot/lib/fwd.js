@@ -90,26 +90,35 @@ function forwardPort (app, pod, portConfig) {
       // the port forward has to be recreated.
       enableDestroy(server)
 
-      process.on('unhandledRejection', async ({ target, error }) => {
-        const hasErr = error.message.includes('Unexpected server response: 404')
-        if (hasErr && target._url.includes(name)) {
-          logger.debug('Unhandled rejection', error)
-          logger.warn('Port forwarding disconnected for:', name)
+      const reconnect = async () => {
+        logger.warn('Port forwarding disconnected for:', name)
 
-          try {
-            // Kill the existing server.
-            server.destroy()
+        try {
+          // Kill the existing server.
+          server.destroy()
 
-            // Attempt to get a running pod.
-            const pod = await getRunningPod(namespace, app.name)
+          // Attempt to get a running pod.
+          const pod = await getRunningPod(namespace, app.name)
 
-            // Create a new port forward to the new pod.
-            server = await forwardPort(app, pod, portConfig)
-          } catch (err) {
-            const msg = 'Recreating the port forward failed for:'
-            logger.error(msg, app.name, err || '')
-          }
+          // Create a new port forward to the new pod.
+          server = await forwardPort(app, pod, portConfig)
+        } catch (err) {
+          const msg = 'Recreating the port forward failed for:'
+          logger.error(msg, app.name, err || '')
         }
+      }
+
+      process.on('unhandledRejection', ({ target, error }) => {
+        const hasErr = error.message.includes('Unexpected server response: 404')
+        if (hasErr && target?._url?.includes(name)) {
+          logger.debug('Unhandled rejection', error)
+          reconnect()
+        }
+      })
+
+      server.on('error', err => {
+        logger.debug('Server error', err)
+        reconnect()
       })
 
       // Instruct the local server to listen on a port.
