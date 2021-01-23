@@ -2,6 +2,7 @@ import { createLogger, chalk } from '@generates/logger'
 import { oneLine } from 'common-tags'
 import prompt from '@generates/prompt'
 import { kc, core, apps, net, sched } from './k8sApi.js'
+import getRunningPod from './getRunningPod.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const emojis = {
@@ -46,7 +47,7 @@ export default async function apply (cfg) {
     }
   }
 
-  for (const resource of resources) {
+  for (const { app, ...resource } of resources) {
     const { uid, name, namespace } = resource.metadata
     try {
       if (resource.kind === 'Namespace') {
@@ -55,6 +56,12 @@ export default async function apply (cfg) {
           logger.success('Created Namespace:', name)
         }
       } else if (resource.kind === 'Deployment') {
+        //
+        if (app.dependsOn?.length) {
+          const toPromise = name => getRunningPod(namespace, name)
+          await Promise.all(app.dependsOn.map(toPromise))
+        }
+
         if (uid) {
           await apps.patchNamespacedDeployment(
             name,

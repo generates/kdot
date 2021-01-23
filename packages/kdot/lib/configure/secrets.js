@@ -24,7 +24,12 @@ export default function configureSecrets (cfg, owner) {
 
   for (const given of secrets) {
     const name = given.name || owner.name
-    const secret = { kind: 'Secret', metadata: { namespace, name }, data: {} }
+    const secret = {
+      app: owner,
+      kind: 'Secret',
+      metadata: { namespace, name },
+      data: {}
+    }
 
     // Specifying secrets with values will queue those secrets to be
     // created if they don't exist and be used by apps as environment

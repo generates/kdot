@@ -62,7 +62,12 @@ export default async function configure ({ ext, ...input }) {
   // Break apps down into individual Kubernetes resources.
   for (const [name, app] of Object.entries(cfg.apps)) {
     const enabled = app.enabled !== false && input.args.length === 0
-    if (enabled || input.args.includes(name)) {
+
+    // Determien if this app is being depended on by another specified app.
+    const hasDependency = n => cfg.apps[n]?.dependsOn?.includes(name)
+    app.isDependency = input.args.some(hasDependency)
+
+    if (enabled || input.args.includes(name) || app.isDependency) {
       // If a namespace isn't specified for the app, assign the top-level
       // namespace to it.
       if (!app.namespace) app.namespace = cfg.namespace
@@ -111,6 +116,7 @@ export default async function configure ({ ext, ...input }) {
       if (hasPriority) configurePriorityClass(cfg, app)
 
       cfg.resources.deployments.push({
+        app,
         kind: 'Deployment',
         metadata: {
           name,
@@ -144,6 +150,7 @@ export default async function configure ({ ext, ...input }) {
 
       if (ports?.length) {
         const service = {
+          app,
           kind: 'Service',
           metadata: { name, namespace, labels },
           spec: { selector: appLabel, ports: ports.map(toServicePort) }
@@ -154,7 +161,7 @@ export default async function configure ({ ext, ...input }) {
         if (hostPorts.length) {
           const metadata = { name, namespace, labels }
           const spec = { rules: [] }
-          const ingress = { kind: 'Ingress', metadata, spec }
+          const ingress = { app, kind: 'Ingress', metadata, spec }
 
           for (const p of hostPorts) {
             const pathType = p.pathType || 'Prefix'
@@ -182,26 +189,26 @@ export default async function configure ({ ext, ...input }) {
   }
 
   if (cfg.resources.configMaps?.length) {
-    for (const configMap of cfg.resources.configMaps) {
+    for (const { app, ...configMap } of cfg.resources.configMaps) {
       const { name, namespace } = configMap.metadata
       const { body: { items } } = await core.listNamespacedConfigMap(namespace)
       const existing = items.find(i => {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
       if (existing) configMap.metadata.uid = existing.metadata.uid
-      cfg.resources.all.push(configMap)
+      if (!existing || !app?.isDependency) cfg.resources.all.push(configMap)
     }
   }
 
   if (cfg.resources.secrets?.length) {
-    for (const secret of cfg.resources.secrets) {
+    for (const { app, ...secret } of cfg.resources.secrets) {
       const { name, namespace } = secret.metadata
       const { body: { items } } = await core.listNamespacedSecret(namespace)
       const existing = items.find(i => {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
       if (existing) secret.metadata.uid = existing.metadata.uid
-      cfg.resources.all.push(secret)
+      if (!existing || !app?.isDependency) cfg.resources.all.push(secret)
     }
   }
 
@@ -216,25 +223,25 @@ export default async function configure ({ ext, ...input }) {
 
   if (cfg.resources.deployments.length) {
     const { body: { items } } = await apps.listDeploymentForAllNamespaces()
-    for (const deployment of cfg.resources.deployments) {
+    for (const { app, ...deployment } of cfg.resources.deployments) {
       const { name, namespace } = deployment.metadata
       const existing = items.find(i => {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
       if (existing) deployment.metadata.uid = existing.metadata.uid
-      cfg.resources.all.push(deployment)
+      if (!existing || !app.isDependency) cfg.resources.all.push(deployment)
     }
   }
 
   if (cfg.resources.services.length) {
     const { body: { items } } = await core.listServiceForAllNamespaces()
-    for (const service of cfg.resources.services) {
+    for (const { app, ...service } of cfg.resources.services) {
       const { name, namespace } = service.metadata
       const existing = items.find(i => {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
       if (existing) service.metadata.uid = existing.metadata.uid
-      cfg.resources.all.push(service)
+      if (!existing || !app.isDependency) cfg.resources.all.push(service)
     }
   }
 
@@ -242,11 +249,12 @@ export default async function configure ({ ext, ...input }) {
     const { body: { items } } = await net.listIngressForAllNamespaces()
     for (const ingress of cfg.resources.ingresses) {
       const { name, namespace } = ingress.metadata
+      const { isDependency } = ingress.app
       const existing = items.find(i => {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
       if (existing) ingress.metadata.uid = existing.metadata.uid
-      cfg.resources.all.push(ingress)
+      if (!existing || !isDependency) cfg.resources.all.push(ingress)
     }
   }
 
