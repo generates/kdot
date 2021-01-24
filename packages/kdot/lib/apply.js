@@ -1,5 +1,4 @@
 import { createLogger, chalk } from '@generates/logger'
-import { oneLine } from 'common-tags'
 import prompt from '@generates/prompt'
 import { kc, core, apps, net, sched } from './k8sApi.js'
 import getRunningPod from './getRunningPod.js'
@@ -23,7 +22,9 @@ function logUpdate (resource) {
   logger.log(emojis[resource.kind] || '☸️', message)
 }
 
-function getApplyResource (logLevel) {
+function setupApplyResource (cfg) {
+  const logLevel = cfg.input.failFast ? 'fatal' : 'error'
+
   return async function applyResource ({ app, ...resource }) {
     const { uid, name, namespace } = resource.metadata
     try {
@@ -148,10 +149,8 @@ export default async function apply (cfg) {
     try {
       logger.write('\n')
       resources.forEach(logUpdate)
-      const cluster = chalk.yellow(kc.currentContext)
-      const question = oneLine`
-        Are you sure you want to apply all of these changes to ${cluster}?
-      `
+      const c = chalk.yellow(kc.currentContext)
+      const question = `Are you sure you want to apply these changes to ${c}?`
       const response = await prompt.select(question)
       if (response === 'No') return
     } catch (err) {
@@ -160,13 +159,13 @@ export default async function apply (cfg) {
     }
   }
 
-  // Setup the applyResource function with the appropriate log level.
-  const applyResource = getApplyResource(cfg.input.failFast ? 'fatal' : 'error')
+  // Setup the applyResource function with the run configuration.
+  const applyResource = setupApplyResource(cfg)
 
   // Apply top-level resources before app-level resources in case the apps
   // depend on them.
   const topLevelResources = resources.filter(r => !r.app)
-  if (topLevelResources.length) await Promise.all(resources.map(applyResource))
+  await Promise.all(topLevelResources.map(applyResource))
 
   // Apply the app-level resources.
   await Promise.all(Object.entries(cfg.apps).map(async ([name]) => {
