@@ -18,13 +18,13 @@ export default async function show (cfg) {
     : cfg.resources.all
 
   try {
-    logger.write('\n')
+    process.stdout.write('\n')
     await Promise.all(Object.entries(cfg.apps).map(async ([name]) => {
       for (const resource of resources.filter(r => r.app?.name === name)) {
         await showResource(cfg, resource)
       }
     }))
-    logger.write('\n')
+    process.stdout.write('\n')
   } catch (err) {
     logger.error(err)
   }

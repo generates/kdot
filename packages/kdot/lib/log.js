@@ -35,6 +35,15 @@ async function getRunningPods (namespace, name) {
   } else {
     return new Promise((resolve, reject) => {
       let checks = 0
+
+      function abort (err) {
+        clearInterval(interval)
+        reject(err)
+      }
+
+      // Don't block the process from exiting.
+      process.on('SIGINT', abort)
+
       const interval = setInterval(
         async () => {
           try {
@@ -52,8 +61,7 @@ async function getRunningPods (namespace, name) {
               throw new Error(`Can't get running pods, timeout after: ${t}`)
             }
           } catch (err) {
-            clearInterval(interval)
-            reject(err)
+            abort(err)
           }
         },
         intervalSeconds * 1000

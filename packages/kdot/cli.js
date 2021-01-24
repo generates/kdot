@@ -83,3 +83,5 @@ if (command === 'set') {
 } else if (command === 'del') {
   kdot.del(cfg)
 }
+
+process.stdout.write('\n')

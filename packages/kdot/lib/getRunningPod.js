@@ -5,15 +5,30 @@ const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const intervalSeconds = 3
 const maxChecks = 20
 
+function isRunning (pod) {
+  return !pod?.metadata.deletionTimestamp &&
+    pod?.status.phase === 'Running' &&
+    pod?.status.containerStatuses[0]?.ready
+}
+
 export default async function getRunningPod (namespace, name) {
   const pod = await getPod(namespace, name)
-  if (pod?.status.phase === 'Running' && !pod?.metadata.deletionTimestamp) {
+  if (isRunning(pod)) {
     const { metadata, status } = pod
     logger.debug('Got running pod', { metadata, status })
     return pod
   } else {
     return new Promise((resolve, reject) => {
       let checks = 0
+
+      function abort (err) {
+        clearInterval(interval)
+        reject(err)
+      }
+
+      // Don't block the process from exiting.
+      process.on('SIGINT', abort)
+
       const interval = setInterval(
         async () => {
           try {
@@ -22,8 +37,7 @@ export default async function getRunningPod (namespace, name) {
 
             logger.debug(`Pod status check ${checks} for:`, name)
 
-            const isRunning = pod?.status.phase === 'Running'
-            if (isRunning && !pod?.metadata.deletionTimestamp) {
+            if (isRunning(pod)) {
               clearInterval(interval)
               const { metadata, status } = pod
               logger.debug('Got running pod', { metadata, status })
@@ -36,8 +50,7 @@ export default async function getRunningPod (namespace, name) {
               throw new Error(`Can't get running pod, pod failed: ${name}`)
             }
           } catch (err) {
-            clearInterval(interval)
-            reject(err)
+            abort(err)
           }
         },
         intervalSeconds * 1000

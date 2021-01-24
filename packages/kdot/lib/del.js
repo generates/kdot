@@ -18,6 +18,7 @@ export default async function del (cfg) {
       try {
         const namespace = chalk.yellow(cfg.namespace)
         const cluster = chalk.yellow(kc.currentContext)
+        process.stdout.write('\n')
         const response = await prompt.select(
           oneLine`
             Are you sure you want to delete the ${namespace} namespace and all
@@ -25,6 +26,7 @@ export default async function del (cfg) {
           `,
           { options: noYesOptions }
         )
+        process.stdout.write('\n')
         if (response === 'No') return
       } catch (err) {
         logger.debug(err)
@@ -41,6 +43,7 @@ export default async function del (cfg) {
       'Foreground'
     )
     logger.success('Deleted resources in namespace:', cfg.namespace)
+    process.stdout.write('\n')
   }
 
   // await Promise.allSettled(cfg.resources.map(async resource => {

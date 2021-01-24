@@ -5,6 +5,8 @@ import getRunningPod from './getRunningPod.js'
 import emojis from './emojis.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
+const byTopLevelNamespace = r => !r.app && r.kind === 'Namespace'
+const byTopLevel = r => !r.app && r.kind !== 'Namespace'
 
 function logUpdate (resource) {
   const change = resource.metadata.uid
@@ -140,11 +142,12 @@ export default async function apply (cfg) {
 
   if (cfg.input.prompt && resources.length) {
     try {
-      logger.write('\n')
+      process.stdout.write('\n')
       resources.forEach(logUpdate)
       const c = chalk.yellow(kc.currentContext)
       const question = `Are you sure you want to apply these changes to ${c}?`
       const response = await prompt.select(question)
+      process.stdout.write('\n')
       if (response === 'No') return
     } catch (err) {
       logger.debug(err)
@@ -155,9 +158,13 @@ export default async function apply (cfg) {
   // Setup the applyResource function with the run configuration.
   const applyResource = setupApplyResource(cfg)
 
+  // Apply top-level namespaces before other resources in case they depend on
+  // them.
+  await Promise.all(resources.filter(byTopLevelNamespace).map(applyResource))
+
   // Apply top-level resources before app-level resources in case the apps
   // depend on them.
-  await Promise.all(resources.filter(r => !r.app).map(applyResource))
+  await Promise.all(resources.filter(byTopLevel).map(applyResource))
 
   // Apply the app-level resources.
   await Promise.all(Object.entries(cfg.apps).map(async ([name]) => {
