@@ -45,7 +45,7 @@ export default function configureSecrets (cfg, owner) {
             const secretKeyRef = { name, key: value }
             if (owner?.env) owner.env[value] = { secretKeyRef }
           } else {
-            logger.warn(oneLine`
+            logger.debug(oneLine`
               Not adding "${value}" to secret "${name}" because it's undefined
             `)
           }
@@ -58,7 +58,7 @@ export default function configureSecrets (cfg, owner) {
               const secretKeyRef = { name, key: secretKey }
               if (owner?.env) owner.env[secretKey] = { secretKeyRef }
             } else {
-              logger.warn(oneLine`
+              logger.debug(oneLine`
                 Not adding "${envKey}" to secret "${name}" because it's
                 undefined
               `)
