@@ -2,16 +2,9 @@ import { createLogger, chalk } from '@generates/logger'
 import prompt from '@generates/prompt'
 import { kc, core, apps, net, sched } from './k8sApi.js'
 import getRunningPod from './getRunningPod.js'
+import emojis from './emojis.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
-const emojis = {
-  ConfigMap: '🗄️',
-  Deployment: '🚀',
-  Namespace: '📛',
-  PriorityClass: '🔢',
-  Secret: '🤐',
-  Service: '🛎️'
-}
 
 function logUpdate (resource) {
   const change = resource.metadata.uid
@@ -19,7 +12,7 @@ function logUpdate (resource) {
     : chalk.green('Create')
   const name = chalk.yellow(resource.metadata.name)
   const message = `${change} ${resource.kind}: ${name}`
-  logger.log(emojis[resource.kind] || '☸️', message)
+  logger.log(emojis[resource.kind] || emojis.k8, message)
 }
 
 function setupApplyResource (cfg) {
@@ -164,8 +157,7 @@ export default async function apply (cfg) {
 
   // Apply top-level resources before app-level resources in case the apps
   // depend on them.
-  const topLevelResources = resources.filter(r => !r.app)
-  await Promise.all(topLevelResources.map(applyResource))
+  await Promise.all(resources.filter(r => !r.app).map(applyResource))
 
   // Apply the app-level resources.
   await Promise.all(Object.entries(cfg.apps).map(async ([name]) => {

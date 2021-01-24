@@ -8,7 +8,8 @@ const maxChecks = 20
 export default async function getRunningPod (namespace, name) {
   const pod = await getPod(namespace, name)
   if (pod?.status.phase === 'Running' && !pod?.metadata.deletionTimestamp) {
-    logger.debug('Got running pod', pod.metadata)
+    const { metadata, status } = pod
+    logger.debug('Got running pod', { metadata, status })
     return pod
   } else {
     return new Promise((resolve, reject) => {
@@ -24,7 +25,8 @@ export default async function getRunningPod (namespace, name) {
             const isRunning = pod?.status.phase === 'Running'
             if (isRunning && !pod?.metadata.deletionTimestamp) {
               clearInterval(interval)
-              logger.debug('Got running pod', pod.metadata)
+              const { metadata, status } = pod
+              logger.debug('Got running pod', { metadata, status })
               resolve(pod)
             } else if (checks >= maxChecks) {
               clearInterval(interval)
