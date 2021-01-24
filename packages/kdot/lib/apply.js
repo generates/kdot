@@ -3,10 +3,13 @@ import prompt from '@generates/prompt'
 import { kc, core, apps, net, sched } from './k8sApi.js'
 import getRunningPod from './getRunningPod.js'
 import emojis from './emojis.js'
+import getResources from './getResources.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const byTopLevelNamespace = r => !r.app && r.kind === 'Namespace'
 const byTopLevel = r => !r.app && r.kind !== 'Namespace'
+const byDep = r => r.app?.isDependency
+const byNew = r => !r.metadata.uid || byDep(r)
 
 function logUpdate (resource) {
   const change = resource.metadata.uid
@@ -136,9 +139,8 @@ function setupApplyResource (cfg) {
  * Add configured apps to the cluster.
  */
 export default async function apply (cfg) {
-  const resources = cfg.input.update === false
-    ? cfg.resources.all.filter(r => !r.metadata.uid)
-    : cfg.resources.all
+  const filter = cfg.input.update === false ? byNew : byDep
+  const resources = await getResources(cfg, filter)
 
   if (cfg.input.prompt && resources.length) {
     try {

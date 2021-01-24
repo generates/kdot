@@ -1,9 +1,10 @@
 import { createLogger, chalk } from '@generates/logger'
 import emojis from '../emojis.js'
+import getResources from './getResources.js'
 
 const logger = createLogger({ namespace: 'kdot.show', level: 'info' })
 
-async function showResource (cfg, resource) {
+async function showResource (resource) {
   const status = resource.metadata.uid
     ? chalk.green('Created')
     : chalk.dim('Uknown')
@@ -13,15 +14,13 @@ async function showResource (cfg, resource) {
 }
 
 export default async function show (cfg) {
-  const resources = cfg.input.args.length
-    ? cfg.resources.all.filter(r => cfg.input.args.includes(r.app?.name))
-    : cfg.resources.all
+  const resources = await getResources(cfg)
 
   try {
     process.stdout.write('\n')
     await Promise.all(Object.entries(cfg.apps).map(async ([name]) => {
       for (const resource of resources.filter(r => r.app?.name === name)) {
-        await showResource(cfg, resource)
+        await showResource(resource)
       }
     }))
     process.stdout.write('\n')
