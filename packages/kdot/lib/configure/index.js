@@ -120,7 +120,7 @@ export default async function configure ({ ext, ...input }) {
             spec: {
               containers: [
                 {
-                  ...including(app, containerAttrs),
+                  ...including(app, ...containerAttrs),
                   name,
                   image: typeof image === 'string'
                     ? app.image
