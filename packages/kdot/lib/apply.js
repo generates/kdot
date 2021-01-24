@@ -159,12 +159,12 @@ export default async function apply (cfg) {
     }
   }
 
-  // Create or update top-level resources before app-level resources in case
-  // the apps depend on them.
+  // Apply top-level resources before app-level resources in case the apps
+  // depend on them.
   const topLevelResources = resources.filter(r => !r.app)
   if (topLevelResources.length) await Promise.all(resources.map(applyResource))
 
-  // Create the app-level resources.
+  // Apply the app-level resources.
   await Promise.all(Object.entries(cfg.app).map(async ([name]) => {
     for (const resource of resources.filter(r => r.app.name === name)) {
       await applyResource(resource)
