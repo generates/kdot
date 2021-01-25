@@ -1,6 +1,10 @@
 export default {
-  image: { repo: 'generates/actions-runner', tag: 'v1.0.0' },
-  env: {},
+  image: { repo: 'generates/actions-runner', tag: 'v0.0.1' },
+  env: {
+    NAME: {
+      fieldRef: { fieldPath: 'metadata.name' }
+    }
+  },
   secrets: [
     {
       name: 'actions-runner-token',
