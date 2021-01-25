@@ -29,19 +29,19 @@ async function getStatus (namespace, name) {
 }
 
 async function showResource (resource) {
-  const { namespace, name, uid } = resource.metadata
+  const { kind, namespace, name, uid } = resource.metadata
   let status = uid ? chalk.green('Existing') : chalk.dim('Unknown')
 
-  if (resource.kind === 'Deployment') status = await getStatus(namespace, name)
+  if (kind === 'Deployment' && uid) status = await getStatus(namespace, name)
 
   const message = `${resource.kind} ${chalk.yellow(name)}: ${status}`
-  logger.log(emojis[resource.kind] || emojis.k8, message)
+  logger.log(emojis[kind] || emojis.k8, message)
 }
 
 export default async function show (cfg) {
-  const resources = await getResources(cfg)
-
   try {
+    const resources = await getResources(cfg)
+
     process.stdout.write('\n')
     await Promise.all(Object.entries(cfg.apps).map(async ([name]) => {
       for (const resource of resources.filter(r => r.app?.name === name)) {
