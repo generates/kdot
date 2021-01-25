@@ -70,6 +70,8 @@ if (command === 'set') {
   kdot.fwd(cfg)
 } else if (command === 'log') {
   kdot.log(cfg)
+} else if (command === 'show') {
+  kdot.show(cfg)
 } else if (command === 'start') {
   kdot.start(cfg)
 } else if (command === 'stop') {
@@ -81,3 +83,5 @@ if (command === 'set') {
 } else if (command === 'del') {
   kdot.del(cfg)
 }
+
+process.stdout.write('\n')

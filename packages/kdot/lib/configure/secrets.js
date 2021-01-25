@@ -24,7 +24,12 @@ export default function configureSecrets (cfg, owner) {
 
   for (const given of secrets) {
     const name = given.name || owner.name
-    const secret = { kind: 'Secret', metadata: { namespace, name }, data: {} }
+    const secret = {
+      app: owner,
+      kind: 'Secret',
+      metadata: { namespace, name },
+      data: {}
+    }
 
     // Specifying secrets with values will queue those secrets to be
     // created if they don't exist and be used by apps as environment
@@ -40,7 +45,7 @@ export default function configureSecrets (cfg, owner) {
             const secretKeyRef = { name, key: value }
             if (owner?.env) owner.env[value] = { secretKeyRef }
           } else {
-            logger.warn(oneLine`
+            logger.debug(oneLine`
               Not adding "${value}" to secret "${name}" because it's undefined
             `)
           }
@@ -53,7 +58,7 @@ export default function configureSecrets (cfg, owner) {
               const secretKeyRef = { name, key: secretKey }
               if (owner?.env) owner.env[secretKey] = { secretKeyRef }
             } else {
-              logger.warn(oneLine`
+              logger.debug(oneLine`
                 Not adding "${envKey}" to secret "${name}" because it's
                 undefined
               `)

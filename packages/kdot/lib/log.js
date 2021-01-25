@@ -1,6 +1,7 @@
 import stream from 'stream'
 import { createLogger, chalk } from '@generates/logger'
-import { core, klog } from './k8sApi.js'
+import { klog } from './k8sApi.js'
+import getPods from './getPods.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const colors = [
@@ -13,47 +14,52 @@ const colors = [
   'white'
 ]
 
-async function getPods (namespace, name) {
-  const { body: { items } } = await core.listNamespacedPod(
-    namespace,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    `app=${name}`
-  )
-  return items.filter(p => !p.metadata.deletionTimestamp)
+function isReady (pod) {
+  return pod &&
+    !pod.metadata.deletionTimestamp &&
+    pod.status.containerStatuses[0]?.ready
 }
 
 const intervalSeconds = 3
 const maxChecks = 20
-async function getRunningPods (namespace, name) {
+async function getReadyPods (namespace, name) {
   const pods = await getPods(namespace, name)
-  if (pods.every(p => p.status.phase === 'Running')) {
-    logger.debug('Got running pods', pods.map(p => p.metadata.name))
-    return pods
+  const readyPods = pods.filter(isReady)
+  if (readyPods.length) {
+    logger.debug('Got ready pods', readyPods.map(p => p.metadata.name))
+    return readyPods
   } else {
     return new Promise((resolve, reject) => {
       let checks = 0
+
+      function abort (err) {
+        clearInterval(interval)
+        reject(err)
+      }
+
+      // Don't block the process from exiting.
+      process.on('SIGINT', abort)
+
       const interval = setInterval(
         async () => {
           try {
             const pods = await getPods(namespace, name)
+            const readyPods = pods.filter(isReady)
             checks++
 
-            logger.debug('Pods status check', pods.map(p => p.status))
+            logger.debug('Pods status check', readyPods.map(p => p.status))
 
-            if (pods.every(p => p.status.phase === 'Running')) {
+            if (readyPods.length) {
               clearInterval(interval)
-              logger.debug('Got running pods', pods.map(p => p.metadata.name))
-              resolve(pods)
+              const names = readyPods.map(p => p.metadata.name)
+              logger.debug('Got ready pods', names)
+              resolve(readyPods)
             } else if (checks >= maxChecks) {
               const t = `${maxChecks * intervalSeconds} seconds`
-              throw new Error(`Can't get running pods, timeout after: ${t}`)
+              throw new Error(`Can't get ready pods, timeout after: ${t}`)
             }
           } catch (err) {
-            clearInterval(interval)
-            reject(err)
+            abort(err)
           }
         },
         intervalSeconds * 1000
@@ -64,7 +70,7 @@ async function getRunningPods (namespace, name) {
 
 const streamedPods = []
 async function streamLogs (app, color) {
-  const pods = await getRunningPods(app.namespace, app.name)
+  const pods = await getReadyPods(app.namespace, app.name)
   for (const pod of pods.filter(p => !streamedPods.includes(p.metadata.name))) {
     const podName = chalk.dim(pod.metadata.name.replace(`${app.name}-`, ''))
     const logName = `${chalk.bold[color](app.name)} • ${podName}`

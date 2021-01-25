@@ -1,17 +1,15 @@
 import { createLogger, chalk } from '@generates/logger'
-import { oneLine } from 'common-tags'
 import prompt from '@generates/prompt'
 import { kc, core, apps, net, sched } from './k8sApi.js'
+import getRunningPod from './getRunningPod.js'
+import emojis from './emojis.js'
+import getResources from './getResources.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
-const emojis = {
-  ConfigMap: '🗄️',
-  Deployment: '🚀',
-  Namespace: '📛',
-  PriorityClass: '🔢',
-  Secret: '🤐',
-  Service: '🛎️'
-}
+const byTopLevelNamespace = r => !r.app && r.kind === 'Namespace'
+const byTopLevel = r => !r.app && r.kind !== 'Namespace'
+const byDep = r => r.app?.isDependency
+const byNew = r => !r.metadata.uid || byDep(r)
 
 function logUpdate (resource) {
   const change = resource.metadata.uid
@@ -19,34 +17,13 @@ function logUpdate (resource) {
     : chalk.green('Create')
   const name = chalk.yellow(resource.metadata.name)
   const message = `${change} ${resource.kind}: ${name}`
-  logger.log(emojis[resource.kind] || '☸️', message)
+  logger.log(emojis[resource.kind] || emojis.k8, message)
 }
 
-/**
- * Add configured apps to the cluster.
- */
-export default async function apply (cfg) {
-  const resources = cfg.input.update === false
-    ? cfg.resources.all.filter(r => !r.metadata.uid)
-    : cfg.resources.all
+function setupApplyResource (cfg) {
+  const logLevel = cfg.input.failFast ? 'fatal' : 'error'
 
-  if (cfg.input.prompt && resources.length) {
-    try {
-      logger.write('\n')
-      resources.forEach(logUpdate)
-      const cluster = chalk.yellow(kc.currentContext)
-      const question = oneLine`
-        Are you sure you want to apply all of these changes to ${cluster}?
-      `
-      const response = await prompt.select(question)
-      if (response === 'No') return
-    } catch (err) {
-      logger.debug(err)
-      process.exit(0)
-    }
-  }
-
-  for (const resource of resources) {
+  return async function applyResource ({ app, ...resource }) {
     const { uid, name, namespace } = resource.metadata
     try {
       if (resource.kind === 'Namespace') {
@@ -55,6 +32,13 @@ export default async function apply (cfg) {
           logger.success('Created Namespace:', name)
         }
       } else if (resource.kind === 'Deployment') {
+        // If the app depends on other apps, wait for the other apps to have
+        // running pods before creating the dependent app's Deployment.
+        if (app.dependsOn?.length) {
+          const toWait = name => getRunningPod(namespace, name)
+          await Promise.all(app.dependsOn.map(toWait))
+        }
+
         if (uid) {
           await apps.patchNamespacedDeployment(
             name,
@@ -144,10 +128,49 @@ export default async function apply (cfg) {
         logger.success('Created PriorityClass:', name)
       }
     } catch (err) {
-      const level = cfg.input.failFast ? 'fatal' : 'error'
-      logger[level](`Failed to apply ${resource.kind}:`, name)
+      logger[logLevel](`Failed to apply ${resource.kind}:`, name)
       logger.error(err.response?.body?.message || err)
-      if (level === 'fatal') process.exit(1)
+      if (logLevel === 'fatal') process.exit(1)
     }
   }
+}
+
+/**
+ * Add configured apps to the cluster.
+ */
+export default async function apply (cfg) {
+  const resources = await getResources(cfg, cfg.input.update === false && byNew)
+
+  if (cfg.input.prompt && resources.length) {
+    try {
+      process.stdout.write('\n')
+      resources.forEach(logUpdate)
+      const c = chalk.yellow(kc.currentContext)
+      const question = `Are you sure you want to apply these changes to ${c}?`
+      const response = await prompt.select(question)
+      process.stdout.write('\n')
+      if (response === 'No') return
+    } catch (err) {
+      logger.debug(err)
+      process.exit(0)
+    }
+  }
+
+  // Setup the applyResource function with the run configuration.
+  const applyResource = setupApplyResource(cfg)
+
+  // Apply top-level namespaces before other resources in case they depend on
+  // them.
+  await Promise.all(resources.filter(byTopLevelNamespace).map(applyResource))
+
+  // Apply top-level resources before app-level resources in case the apps
+  // depend on them.
+  await Promise.all(resources.filter(byTopLevel).map(applyResource))
+
+  // Apply the app-level resources.
+  await Promise.all(Object.entries(cfg.apps).map(async ([name]) => {
+    for (const resource of resources.filter(r => r.app?.name === name)) {
+      await applyResource(resource)
+    }
+  }))
 }

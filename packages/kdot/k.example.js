@@ -10,6 +10,7 @@ export default {
       ports: [
         { port: 8000, localPort: 8501, host: 'test.example.com' }
       ],
+      dependsOn: ['redis'],
       env: { PORT: '8000', APP_ENV: 'production' },
       secrets: [
         { name: 'hiipower', values: ['NUM'] }
