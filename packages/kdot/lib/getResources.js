@@ -24,7 +24,7 @@ export default async function getResources (cfg, filter = r => r) {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
       if (existing) configMap.metadata.uid = existing.metadata.uid
-      if (filter(configMap)) cfg.resources.all.push(configMap)
+      if (filter(configMap)) resources.push(configMap)
     }
   }
 
@@ -36,7 +36,7 @@ export default async function getResources (cfg, filter = r => r) {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
       if (existing) secret.metadata.uid = existing.metadata.uid
-      if (filter(secret)) cfg.resources.all.push(secret)
+      if (filter(secret)) resources.push(secret)
     }
   }
 
@@ -46,7 +46,7 @@ export default async function getResources (cfg, filter = r => r) {
       const { name } = priorityClass.metadata
       const existing = items.find(i => i.metadata.name === name)
       if (existing) priorityClass.metadata.uid = existing.metadata.uid
-      if (filter(priorityClass)) cfg.resources.all.push(priorityClass)
+      if (filter(priorityClass)) resources.push(priorityClass)
     }
   }
 
@@ -58,7 +58,7 @@ export default async function getResources (cfg, filter = r => r) {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
       if (existing) deployment.metadata.uid = existing.metadata.uid
-      if (filter(deployment)) cfg.resources.all.push(deployment)
+      if (filter(deployment)) resources.push(deployment)
     }
   }
 
@@ -70,7 +70,7 @@ export default async function getResources (cfg, filter = r => r) {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
       if (existing) service.metadata.uid = existing.metadata.uid
-      if (filter(service)) cfg.resources.all.push(service)
+      if (filter(service)) resources.push(service)
     }
   }
 
@@ -82,9 +82,11 @@ export default async function getResources (cfg, filter = r => r) {
         return i.metadata.name === name && i.metadata.namespace === namespace
       })
       if (existing) ingress.metadata.uid = existing.metadata.uid
-      if (filter(ingress)) cfg.resources.all.push(ingress)
+      if (filter(ingress)) resources.push(ingress)
     }
   }
 
-  logger.debug('getResources', cfg.resources)
+  logger.debug('getResources', resources)
+
+  return resources
 }
