@@ -3,8 +3,10 @@ import { core, apps, net, sched } from './k8sApi.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 
-export default async function getResources (cfg, filter = r => r) {
+export default async function getResources (cfg, filter) {
   const resources = []
+
+  if (!filter) filter = r => r
 
   if (cfg.resources.namespaces.length) {
     const { body: { items } } = await core.listNamespace()

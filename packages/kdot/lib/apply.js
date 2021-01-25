@@ -139,8 +139,7 @@ function setupApplyResource (cfg) {
  * Add configured apps to the cluster.
  */
 export default async function apply (cfg) {
-  const filter = cfg.input.update === false ? byNew : byDep
-  const resources = await getResources(cfg, filter)
+  const resources = await getResources(cfg, cfg.input.update === false && byNew)
 
   if (cfg.input.prompt && resources.length) {
     try {

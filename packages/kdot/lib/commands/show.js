@@ -1,13 +1,13 @@
 import { createLogger, chalk } from '@generates/logger'
 import emojis from '../emojis.js'
-import getResources from './getResources.js'
+import getResources from '../getResources.js'
 
 const logger = createLogger({ namespace: 'kdot.show', level: 'info' })
 
 async function showResource (resource) {
   const status = resource.metadata.uid
-    ? chalk.green('Created')
-    : chalk.dim('Uknown')
+    ? chalk.green('Existing')
+    : chalk.dim('Unknown')
   const name = chalk.yellow(resource.metadata.name)
   const message = `${status} ${resource.kind}: ${name}`
   logger.log(emojis[resource.kind] || emojis.k8, message)
