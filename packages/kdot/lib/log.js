@@ -1,6 +1,6 @@
 import stream from 'stream'
 import { createLogger, chalk } from '@generates/logger'
-import { core, klog } from './k8sApi.js'
+import { klog } from './k8sApi.js'
 import getPods from './getPods.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
