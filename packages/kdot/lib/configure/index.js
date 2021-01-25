@@ -70,7 +70,7 @@ export default async function configure ({ ext, ...input }) {
     app.isDependency = input.args.some(hasDependency)
 
     if (enabled || input.args.includes(name) || app.isDependency) {
-      //
+      // Mark the app as being enabled.
       app.enabled = true
 
       // If a namespace isn't specified for the app, assign the top-level
