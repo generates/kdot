@@ -1,5 +1,5 @@
 import { createLogger } from '@generates/logger'
-import { core } from './k8sApi.js'
+import getPods from './getPods.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const intervalSeconds = 3
@@ -12,18 +12,8 @@ function isRunning (pod) {
 }
 
 async function getPod (namespace, name) {
-  // FIXME: Maybe we can implement our own local load balancer to simulate
-  // the service and distribute traffic to all of the pods instead of just
-  // the first one?
-  const { body: { items } } = await core.listNamespacedPod(
-    namespace,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    `app=${name}`
-  )
-  return items.find(isRunning) || items[0]
+  const pods = await getPods(namespace, name)
+  return pods.find(isRunning) || pods[0]
 }
 
 export default async function getRunningPod (namespace, name) {
