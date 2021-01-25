@@ -6,7 +6,7 @@ export default {
       ports: [{ port: 6379, localPort: 8500 }]
     },
     web: {
-      image: { repo: 'ianwalter/example' },
+      image: { repo: 'generates/example-web' },
       ports: [
         { port: 8000, localPort: 8501, host: 'test.example.com' }
       ],
