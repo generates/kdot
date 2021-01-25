@@ -6,9 +6,9 @@ const intervalSeconds = 3
 const maxChecks = 20
 
 function isRunning (pod) {
-  return !pod?.metadata.deletionTimestamp &&
-    pod?.status.phase === 'Running' &&
-    pod?.status.containerStatuses[0]?.ready
+  return pod &&
+    !pod.metadata.deletionTimestamp &&
+    pod.status.containerStatuses[0]?.state.running
 }
 
 async function getPod (namespace, name) {
