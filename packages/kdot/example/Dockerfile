@@ -9,6 +9,6 @@ COPY yarn.lock .
 COPY package.json .
 RUN yarn
 
-COPY index.js .
+COPY packages/kdot/example/ .
 
 CMD ["node", "index.js"]

@@ -1,10 +1,11 @@
 import { createLogger } from '@generates/logger'
+import { stripIndent } from 'common-tags'
 import applyResource from '../applyResource.js'
-import configureSecrets from '../configure/secrets.js'
 import getPods from '../getPods.js'
 import getResources from '../getResources.js'
 import poll from '../poll.js'
 import configureNamespaces from '../configure/namespaces.js'
+import encode from '../encode.js'
 
 const toApp = a => a[1]
 const status = ['Succeeded', 'Failed']
@@ -17,11 +18,12 @@ export default async function build (cfg) {
     : app.enabled && !app.isDependency
 
   //
-  const build = { namespace: cfg.namespace, resources: {} }
+  const build = { namespace: cfg.namespace, resources: { secrets: [] } }
   configureNamespaces(build)
 
-  // If there is a build secret, like GIT_TOKEN, add it to the build pod.
-  const env = cfg.build?.secrets.reduce(
+  // If there is a build secret, like GIT_TOKEN, add it to the pod environment
+  // variable config.
+  const env = (cfg.build?.secrets || []).reduce(
     (acc, secret) => {
       for (const value of secret.values) {
         const [key] = Object.keys(value)
@@ -32,6 +34,29 @@ export default async function build (cfg) {
     },
     {}
   )
+
+  const volumes = []
+  const volumeMounts = []
+  if (cfg.build?.user) {
+    const name = 'registry-credentials'
+    build.resources.secrets.push({
+      kind: 'Secret',
+      metadata: { namespace: cfg.namespace, name },
+      data: {
+        'config.json': encode(stripIndent`
+          {
+            "auths": {
+              "${cfg.build.registry || 'https://index.docker.io/v1/'}": {
+                "auth": "${encode(`${cfg.build.user}:${cfg.build.pass}`)}"
+              }
+            }
+          }
+        `)
+      }
+    })
+    volumes.push({ name, secret: { secretName: name } })
+    volumeMounts.push({ name, mountPath: '/kaniko/.docker/' })
+  }
 
   const pods = []
   for (const app of Object.entries(cfg.apps).filter(byEnabled).map(toApp)) {
@@ -64,9 +89,11 @@ export default async function build (cfg) {
                 ...skipUnusedStaged ? [skipUnusedStaged] : [],
                 ...args ? Object.values(args) : []
               ],
-              ...env ? { env } : {}
+              env,
+              volumeMounts
             }
-          ]
+          ],
+          volumes
         }
       })
     }
