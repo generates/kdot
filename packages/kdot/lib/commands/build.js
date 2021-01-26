@@ -6,19 +6,32 @@ import getResources from '../getResources.js'
 import poll from '../poll.js'
 import configureNamespaces from '../configure/namespaces.js'
 
-const toApp = a => a.app
+const toApp = a => a[1]
 const status = ['Succeeded', 'Failed']
 const defaultDigest = '/dev/termination-log'
 const logger = createLogger({ namespace: 'kdot.build', level: 'info' })
 
 export default async function build (cfg) {
-  const byEnabled = ([name, app]) => cfg.input.args
+  const byEnabled = ([name, app]) => cfg.input.args.length
     ? cfg.input.args.includes(name) && app.enabled && !app.isDependency
     : app.enabled && !app.isDependency
 
   //
   const build = { namespace: cfg.namespace, resources: {} }
   configureNamespaces(build)
+
+  // If there is a build secret, like GIT_TOKEN, add it to the build pod.
+  const env = cfg.build?.secrets.reduce(
+    (acc, secret) => {
+      for (const value of secret.values) {
+        const [key] = Object.keys(value)
+        const secretKeyRef = { name: secret.name, key }
+        acc[key] = { valueFrom: { secretKeyRef } }
+      }
+      return acc
+    },
+    {}
+  )
 
   const pods = []
   for (const app of Object.entries(cfg.apps).filter(byEnabled).map(toApp)) {
@@ -33,23 +46,28 @@ export default async function build (cfg) {
         ...args
       } = app.build.args || {}
 
-      // If there is a build secret, like GIT_TOKEN, add it to the build pod.
-      if (cfg.build?.secrets) configureSecrets(build, app)
-
       // Create the pod configuration.
       pods.push({
         app,
         kind: 'Pod',
-        image: 'gcr.io/kaniko-project/executor',
-        args: [
-          ...dockerfile ? [dockerfile] : [],
-          ...context ? [context] : [],
-          ...destination ? [destination] : [],
-          ...digestFile ? [digestFile] : [],
-          ...skipUnusedStaged ? [skipUnusedStaged] : [],
-          ...args ? Object.values(args) : []
-        ],
-        ...app.env ? { env: app.env } : {}
+        metadata: { namespace: cfg.namespace, name: `build-${app.name}` },
+        spec: {
+          containers: [
+            {
+              name: `build-${app.name}`,
+              image: 'gcr.io/kaniko-project/executor',
+              args: [
+                ...dockerfile ? [dockerfile] : [],
+                ...context ? [context] : [],
+                ...destination ? [destination] : [],
+                ...digestFile ? [digestFile] : [],
+                ...skipUnusedStaged ? [skipUnusedStaged] : [],
+                ...args ? Object.values(args) : []
+              ],
+              ...env ? { env } : {}
+            }
+          ]
+        }
       })
     }
   }
@@ -57,6 +75,8 @@ export default async function build (cfg) {
   // Create any namespace or secret resources before creating the build pods.
   const resources = await getResources(build, r => !r.metadata.uid)
   if (resources.length) await Promise.all(resources.map(applyResource))
+
+  logger.debug('Build pods', pods)
 
   // Perform the image builds by deploying the build pods to the cluster.
   await Promise.all(pods.map(async pod => {
@@ -67,7 +87,7 @@ export default async function build (cfg) {
 
     // Wait for the build pod to complete.
     const request = () => getPods(pod.metadata.namespace, pod.metadata.name, 1)
-    const condition = pod => status.includes(pod.status.phase)
+    const condition = pod => status.includes(pod?.status?.phase)
     pod = await poll({ request, condition, interval: 2000 })
 
     const { state } = pod.status.containerStatuses[0]

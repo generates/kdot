@@ -109,7 +109,7 @@ export default async function applyResource ({ app, ...resource }, opts = {}) {
       await sched.createPriorityClass(resource)
       logger.success('Created PriorityClass:', name)
     } else if (resource.kind === 'Pod') {
-      const pod = await core.createNamespacedPod(resource)
+      const pod = await core.createNamespacedPod(namespace, resource)
       logger.success('Created Pod:', name)
       return pod
     }
