@@ -17,10 +17,12 @@ const containerAttrs = V1Container.attributeTypeMap.map(a => a.name)
 function toServicePort ({ localPort, ...port }) {
   return port
 }
+
 function toEnv ([name, value]) {
   if (typeof value === 'object') return { name, valueFrom: value }
   return { name, value }
 }
+
 function taggedImage () {
   return typeof this.image === 'string'
     ? this.image
