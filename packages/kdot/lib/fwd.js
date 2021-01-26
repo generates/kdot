@@ -6,6 +6,7 @@ import { k8s, kc } from './k8sApi.js'
 import getRunningPod from './getRunningPod.js'
 
 const logger = createLogger({ namespace: 'kdot.fwd', level: 'info' })
+const pollConfig = { interval: 1000, timeout: 300000 }
 
 function forwardPort (app, pod, portConfig) {
   return new Promise((resolve, reject) => {
@@ -40,7 +41,7 @@ function forwardPort (app, pod, portConfig) {
           server.destroy()
 
           // Attempt to get a running pod.
-          const pod = await getRunningPod(namespace, app.name)
+          const pod = await getRunningPod(namespace, app.name, pollConfig)
 
           // Create a new port forward to the new pod.
           server = await forwardPort(app, pod, portConfig)
@@ -88,7 +89,8 @@ export default async function fwd (cfg) {
   const apps = Object.values(cfg.apps).filter(a => a.enabled)
   await Promise.all(apps.map(async app => {
     try {
-      const pod = await getRunningPod(app.namespace || cfg.namespace, app.name)
+      const namespace = app.namespace || cfg.namespace
+      const pod = await getRunningPod(namespace, app.name, pollConfig)
       for (const p of app.ports) await forwardPort(app, pod, p)
     } catch (err) {
       logger.error(err)

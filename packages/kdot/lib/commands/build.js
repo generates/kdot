@@ -68,6 +68,7 @@ export default async function build (cfg) {
         destination = `--destination=${app.taggedImage}`,
         digestFile = `--digest-file=${app.build.digestFile || defaultDigest}`,
         skipUnusedStaged = '--skip-unused-stages',
+        cache = '--cache=true',
         ...args
       } = app.build.args || {}
 
@@ -89,6 +90,7 @@ export default async function build (cfg) {
                 ...destination ? [destination] : [],
                 ...digestFile ? [digestFile] : [],
                 ...skipUnusedStaged ? [skipUnusedStaged] : [],
+                ...cache ? [cache] : [],
                 ...args ? Object.values(args) : []
               ],
               env,
@@ -115,7 +117,7 @@ export default async function build (cfg) {
     await applyResource(pod)
 
     // Wait for the build pod to complete.
-    const request = async () => getPods(metadata.namespace, metadata.name, 1)
+    const request = () => getPods(metadata.namespace, metadata.name, 1)
     const condition = pod => statuses.includes(pod?.status?.phase)
     pod = await poll({ request, condition, interval: 2000 })
 

@@ -17,7 +17,7 @@ export default async function applyResource ({ app, ...resource }, opts = {}) {
       // If the app depends on other apps, wait for the other apps to have
       // running pods before creating the dependent app's Deployment.
       if (app.dependsOn?.length) {
-        const toWait = name => getRunningPod(namespace, name)
+        const toWait = name => getRunningPod(namespace, name, { interval: 999 })
         await Promise.all(app.dependsOn.map(toWait))
       }
 
