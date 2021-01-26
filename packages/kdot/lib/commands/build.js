@@ -55,7 +55,17 @@ export default async function build (cfg) {
       }
     })
     volumes.push({ name, secret: { secretName: name } })
-    volumeMounts.push({ name, mountPath: '/kaniko/.docker/' })
+    volumeMounts.push({ name, mountPath: '/kaniko/.docker/', readOnly: true })
+  } else if (cfg.build?.gcr) {
+    const name = 'gcr-credentials'
+    build.resources.secrets.push({
+      kind: 'Secret',
+      metadata: { namespace: cfg.namespace, name },
+      data: { 'config.json': cfg.build.gcr }
+    })
+    volumes.push({ name, secret: { secretName: name } })
+    volumeMounts.push({ name, mountPath: '/kaniko/', readOnly: true })
+    env.GOOGLE_APPLICATION_CREDENTIALS = '/kaniko/config.json'
   }
 
   const pods = []
