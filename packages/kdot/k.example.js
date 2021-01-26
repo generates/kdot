@@ -1,3 +1,7 @@
+const ref = 'refs/heads/actions-runner'
+const sha = 'd04b0461ed088e4052544e2837933a5634cd5018'
+const context = `git://github.com/generates/kdot.git#${ref}#${sha}`
+
 export default {
   namespace: 'dev',
   apps: {
@@ -17,7 +21,11 @@ export default {
       ],
       configMaps: [
         { name: 'getit', mountPath: '/etc/getit', files: ['package.json'] }
-      ]
+      ],
+      build: {
+        context,
+        dockerfile: 'packages/kdot/example/Dockerfile'
+      }
     }
   },
   secrets: [

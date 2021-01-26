@@ -4,6 +4,7 @@ import configureSecrets from '../configure/secrets.js'
 import getPods from '../getPods.js'
 import getResources from '../getResources.js'
 import poll from '../poll.js'
+import configureNamespaces from '../configure/namespaces.js'
 
 const toApp = a => a.app
 const status = ['Succeeded', 'Failed']
@@ -24,7 +25,7 @@ export default async function build (cfg) {
     if (app.build) {
       // Deconstruct the build args so that they can be overridden if necessary.
       const {
-        dockerfile = `--dockerfile=${app.build.dockerfile || './Dockerfile'}`,
+        dockerfile = `--dockerfile=${app.build.dockerfile || 'Dockerfile'}`,
         context = `--context=${app.build.context}`,
         destination = `--destination=${app.taggedImage}`,
         digestFile = `--digest-file=${app.build.digestFile || defaultDigest}`,
@@ -54,7 +55,7 @@ export default async function build (cfg) {
   }
 
   // Create any namespace or secret resources before creating the build pods.
-  const resources = await getResources(build)
+  const resources = await getResources(build, r => !r.metadata.uid)
   if (resources.length) await Promise.all(resources.map(applyResource))
 
   // Perform the image builds by deploying the build pods to the cluster.

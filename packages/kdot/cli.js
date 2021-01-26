@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
-import path from 'path'
+import { createLogger } from '@generates/logger'
 import cli from '@generates/cli'
 import * as kdot from './index.js'
 import configure from './lib/configure/index.js'
+
+const logger = createLogger({ level: 'info', namespace: 'kdot.cli' })
 
 const { _: [command, ...args], packageJson, ...input } = cli({
   name: 'kdot',
