@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.0.18
+
+### Patch Changes
+
+- 275cd2d: Adding support for dependsOn
+- e80038e: Adding build command
+
 ## 0.0.17
 
 ### Patch Changes
