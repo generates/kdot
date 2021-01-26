@@ -77,6 +77,7 @@ export default async function build (cfg) {
         kind: 'Pod',
         metadata: { namespace: cfg.namespace, name: `build-${app.name}` },
         spec: {
+          restartPolicy: 'Never',
           containers: [
             {
               name: `build-${app.name}`,
