@@ -55,33 +55,38 @@ const { _: [command, ...args], packageJson, ...input } = cli({
 //
 input.args = args
 
-// Consolidate the configuration into a single set of values.
-const cfg = await configure(input)
+try {
+  // Consolidate the configuration into a single set of values.
+  const cfg = await configure(input)
 
-if (command === 'set') {
-  kdot.set(cfg)
-} else if (command === 'get') {
-  kdot.get(cfg)
-} else if (command === 'build') {
-  kdot.build(cfg)
-} else if (command === 'apply') {
-  kdot.apply(cfg)
-} else if (command === 'fwd') {
-  kdot.fwd(cfg)
-} else if (command === 'log') {
-  kdot.log(cfg)
-} else if (command === 'show') {
-  kdot.show(cfg)
-} else if (command === 'start') {
-  kdot.start(cfg)
-} else if (command === 'stop') {
-  kdot.stop(cfg)
-} else if (command === 'up') {
-  kdot.up(cfg)
-} else if (command === 'down') {
-  kdot.down(cfg)
-} else if (command === 'del') {
-  kdot.del(cfg)
+  if (command === 'set') {
+    kdot.set(cfg)
+  } else if (command === 'get') {
+    kdot.get(cfg)
+  } else if (command === 'build') {
+    await kdot.build(cfg)
+  } else if (command === 'apply') {
+    kdot.apply(cfg)
+  } else if (command === 'fwd') {
+    kdot.fwd(cfg)
+  } else if (command === 'log') {
+    kdot.log(cfg)
+  } else if (command === 'show') {
+    kdot.show(cfg)
+  } else if (command === 'start') {
+    kdot.start(cfg)
+  } else if (command === 'stop') {
+    kdot.stop(cfg)
+  } else if (command === 'up') {
+    kdot.up(cfg)
+  } else if (command === 'down') {
+    kdot.down(cfg)
+  } else if (command === 'del') {
+    kdot.del(cfg)
+  }
+} catch (err) {
+  logger.fatal(err)
+  process.exit(1)
 }
 
 process.stdout.write('\n')
