@@ -9,5 +9,5 @@ export default async function getPods (namespace, name, limit) {
     undefined,
     `app=${name}`
   )
-  return limit ? items.slice(0, limit) : items
+  return limit === 1 ? items.shift() : items.slice(0, limit)
 }

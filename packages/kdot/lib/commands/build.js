@@ -8,7 +8,7 @@ import configureNamespaces from '../configure/namespaces.js'
 import encode from '../encode.js'
 
 const toApp = a => a[1]
-const status = ['Succeeded', 'Failed']
+const statuses = ['Succeeded', 'Failed']
 const defaultDigest = '/dev/termination-log'
 const logger = createLogger({ namespace: 'kdot.build', level: 'info' })
 
@@ -72,10 +72,11 @@ export default async function build (cfg) {
       } = app.build.args || {}
 
       // Create the pod configuration.
+      const name = `build-${app.name}`
       pods.push({
         app,
         kind: 'Pod',
-        metadata: { namespace: cfg.namespace, name: `build-${app.name}` },
+        metadata: { namespace: cfg.namespace, name, labels: { app: name } },
         spec: {
           restartPolicy: 'Never',
           containers: [
@@ -108,22 +109,22 @@ export default async function build (cfg) {
 
   // Perform the image builds by deploying the build pods to the cluster.
   await Promise.all(pods.map(async pod => {
-    const { app } = pod
+    const { app, metadata } = pod
 
     // Deploy the build pod.
     await applyResource(pod)
 
     // Wait for the build pod to complete.
-    const request = () => getPods(pod.metadata.namespace, pod.metadata.name, 1)
-    const condition = pod => status.includes(pod?.status?.phase)
+    const request = async () => getPods(metadata.namespace, metadata.name, 1)
+    const condition = pod => statuses.includes(pod?.status?.phase)
     pod = await poll({ request, condition, interval: 2000 })
 
     const { state } = pod.status.containerStatuses[0]
     if (pod.status.phase === 'Succeeded') {
       const digest = state.terminated.message
-      logger.success(`Built ${app.image.repo} for ${app.name}: ${digest}`)
+      logger.success(`Built ${app.taggedImage} for ${app.name}: ${digest}`)
     } else {
-      logger.fatal(`Build ${app.image.repo} failed for ${app.name}:`, state)
+      logger.fatal(`Build ${app.taggedImage} failed for ${app.name}:`, state)
       process.exit(1)
     }
   }))
