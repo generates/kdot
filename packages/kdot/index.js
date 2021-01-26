@@ -5,6 +5,7 @@ import show from './lib/commands/show.js'
 import del from './lib/del.js'
 import set from './lib/set.js'
 import get from './lib/get.js'
+import build from './lib/commands/build.js'
 
 export {
   apply,
@@ -13,7 +14,8 @@ export {
   show,
   del,
   set,
-  get
+  get,
+  build
 }
 
 export async function start (cfg) {

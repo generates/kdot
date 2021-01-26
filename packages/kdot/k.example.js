@@ -1,3 +1,5 @@
+const context = 'git://github.com/generates/kdot.git#refs/heads/actions-runner'
+
 export default {
   namespace: 'dev',
   apps: {
@@ -6,7 +8,7 @@ export default {
       ports: [{ port: 6379, localPort: 8500 }]
     },
     web: {
-      image: { repo: 'ianwalter/example' },
+      image: { repo: 'generates/example-web' },
       ports: [
         { port: 8000, localPort: 8501, host: 'test.example.com' }
       ],
@@ -17,10 +19,15 @@ export default {
       ],
       configMaps: [
         { name: 'getit', mountPath: '/etc/getit', files: ['package.json'] }
-      ]
+      ],
+      build: { context, dockerfile: 'packages/kdot/example/Dockerfile' }
     }
   },
   secrets: [
     { name: 'blackerberry', values: ['SWEETER_JUICE'] }
-  ]
+  ],
+  build: {
+    user: process.env.DOCKER_USER,
+    pass: process.env.DOCKER_PASS
+  }
 }

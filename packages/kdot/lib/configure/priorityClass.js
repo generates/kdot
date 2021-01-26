@@ -1,5 +1,6 @@
 export default function configurePriorityClass (cfg, app) {
   cfg.resources.priorityClasses = cfg.resources.priorityClasses || []
+
   const name = `priority-${app.priority}`
   const byName = p => p.metadata.name === name
   const appName = `${app.namespace}.${app.name}`

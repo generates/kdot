@@ -1,6 +1,6 @@
 import { core } from './k8sApi.js'
 
-export default async function getPods (namespace, name) {
+export default async function getPods (namespace, name, limit) {
   const { body: { items } } = await core.listNamespacedPod(
     namespace,
     undefined,
@@ -9,5 +9,5 @@ export default async function getPods (namespace, name) {
     undefined,
     `app=${name}`
   )
-  return items
+  return limit === 1 ? items.shift() : items.slice(0, limit)
 }

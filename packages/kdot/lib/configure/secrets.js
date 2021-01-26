@@ -1,13 +1,9 @@
 import 'dotenv/config.js'
 import { createLogger } from '@generates/logger'
 import { oneLine } from 'common-tags'
+import encode from '../encode.js'
 
 const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
-
-function encode (value) {
-  const buffer = Buffer.from(value)
-  return buffer.toString('base64')
-}
 
 export default function configureSecrets (cfg, owner) {
   // Determine which Secrets to configure and which namespace to use (top-level

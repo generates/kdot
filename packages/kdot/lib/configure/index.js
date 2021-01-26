@@ -7,6 +7,7 @@ import { V1Container } from '@kubernetes/client-node'
 import configureConfigMaps from './configMaps.js'
 import configureSecrets from './secrets.js'
 import configurePriorityClass from './priorityClass.js'
+import configureNamespaces from './namespaces.js'
 
 const require = createRequire(import.meta.url)
 const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
@@ -20,6 +21,12 @@ function toServicePort ({ localPort, ...port }) {
 function toEnv ([name, value]) {
   if (typeof value === 'object') return { name, valueFrom: value }
   return { name, value }
+}
+
+function taggedImage () {
+  return typeof this.image === 'string'
+    ? this.image
+    : `${this.image.repo}:${this.image.tag || 'latest'}`
 }
 
 export default async function configure ({ ext, ...input }) {
@@ -52,11 +59,7 @@ export default async function configure ({ ext, ...input }) {
   cfg.resources = { all: [], namespaces: [], deployments: [], services: [] }
 
   // If there is a top-level namespace, add it to the resources array.
-  if (cfg.namespace !== 'default') {
-    const metadata = { name: cfg.namespace, labels }
-    const namespace = { kind: 'Namespace', metadata }
-    cfg.resources.namespaces.push(namespace)
-  }
+  if (cfg.namespace !== 'default') configureNamespaces(cfg)
 
   // Configure top-level secrets.
   if (cfg.secrets) configureSecrets(cfg)
@@ -82,11 +85,7 @@ export default async function configure ({ ext, ...input }) {
 
       // If there is a app-level namespace that is different from the
       // top-level namespace, add it to the resources array.
-      if (app.namespace !== cfg.namespace) {
-        const metadata = { name: app.namespace, labels }
-        const namespace = { kind: 'Namespace', metadata }
-        cfg.resources.namespaces.push(namespace)
-      }
+      if (app.namespace !== cfg.namespace) configureNamespaces(cfg, app)
 
       const appLabel = { app: name }
 
@@ -102,6 +101,9 @@ export default async function configure ({ ext, ...input }) {
       // Add PriorityClass resources if the app has a priority assigned to it.
       const hasPriority = Number.isInteger(app.priority)
       if (hasPriority) configurePriorityClass(cfg, app)
+
+      // Add the taggedImage getter to the app object for convenience.
+      Object.defineProperty(app, 'taggedImage', { get: taggedImage })
 
       cfg.resources.deployments.push({
         app,
@@ -121,9 +123,7 @@ export default async function configure ({ ext, ...input }) {
                 {
                   ...including(app, ...containerAttrs),
                   name,
-                  image: typeof image === 'string'
-                    ? app.image
-                    : `${app.image.repo}:${app.image.tag || 'latest'}`,
+                  image: app.taggedImage,
                   ports: app.ports?.map(p => ({ containerPort: p.port }))
                 }
               ],

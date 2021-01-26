@@ -8,7 +8,7 @@ export default async function getResources (cfg, filter) {
 
   if (!filter) filter = r => r
 
-  if (cfg.resources.namespaces.length) {
+  if (cfg.resources.namespaces?.length) {
     const { body: { items } } = await core.listNamespace()
     for (const namespace of cfg.resources.namespaces) {
       const { name } = namespace.metadata
@@ -52,7 +52,7 @@ export default async function getResources (cfg, filter) {
     }
   }
 
-  if (cfg.resources.deployments.length) {
+  if (cfg.resources.deployments?.length) {
     const { body: { items } } = await apps.listDeploymentForAllNamespaces()
     for (const deployment of cfg.resources.deployments) {
       const { name, namespace } = deployment.metadata
@@ -64,7 +64,7 @@ export default async function getResources (cfg, filter) {
     }
   }
 
-  if (cfg.resources.services.length) {
+  if (cfg.resources.services?.length) {
     const { body: { items } } = await core.listServiceForAllNamespaces()
     for (const service of cfg.resources.services) {
       const { name, namespace } = service.metadata
