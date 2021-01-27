@@ -3,7 +3,7 @@ import fwd from './lib/fwd.js'
 import log from './lib/log.js'
 import show from './lib/commands/show.js'
 import del from './lib/del.js'
-import set from './lib/set.js'
+import set from './lib/commands/set.js'
 import get from './lib/get.js'
 import build from './lib/commands/build.js'
 
