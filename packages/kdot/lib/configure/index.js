@@ -83,11 +83,12 @@ export default async function configure ({ ext, ...input }) {
       // Set app name to the key that was used to define it.
       app.name = name
 
+      // Create the app label so that resources can be filtered by app name.
+      const appLabel = { app: name }
+
       // If there is a app-level namespace that is different from the
       // top-level namespace, add it to the resources array.
       if (app.namespace !== cfg.namespace) configureNamespaces(cfg, app)
-
-      const appLabel = { app: name }
 
       // Configure app-level ConfigMaps and ConfigMap Volumes.
       if (app.configMaps) await configureConfigMaps(cfg, app)
