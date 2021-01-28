@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.0.19
+
+### Patch Changes
+
+- 79946be: Filtering out existing namespace from apply
+- c84ce54: Refactoring set command to work with new config system
+
 ## 0.0.18
 
 ### Patch Changes
