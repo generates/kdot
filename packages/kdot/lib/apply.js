@@ -8,8 +8,8 @@ import applyResource from './applyResource.js'
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const byTopLevelNamespace = r => !r.app && r.kind === 'Namespace'
 const byTopLevel = r => !r.app && r.kind !== 'Namespace'
-const byDep = r => r.app?.isDependency
-const byNew = r => !r.metadata.uid || byDep(r)
+const byNewOrDep = r => !r.metadata.uid || r.app?.isDependency
+const byNotExistingNs = r => !r.metadata.uid || r.kind !== 'Namespace'
 
 function logUpdate (resource) {
   const change = resource.metadata.uid
@@ -29,7 +29,8 @@ function setupApplyResource (cfg) {
  * Add configured apps to the cluster.
  */
 export default async function apply (cfg) {
-  const resources = await getResources(cfg, cfg.input.update === false && byNew)
+  const filter = cfg.input.update === false ? byNewOrDep : byNotExistingNs
+  const resources = await getResources(cfg, filter)
 
   if (cfg.input.prompt && resources.length) {
     try {
