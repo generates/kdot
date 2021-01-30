@@ -144,6 +144,11 @@ export default async function configure ({ ext, ...input }) {
           metadata: { name, namespace: app.namespace, labels },
           spec: { selector: appLabel, ports: app.ports.map(toServicePort) }
         }
+
+        // Merge in any additional service properties specified on the app
+        // (e.g. type).
+        merge(service, app.service)
+
         cfg.resources.services.push(service)
 
         const hostPorts = app.ports.filter(p => p.hosts)

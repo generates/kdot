@@ -1,10 +1,21 @@
 export default {
   namespace: 'kdot',
   apps: {
-    proxy: {
-      image: { repo: 'generates/kdot-auth-proxy', tag: 'latest' },
-      ports: [{ port: 3003 }],
-      env: { PORT: '3003' }
+    traefik: {
+      image: { repo: 'traefik', tag: 'v2.4' },
+      service: { type: 'LoadBalancer' },
+      ports: [
+        { name: 'traefik', port: 9000 },
+        { name: 'web', port: 80, targetPort: 8000 },
+        { name: 'websecure', port: 443, targetPort: 8443 }
+      ],
+      configMaps: [
+        {
+          name: 'traefik',
+          mountPath: '/etc/traefik',
+          files: ['config/traefik.toml']
+        }
+      ]
     }
   }
 }
