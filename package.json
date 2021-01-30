@@ -13,7 +13,8 @@
     "test:ci": "ultra --raw -r test"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "devDependencies": {
     "@changesets/cli": "^2.11.1",
