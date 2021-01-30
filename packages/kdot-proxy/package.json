@@ -1,0 +1,9 @@
+{
+  "name": "@generates/kdot-proxy",
+  "version": "0.0.0",
+  "license": "SEE LICENSE IN LICENSE",
+  "type": "module",
+  "files": [
+    "index.js"
+  ]
+}

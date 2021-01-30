@@ -1,19 +1,20 @@
 import path from 'path'
 import fs from 'fs'
-import { createApp } from '@ianwalter/nrg'
+import nrg from '@ianwalter/nrg'
 import httpProxy from 'http-proxy'
 
 const hostsFile = process.env.HOSTS_FILE || '../kdot-auth-proxy-conf/hosts.json'
 const json = fs.readFileSync(path.resolve(hostsFile))
 const hosts = JSON.parse(json)
 
-const app = createApp({
+const app = nrg.createApp({
   oauth: {
     github: {
       client_id: process.env.GITHUB_CLIENT_ID,
       client_secret: process.env.GITHUB_CLIENT_SECRET,
       callback: '/kdot-auth-proxy/callback',
-      response: ['profile', 'organizations']
+      response: ['tokens', 'profile'],
+      scope: ['read:org']
     }
   }
 })
@@ -38,6 +39,9 @@ app.get(app.context.cfg.oauth.github.callback, ctx => {
   ctx.logger.debug(rest)
   if (ctx.session.redirect) return ctx.redirect(ctx.session.redirect)
 })
+
+// Allow users to logout of their session.
+app.get('/kdot-auth-proxy/logout', ...nrg.logout)
 
 // Handle the authorization check and proxy.
 app.use(ctx => {
