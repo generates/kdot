@@ -1,9 +1,9 @@
-export default function kdotProxy ({ email, provider, secret }) {
-  //
-  if (!secret.name) secret.name = 'dns-credentials'
-
-  //
-  if (!secret.ref) secret.ref = 'token'
+export default function kdotProxy ({ email, provider, secret } = {}) {
+  // Add default secret configuration.
+  if (secret) {
+    if (!secret.name) secret.name = 'dns-credentials'
+    if (!secret.ref) secret.ref = 'token'
+  }
 
   return {
     namespace: 'proxy',
