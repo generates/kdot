@@ -2,7 +2,7 @@
 .git
 .gitignore
 .github
-node_modiles
+node_modules
 packages
 LICENSE
 README.md
