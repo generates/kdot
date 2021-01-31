@@ -33,11 +33,11 @@ export default {
     pass: process.env.DOCKER_PASS
   },
   ...kdotProxy({
-    email: 'user@example.com',
-    provider: 'digitalocean',
+    email: process.env.LETSENCRYPT_EMAIL || 'user@example.com',
+    provider: 'cloudflare',
     secret: {
-      ref: 'token',
-      values: [{ 'access-token': 'DO_ACCESS_TOKEN' }]
+      ref: 'apiToken',
+      values: [{ 'api-token': 'CLOUDFLARE_API_TOKEN' }]
     }
   })
 }
