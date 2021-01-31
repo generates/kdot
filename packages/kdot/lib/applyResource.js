@@ -155,7 +155,7 @@ export default async function applyResource ({ app, ...resource }, opts = {}) {
         )
         logger.success('Updated ServiceAccount:', name)
       } else {
-        await core.createNamespacedServiceAccount(resource)
+        await core.createNamespacedServiceAccount(namespace, resource)
         logger.success('Created ServiceAccount:', name)
       }
     } else if (resource.kind === 'RoleBinding') {

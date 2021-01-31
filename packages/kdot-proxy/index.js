@@ -18,42 +18,40 @@ export default {
           files: ['config/traefik.toml']
         }
       ],
-      roles: [
-        {
-          cluster: true,
-          rules: [
-            {
-              apiGroups: [''],
-              resources: ['services', 'endpoints', 'secrets'],
-              verbs: ['get', 'list', 'watch']
-            },
-            {
-              apiGroups: ['extensions', 'networking.k8s.io'],
-              resources: ['ingresses', 'ingressclasses'],
-              verbs: ['get', 'list', 'watch']
-            },
-            {
-              apiGroups: ['extensions', 'networking.k8s.io'],
-              resources: ['ingresses/status'],
-              verbs: ['update']
-            },
-            {
-              apiGroups: ['traefik.containo.us'],
-              resources: [
-                'ingressroutes',
-                'ingressroutetcps',
-                'ingressrouteudps',
-                'middlewares',
-                'tlsoptions',
-                'tlsstores',
-                'traefikservices',
-                'serverstransports'
-              ],
-              verbs: ['get', 'list', 'watch']
-            }
-          ]
-        }
-      ]
+      role: {
+        cluster: true,
+        rules: [
+          {
+            apiGroups: [''],
+            resources: ['services', 'endpoints', 'secrets'],
+            verbs: ['get', 'list', 'watch']
+          },
+          {
+            apiGroups: ['extensions', 'networking.k8s.io'],
+            resources: ['ingresses', 'ingressclasses'],
+            verbs: ['get', 'list', 'watch']
+          },
+          {
+            apiGroups: ['extensions', 'networking.k8s.io'],
+            resources: ['ingresses/status'],
+            verbs: ['update']
+          },
+          {
+            apiGroups: ['traefik.containo.us'],
+            resources: [
+              'ingressroutes',
+              'ingressroutetcps',
+              'ingressrouteudps',
+              'middlewares',
+              'tlsoptions',
+              'tlsstores',
+              'traefikservices',
+              'serverstransports'
+            ],
+            verbs: ['get', 'list', 'watch']
+          }
+        ]
+      }
     }
   }
 }

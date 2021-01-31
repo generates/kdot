@@ -124,6 +124,7 @@ export default async function configure ({ ext, ...input }) {
           template: {
             metadata: { labels: { ...labels, ...appLabel } },
             spec: {
+              ...app.role ? { serviceAccountName: app.role.name || name } : {},
               containers: [
                 {
                   ...including(app, ...containerAttrs),
