@@ -158,8 +158,14 @@ export default async function configure ({ ext, ...input }) {
 
         const hostPorts = app.ports.filter(p => p.hosts)
         if (hostPorts.length) {
-          const metadata = { name, namespace: app.namespace, labels }
-          const spec = { rules: [] }
+          const clusterIssuer = cfg.clusterIssuer || 'kdot-cluster-issuer'
+          const metadata = {
+            name,
+            namespace: app.namespace,
+            labels,
+            annotations: [`cert-manager.io/cluster-issuer: ${clusterIssuer}`]
+          }
+          const spec = { rules: [], tls: [] }
           const ingress = { app, kind: 'Ingress', metadata, spec }
 
           for (const p of hostPorts) {
@@ -169,6 +175,10 @@ export default async function configure ({ ext, ...input }) {
             for (const host of p.hosts) {
               ingress.spec.rules.push({ host, http: { paths: [path] } })
             }
+
+            // Configure the TLS settings for cert-manager.
+            const secretName = `${name}${p.name ? `-${p.name}` : ''}-cert`
+            ingress.spec.tls.push({ hosts: p.hosts, secretName })
           }
 
           cfg.resources.ingresses = cfg.resources.ingresses || []
