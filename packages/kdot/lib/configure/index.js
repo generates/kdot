@@ -175,6 +175,12 @@ export default async function configure ({ ext, ...input }) {
           cfg.resources.ingresses.push(ingress)
         }
       }
+
+      if (app.custom?.length) {
+        cfg.resources.custom = cfg.resources.custom || []
+        for (const custom of app.custom) custom.app = app
+        cfg.resources.custom = cfg.resources.custom.concat(app.custom)
+      }
     }
   }
 

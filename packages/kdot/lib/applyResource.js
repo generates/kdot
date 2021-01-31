@@ -1,5 +1,5 @@
 import { createLogger } from '@generates/logger'
-import { core, apps, net, sched, rbac } from './k8sApi.js'
+import { core, apps, net, sched, rbac, custom } from './k8sApi.js'
 import getRunningPod from './getRunningPod.js'
 
 const logger = createLogger({ namespace: 'kdot.apply', level: 'info' })
@@ -195,8 +195,54 @@ export default async function applyResource ({ app, ...resource }, opts = {}) {
       const pod = await core.createNamespacedPod(namespace, resource)
       logger.success('Created Pod:', name)
       return pod
-    // } else {
-    //   await custom.createClusterCustomObject()
+    } else {
+      if (uid) {
+        if (namespace) {
+          await custom.patchNamespacedCustomObject(
+            undefined,
+            undefined,
+            namespace,
+            undefined,
+            name,
+            resource,
+            undefined,
+            undefined,
+            undefined,
+            { headers: { 'Content-Type': 'application/merge-patch+json' } }
+          )
+        } else {
+          await custom.patchClusterCustomObject(
+            undefined,
+            undefined,
+            undefined,
+            name,
+            resource,
+            undefined,
+            undefined,
+            undefined,
+            { headers: { 'Content-Type': 'application/merge-patch+json' } }
+          )
+        }
+        logger.success('Updated Custom Resource:', name)
+      } else {
+        if (namespace) {
+          await custom.createNamespacedCustomObject(
+            undefined,
+            undefined,
+            namespace,
+            undefined,
+            resource
+          )
+        } else {
+          await custom.createClusterCustomObject(
+            undefined,
+            undefined,
+            undefined,
+            resource
+          )
+        }
+        logger.success('Created Custom Resource:', name)
+      }
     }
   } catch (err) {
     logger[logLevel](`Failed to apply ${resource.kind}:`, name)

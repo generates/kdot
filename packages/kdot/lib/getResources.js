@@ -1,5 +1,5 @@
 import { createLogger } from '@generates/logger'
-import { core, apps, net, sched, rbac } from './k8sApi.js'
+import { core, apps, net, sched, rbac, custom } from './k8sApi.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const byNs = (n, s) => i => i.metadata.name === n && i.metadata.namespace === s
@@ -124,6 +124,23 @@ export default async function getResources (cfg, filter) {
       const existing = items.find(i => i.metadata.name === bind.metadata.name)
       if (existing) bind.metadata.uid = existing.metadata.uid
       if (filter(bind)) resources.push(bind)
+    }
+  }
+
+  if (cfg.resources.custom?.length) {
+    for (const cr of cfg.resources.custom) {
+      const { name, namespace } = cr.metadata
+      let items
+      if (namespace) {
+        const { body } = await custom.listNamespacedCustomObject(namespace)
+        items = body.items
+      } else {
+        const { body } = await custom.listClusterCustomObject()
+        items = body.items
+      }
+      const existing = items.find(byNs(name, namespace))
+      if (existing) cr.metadata.uid = existing.metadata.uid
+      if (filter(cr)) resources.push(cr)
     }
   }
 
