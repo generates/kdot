@@ -8,6 +8,7 @@ export const apps = kc.makeApiClient(k8s.AppsV1Api)
 export const net = kc.makeApiClient(k8s.NetworkingV1Api)
 export const sched = kc.makeApiClient(k8s.SchedulingV1Api)
 export const rbac = kc.makeApiClient(k8s.RbacAuthorizationV1Api)
+export const custom = kc.makeApiClient(k8s.CustomObjectsApi)
 export const klog = new k8s.Log(kc)
 
 export { k8s }

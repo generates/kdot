@@ -1,3 +1,5 @@
+import kdotProxy from '@generates/kdot-proxy'
+
 const context = 'git://github.com/generates/kdot.git#refs/heads/actions-runner'
 
 export default {
@@ -29,5 +31,13 @@ export default {
   build: {
     user: process.env.DOCKER_USER,
     pass: process.env.DOCKER_PASS
-  }
+  },
+  ...kdotProxy({
+    email: 'user@example.com',
+    provider: 'digitalocean',
+    secret: {
+      ref: 'token',
+      values: [{ 'access-token': 'DO_ACCESS_TOKEN' }]
+    }
+  })
 }

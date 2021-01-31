@@ -195,6 +195,8 @@ export default async function applyResource ({ app, ...resource }, opts = {}) {
       const pod = await core.createNamespacedPod(namespace, resource)
       logger.success('Created Pod:', name)
       return pod
+    // } else {
+    //   await custom.createClusterCustomObject()
     }
   } catch (err) {
     logger[logLevel](`Failed to apply ${resource.kind}:`, name)

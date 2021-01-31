@@ -1,14 +1,1 @@
 [providers.kubernetesIngress]
-
-[entryPoints]
-  [entryPoints.web]
-    address = ":80"
-
-  [entryPoints.websecure]
-    address = ":443"
-
-[certificatesResolvers.myresolver.acme]
-  email = "your-email@example.com"
-  storage = "acme.json"
-  [certificatesResolvers.myresolver.acme.httpChallenge]
-    entryPoint = "web"

@@ -1,6 +1,7 @@
 export default {
   ConfigMap: '🗄️',
   Deployment: '🚀',
+  Ingress: '🚪',
   Namespace: '📛',
   PriorityClass: '🔢',
   Role: '📜',
