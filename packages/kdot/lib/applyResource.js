@@ -1,5 +1,5 @@
 import { createLogger } from '@generates/logger'
-import { core, apps, net, sched } from './k8sApi.js'
+import { core, apps, net, sched, rbac } from './k8sApi.js'
 import getRunningPod from './getRunningPod.js'
 
 const logger = createLogger({ namespace: 'kdot.apply', level: 'info' })
@@ -108,6 +108,89 @@ export default async function applyResource ({ app, ...resource }, opts = {}) {
     } else if (resource.kind === 'PriorityClass') {
       await sched.createPriorityClass(resource)
       logger.success('Created PriorityClass:', name)
+    } else if (resource.kind === 'Role') {
+      if (uid) {
+        await rbac.patchNamespacedRole(
+          name,
+          namespace,
+          resource,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          { headers: { 'Content-Type': 'application/merge-patch+json' } }
+        )
+        logger.success('Updated Role:', name)
+      } else {
+        await rbac.createNamespacedRole(namespace, resource)
+        logger.success('Created Role:', name)
+      }
+    } else if (resource.kind === 'ClusterRole') {
+      if (uid) {
+        await rbac.patchClusterRole(
+          name,
+          resource,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          { headers: { 'Content-Type': 'application/merge-patch+json' } }
+        )
+        logger.success('Updated ClusterRole:', name)
+      } else {
+        await rbac.createClusterRole(resource)
+        logger.success('Created ClusterRole:', name)
+      }
+    } else if (resource.kind === 'ServiceAccount') {
+      if (uid) {
+        await core.patchNamespacedServiceAccount(
+          name,
+          namespace,
+          resource,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          { headers: { 'Content-Type': 'application/merge-patch+json' } }
+        )
+        logger.success('Updated ServiceAccount:', name)
+      } else {
+        await core.createNamespacedServiceAccount(resource)
+        logger.success('Created ServiceAccount:', name)
+      }
+    } else if (resource.kind === 'RoleBinding') {
+      if (uid) {
+        await rbac.patchNamespacedRoleBinding(
+          name,
+          namespace,
+          resource,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          { headers: { 'Content-Type': 'application/merge-patch+json' } }
+        )
+        logger.success('Updated RoleBinding:', name)
+      } else {
+        await rbac.createNamespacedRoleBinding(resource)
+        logger.success('Created RoleBinding:', name)
+      }
+    } else if (resource.kind === 'ClusterRoleBinding') {
+      if (uid) {
+        await rbac.patchClusterRoleBinding(
+          name,
+          resource,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          { headers: { 'Content-Type': 'application/merge-patch+json' } }
+        )
+        logger.success('Updated ClusterRoleBinding:', name)
+      } else {
+        await rbac.createClusterRoleBinding(resource)
+        logger.success('Created ClusterRoleBinding:', name)
+      }
     } else if (resource.kind === 'Pod') {
       const pod = await core.createNamespacedPod(namespace, resource)
       logger.success('Created Pod:', name)

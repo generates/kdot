@@ -8,6 +8,7 @@ import configureConfigMaps from './configMaps.js'
 import configureSecrets from './secrets.js'
 import configurePriorityClass from './priorityClass.js'
 import configureNamespaces from './namespaces.js'
+import configureRoles from './roles.js'
 
 const require = createRequire(import.meta.url)
 const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
@@ -95,6 +96,9 @@ export default async function configure ({ ext, ...input }) {
 
       // Configure app-level Secrets and Secret references.
       if (app.secrets) configureSecrets(cfg, app)
+
+      // Configure app-level Roles, ServiceAccounts, and RoleBindings.
+      if (app.roles) configureRoles(cfg, app)
 
       // Map environment variables from key-value pairs to Objects in an Array.
       if (app.env) app.env = Object.entries(app.env).map(toEnv)
