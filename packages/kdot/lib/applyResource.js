@@ -1,7 +1,8 @@
 import { createLogger } from '@generates/logger'
-import { core, apps, net, sched } from './k8sApi.js'
+import { clients } from './k8sApi.js'
 import getRunningPod from './getRunningPod.js'
 
+const { core, apps, net, sched } = clients
 const logger = createLogger({ namespace: 'kdot.apply', level: 'info' })
 
 export default async function applyResource ({ app, ...resource }, opts = {}) {

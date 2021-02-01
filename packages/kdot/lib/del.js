@@ -1,7 +1,7 @@
 import { createLogger, chalk } from '@generates/logger'
 import prompt from '@generates/prompt'
 import { oneLine } from 'common-tags'
-import { kc, core } from './k8sApi.js'
+import { kc, clients } from './k8sApi.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const noYesOptions = [
@@ -34,7 +34,7 @@ export default async function del (cfg) {
       }
     }
 
-    await core.deleteNamespace(
+    await clients.core.deleteNamespace(
       cfg.namespace,
       undefined,
       undefined,
