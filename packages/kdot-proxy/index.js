@@ -72,7 +72,7 @@ export default function kdotProxy ({ email, provider, secret } = {}) {
             spec: {
               acme: {
                 email,
-                server: 'https://acme-staging-v02.api.letsencrypt.org/directory',
+                server: 'https://acme-v02.api.letsencrypt.org/directory',
                 privateKeySecretRef: { name: 'kdot-proxy' },
                 solvers: [
                   {
@@ -80,7 +80,7 @@ export default function kdotProxy ({ email, provider, secret } = {}) {
                       [provider]: {
                         [`${secret.ref}SecretRef`]: {
                           name: secret.name,
-                          key: Object.keys(secret.values)[0]
+                          key: Object.keys(secret.values[0])[0]
                         }
                       }
                     }
@@ -89,7 +89,7 @@ export default function kdotProxy ({ email, provider, secret } = {}) {
               }
             }
           }],
-          secrets: [secret]
+          secrets: [{ namespace: 'cert-manager', ...secret }]
         }
       : {}
   }

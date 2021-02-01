@@ -130,12 +130,23 @@ export default async function getResources (cfg, filter) {
   if (cfg.resources.custom?.length) {
     for (const cr of cfg.resources.custom) {
       const { name, namespace } = cr.metadata
+      const [group, version] = cr.apiVersion.split('/')
+      const plural = cr.kind.toLowerCase() + 's'
       let items
       if (namespace) {
-        const { body } = await custom.listNamespacedCustomObject(namespace)
+        const { body } = await custom.listNamespacedCustomObject(
+          group,
+          version,
+          namespace,
+          plural
+        )
         items = body.items
       } else {
-        const { body } = await custom.listClusterCustomObject()
+        const { body } = await custom.listClusterCustomObject(
+          group,
+          version,
+          plural
+        )
         items = body.items
       }
       const existing = items.find(byNs(name, namespace))

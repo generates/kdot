@@ -196,13 +196,15 @@ export default async function applyResource ({ app, ...resource }, opts = {}) {
       logger.success('Created Pod:', name)
       return pod
     } else {
+      const [group, version] = resource.apiVersion.split('/')
+      const plural = resource.kind.toLowerCase() + 's'
       if (uid) {
         if (namespace) {
           await custom.patchNamespacedCustomObject(
-            undefined,
-            undefined,
+            group,
+            version,
             namespace,
-            undefined,
+            plural,
             name,
             resource,
             undefined,
@@ -212,9 +214,9 @@ export default async function applyResource ({ app, ...resource }, opts = {}) {
           )
         } else {
           await custom.patchClusterCustomObject(
-            undefined,
-            undefined,
-            undefined,
+            group,
+            version,
+            plural,
             name,
             resource,
             undefined,
@@ -227,17 +229,17 @@ export default async function applyResource ({ app, ...resource }, opts = {}) {
       } else {
         if (namespace) {
           await custom.createNamespacedCustomObject(
-            undefined,
-            undefined,
+            group,
+            version,
             namespace,
-            undefined,
+            plural,
             resource
           )
         } else {
           await custom.createClusterCustomObject(
-            undefined,
-            undefined,
-            undefined,
+            group,
+            version,
+            plural,
             resource
           )
         }

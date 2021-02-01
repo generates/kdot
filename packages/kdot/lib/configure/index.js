@@ -163,7 +163,7 @@ export default async function configure ({ ext, ...input }) {
             name,
             namespace: app.namespace,
             labels,
-            annotations: [`cert-manager.io/cluster-issuer: ${clusterIssuer}`]
+            annotations: { 'cert-manager.io/cluster-issuer': clusterIssuer }
           }
           const spec = { rules: [], tls: [] }
           const ingress = { app, kind: 'Ingress', metadata, spec }
@@ -192,6 +192,11 @@ export default async function configure ({ ext, ...input }) {
         cfg.resources.custom = cfg.resources.custom.concat(app.custom)
       }
     }
+  }
+
+  if (cfg.custom?.length) {
+    cfg.resources.custom = cfg.resources.custom || []
+    cfg.resources.custom = cfg.resources.custom.concat(cfg.custom)
   }
 
   return cfg

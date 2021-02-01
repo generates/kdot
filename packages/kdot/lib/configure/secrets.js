@@ -23,7 +23,7 @@ export default function configureSecrets (cfg, owner) {
     const secret = {
       app: owner,
       kind: 'Secret',
-      metadata: { namespace, name },
+      metadata: { namespace: given.namespace || namespace, name },
       data: {}
     }
 
