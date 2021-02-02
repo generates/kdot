@@ -9,6 +9,18 @@ export default async function getResources (cfg, filter) {
 
   if (!filter) filter = r => r
 
+  if (cfg.externalResources?.length) {
+    for (const ext of cfg.externalResources) {
+      // Fetch the yaml text.
+
+      // Split each resource into a separate string.
+
+      // Parse the yaml strings.
+
+      // Push each resource to their respective array.
+    }
+  }
+
   if (cfg.resources.namespaces?.length) {
     const { body: { items } } = await core.listNamespace()
     for (const namespace of cfg.resources.namespaces) {
