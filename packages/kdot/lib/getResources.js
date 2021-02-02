@@ -1,6 +1,7 @@
 import { createLogger } from '@generates/logger'
-import { core, apps, net, sched, rbac, custom } from './k8sApi.js'
+import { clients } from './k8sApi.js'
 
+const { core, apps, net, sched, rbac, custom } = clients
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const byNs = (n, s) => i => i.metadata.name === n && i.metadata.namespace === s
 

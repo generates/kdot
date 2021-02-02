@@ -1,12 +1,13 @@
 import { createLogger } from '@generates/logger'
-import { core, apps, net, sched, rbac, custom } from './k8sApi.js'
+import { clients } from './k8sApi.js'
 import getRunningPod from './getRunningPod.js'
 
+const { core, apps, net, sched } = clients
 const logger = createLogger({ namespace: 'kdot.apply', level: 'info' })
 
 export default async function applyResource ({ app, ...resource }, opts = {}) {
   const { logLevel = 'fatal' } = opts
-  const { uid, name, namespace } = resource.metadata
+  const { uid, name, namespace, rbac, custom } = resource.metadata
   try {
     if (resource.kind === 'Namespace') {
       if (!uid) {

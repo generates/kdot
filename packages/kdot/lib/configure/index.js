@@ -9,6 +9,7 @@ import configureSecrets from './secrets.js'
 import configurePriorityClass from './priorityClass.js'
 import configureNamespaces from './namespaces.js'
 import configureRoles from './roles.js'
+import { makeClients } from '../k8sApi.js'
 
 const require = createRequire(import.meta.url)
 const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
@@ -55,6 +56,9 @@ export default async function configure ({ ext, ...input }) {
   }
 
   logger.debug('Initial configuration', cfg)
+
+  // Re-initialize clients with the given context if sepcified.
+  if (cfg.context) makeClients(cfg.context)
 
   // Initialize the map of resources.
   cfg.resources = { all: [], namespaces: [], deployments: [], services: [] }
