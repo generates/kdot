@@ -1,7 +1,6 @@
 const context = 'git://github.com/generates/kdot.git#refs/heads/actions-runner'
 
 export default {
-  context: 'do-nyc3-cluster-chance',
   namespace: 'dev',
   apps: {
     redis: {

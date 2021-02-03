@@ -57,7 +57,7 @@ app.use(ctx => {
       if (isInOrg || target.users?.includes(profile.login)) {
         ctx.logger.debug('Proxying to:', target.url)
 
-        //
+        // Tell koa not to respond since http-proxy will handle the response.
         ctx.respond = false
 
         // Proxy the request to the app's service.
@@ -68,7 +68,7 @@ app.use(ctx => {
         ctx.status = 401
       }
     } else {
-      //
+      // Determine where the user should be redirected to after authentication.
       let url = new URL(ctx.request.href)
       if (target.proxyUrl) url = new URL(url.pathname, target.proxyUrl)
       ctx.logger.debug('Redirecting to:', url.href)
