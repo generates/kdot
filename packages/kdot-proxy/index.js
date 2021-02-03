@@ -5,12 +5,47 @@ export default function kdotProxy ({ email, provider, secret } = {}) {
     if (!secret.ref) secret.ref = 'token'
   }
 
+  const isCloudflare = provider === 'cloudflare'
+
   return {
     namespace: 'proxy',
     apps: {
-      // 'external-dns': {
-      //   image: { repo: '' }
-      // }
+      'external-dns': {
+        image: { repo: 'k8s.gcr.io/external-dns/external-dns', tag: 'v0.7.3' },
+        args: [
+          '--source=ingress',
+          `--provider=${provider}`,
+          ...isCloudflare ? ['--cloudflare-proxied'] : []
+        ],
+        env: {
+          ...isCloudflare && { CF_API_EMAIL: process.env.CF_API_EMAIL || email }
+        },
+        secrets: [{
+          values: [
+            ...isCloudflare && { CF_API_KEY: secret.value }
+          ]
+        }],
+        role: {
+          cluster: true,
+          rules: [
+            {
+              apiGroups: [''],
+              resources: ['services', 'endpoints', 'pods'],
+              verbs: ['get', 'list', 'watch']
+            },
+            {
+              apiGroups: ['extensions', 'networking.k8s.io'],
+              resources: ['ingresses'],
+              verbs: ['get', 'list', 'watch']
+            },
+            {
+              apiGroups: [''],
+              resources: ['nodes'],
+              verbs: ['list', 'watch']
+            }
+          ]
+        }
+      }
     },
     externalResources: [
       'https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.43.0/deploy/static/provider/do/deploy.yaml',
@@ -35,7 +70,7 @@ export default function kdotProxy ({ email, provider, secret } = {}) {
                       [provider]: {
                         [`${secret.ref}SecretRef`]: {
                           name: secret.name,
-                          key: Object.keys(secret.values[0])[0]
+                          key: secret.key
                         }
                       }
                     }
@@ -44,7 +79,10 @@ export default function kdotProxy ({ email, provider, secret } = {}) {
               }
             }
           }],
-          secrets: [{ namespace: 'cert-manager', ...secret }]
+          secrets: [{
+            namespace: 'cert-manager',
+            values: [{ [secret.key]: secret.value }]
+          }]
         }
       : {}
   }
