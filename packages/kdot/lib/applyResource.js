@@ -1,251 +1,26 @@
 import { createLogger } from '@generates/logger'
-import { clients } from './k8sApi.js'
+import { client } from './k8s.js'
 import getRunningPod from './getRunningPod.js'
 
-const { core, apps, net, sched } = clients
 const logger = createLogger({ namespace: 'kdot.apply', level: 'info' })
 
 export default async function applyResource ({ app, ...resource }, opts = {}) {
   const { logLevel = 'fatal' } = opts
-  const { uid, name, namespace, rbac, custom } = resource.metadata
+  const { uid, namespace, name } = resource.metadata
   try {
-    if (resource.kind === 'Namespace') {
-      if (!uid) {
-        await core.createNamespace(resource)
-        logger.success('Created Namespace:', name)
-      }
-    } else if (resource.kind === 'Deployment') {
-      // If the app depends on other apps, wait for the other apps to have
-      // running pods before creating the dependent app's Deployment.
-      if (app.dependsOn?.length) {
-        const toWait = name => getRunningPod(namespace, name, { interval: 999 })
-        await Promise.all(app.dependsOn.map(toWait))
-      }
+    // If the app depends on other apps, wait for the other apps to have
+    // running pods before creating the dependent app's Deployment.
+    if (resource.kind === 'Deployment' && app.dependsOn?.length) {
+      const toWait = name => getRunningPod(namespace, name, { interval: 999 })
+      await Promise.all(app.dependsOn.map(toWait))
+    }
 
-      if (uid) {
-        await apps.patchNamespacedDeployment(
-          name,
-          namespace,
-          resource,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          { headers: { 'Content-Type': 'application/merge-patch+json' } }
-        )
-        logger.success('Updated Deployment:', name)
-      } else {
-        await apps.createNamespacedDeployment(namespace, resource)
-        logger.success('Created Deployment:', name)
-      }
-    } else if (resource.kind === 'Service') {
-      if (uid) {
-        await core.patchNamespacedService(
-          name,
-          namespace,
-          resource,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          { headers: { 'Content-Type': 'application/merge-patch+json' } }
-        )
-        logger.success('Updated Service:', name)
-      } else {
-        await core.createNamespacedService(namespace, resource)
-        logger.success('Created Service:', name)
-      }
-    } else if (resource.kind === 'Secret') {
-      if (uid) {
-        await core.patchNamespacedSecret(
-          name,
-          namespace,
-          resource,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          { headers: { 'Content-Type': 'application/merge-patch+json' } }
-        )
-        logger.success('Updated Secret:', name)
-      } else {
-        await core.createNamespacedSecret(namespace, resource)
-        logger.success('Created Secret:', name)
-      }
-    } else if (resource.kind === 'Ingress') {
-      if (uid) {
-        await net.patchNamespacedIngress(
-          name,
-          namespace,
-          resource,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          { headers: { 'Content-Type': 'application/merge-patch+json' } }
-        )
-        logger.success('Updated Ingress:', name)
-      } else {
-        await net.createNamespacedIngress(namespace, resource)
-        logger.success('Created Ingress:', name)
-      }
-    } else if (resource.kind === 'ConfigMap') {
-      if (uid) {
-        await core.patchNamespacedConfigMap(
-          name,
-          namespace,
-          resource,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          { headers: { 'Content-Type': 'application/merge-patch+json' } }
-        )
-        logger.success('Updated ConfigMap:', name)
-      } else {
-        await core.createNamespacedConfigMap(namespace, resource)
-        logger.success('Created ConfigMap:', name)
-      }
-    } else if (resource.kind === 'PriorityClass') {
-      await sched.createPriorityClass(resource)
-      logger.success('Created PriorityClass:', name)
-    } else if (resource.kind === 'Role') {
-      if (uid) {
-        await rbac.patchNamespacedRole(
-          name,
-          namespace,
-          resource,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          { headers: { 'Content-Type': 'application/merge-patch+json' } }
-        )
-        logger.success('Updated Role:', name)
-      } else {
-        await rbac.createNamespacedRole(namespace, resource)
-        logger.success('Created Role:', name)
-      }
-    } else if (resource.kind === 'ClusterRole') {
-      if (uid) {
-        await rbac.patchClusterRole(
-          name,
-          resource,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          { headers: { 'Content-Type': 'application/merge-patch+json' } }
-        )
-        logger.success('Updated ClusterRole:', name)
-      } else {
-        await rbac.createClusterRole(resource)
-        logger.success('Created ClusterRole:', name)
-      }
-    } else if (resource.kind === 'ServiceAccount') {
-      if (uid) {
-        await core.patchNamespacedServiceAccount(
-          name,
-          namespace,
-          resource,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          { headers: { 'Content-Type': 'application/merge-patch+json' } }
-        )
-        logger.success('Updated ServiceAccount:', name)
-      } else {
-        await core.createNamespacedServiceAccount(namespace, resource)
-        logger.success('Created ServiceAccount:', name)
-      }
-    } else if (resource.kind === 'RoleBinding') {
-      if (uid) {
-        await rbac.patchNamespacedRoleBinding(
-          name,
-          namespace,
-          resource,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          { headers: { 'Content-Type': 'application/merge-patch+json' } }
-        )
-        logger.success('Updated RoleBinding:', name)
-      } else {
-        await rbac.createNamespacedRoleBinding(resource)
-        logger.success('Created RoleBinding:', name)
-      }
-    } else if (resource.kind === 'ClusterRoleBinding') {
-      if (uid) {
-        await rbac.patchClusterRoleBinding(
-          name,
-          resource,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          { headers: { 'Content-Type': 'application/merge-patch+json' } }
-        )
-        logger.success('Updated ClusterRoleBinding:', name)
-      } else {
-        await rbac.createClusterRoleBinding(resource)
-        logger.success('Created ClusterRoleBinding:', name)
-      }
-    } else if (resource.kind === 'Pod') {
-      const pod = await core.createNamespacedPod(namespace, resource)
-      logger.success('Created Pod:', name)
-      return pod
+    if (uid) {
+      await client.patch(resource)
+      logger.success(`Updated ${resource.kind}:`, name)
     } else {
-      const [group, version] = resource.apiVersion.split('/')
-      const plural = resource.kind.toLowerCase() + 's'
-      if (uid) {
-        if (namespace) {
-          await custom.patchNamespacedCustomObject(
-            group,
-            version,
-            namespace,
-            plural,
-            name,
-            resource,
-            undefined,
-            undefined,
-            undefined,
-            { headers: { 'Content-Type': 'application/merge-patch+json' } }
-          )
-        } else {
-          await custom.patchClusterCustomObject(
-            group,
-            version,
-            plural,
-            name,
-            resource,
-            undefined,
-            undefined,
-            undefined,
-            { headers: { 'Content-Type': 'application/merge-patch+json' } }
-          )
-        }
-        logger.success('Updated Custom Resource:', name)
-      } else {
-        if (namespace) {
-          await custom.createNamespacedCustomObject(
-            group,
-            version,
-            namespace,
-            plural,
-            resource
-          )
-        } else {
-          await custom.createClusterCustomObject(
-            group,
-            version,
-            plural,
-            resource
-          )
-        }
-        logger.success('Created Custom Resource:', name)
-      }
+      await client.create(resource)
+      logger.success(`Created ${resource.kind}:`, name)
     }
   } catch (err) {
     logger[logLevel](`Failed to apply ${resource.kind}:`, name)

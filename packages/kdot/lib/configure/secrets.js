@@ -11,21 +11,14 @@ export default function configureSecrets (cfg, owner) {
   const secrets = owner?.secrets || cfg.secrets
   const namespace = owner?.namespace || cfg.namespace
 
-  // Create an array of configured Secrets if it doesn't exist.
-  cfg.resources.secrets = cfg.resources.secrets || []
-
   // Create the app env property if it doesn't exist so that the secrets can
   // be made available to the app as environment variables.
   if (owner) owner.env = owner.env || {}
 
   for (const given of secrets) {
     const name = given.name || owner.name
-    const secret = {
-      app: owner,
-      kind: 'Secret',
-      metadata: { namespace: given.namespace || namespace, name },
-      data: {}
-    }
+    const metadata = { namespace: given.namespace || namespace, name }
+    const secret = { app: owner, kind: 'Secret', metadata, data: {} }
 
     // Specifying secrets with values will queue those secrets to be
     // created if they don't exist and be used by apps as environment
@@ -80,6 +73,6 @@ export default function configureSecrets (cfg, owner) {
 
     // Add the secret if it's a secret that may need to be created and is
     // not just referencing a top-level secret.
-    if (addSecret) cfg.resources.secrets.push(secret)
+    if (addSecret) cfg.resources.push(secret)
   }
 }

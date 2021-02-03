@@ -1,7 +1,9 @@
-import { clients } from './k8sApi.js'
+import { CoreV1Api, kc } from './k8s.js'
+
+const client = kc.makeApiClient(CoreV1Api)
 
 export default async function getPods (namespace, name, limit) {
-  const { body: { items } } = await clients.core.listNamespacedPod(
+  const { body: { items } } = await client.listNamespacedPod(
     namespace,
     undefined,
     undefined,

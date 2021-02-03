@@ -7,9 +7,6 @@ export default async function configureConfigMaps (cfg, owner) {
   const configMaps = owner?.configMaps || cfg.configMaps
   const namespace = owner?.namespace || cfg.namespace
 
-  // Create a fresh array for configured ConfigMaps.
-  cfg.resources.configMaps = cfg.resources.configMaps || []
-
   for (const cm of configMaps) {
     const metadata = { name: cm.name, namespace }
     const configMap = { app: owner, kind: 'ConfigMap', metadata, data: {} }
@@ -29,6 +26,6 @@ export default async function configureConfigMaps (cfg, owner) {
       owner.volumeMounts.push({ name: cm.name, mountPath: cm.mountPath })
     }
 
-    cfg.resources.configMaps.push(configMap)
+    cfg.resources.push(configMap)
   }
 }

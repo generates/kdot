@@ -1,7 +1,7 @@
 import { createLogger, chalk } from '@generates/logger'
 import prompt from '@generates/prompt'
 import { oneLine } from 'common-tags'
-import { kc, clients } from './k8sApi.js'
+import { kc, client } from './k8s.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const noYesOptions = [
@@ -9,9 +9,6 @@ const noYesOptions = [
   { label: 'Yes', value: true }
 ]
 
-/**
- * Remove ephemeral apps from the cluster.
- */
 export default async function del (cfg) {
   if (cfg.namespace !== 'default') {
     if (cfg.input.prompt) {
@@ -34,14 +31,10 @@ export default async function del (cfg) {
       }
     }
 
-    await clients.core.deleteNamespace(
-      cfg.namespace,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      'Foreground'
-    )
+    const namespace = cfg.resources.find(r => (
+      r.kind === 'Namespace' && r.metadata.name === cfg.namespace
+    ))
+    await client.delete(namespace)
     logger.success('Deleted resources in namespace:', cfg.namespace)
     process.stdout.write('\n')
   }

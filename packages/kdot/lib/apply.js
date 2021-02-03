@@ -1,6 +1,6 @@
 import { createLogger, chalk } from '@generates/logger'
 import prompt from '@generates/prompt'
-import { kc } from './k8sApi.js'
+import { kc } from './k8s.js'
 import emojis from './emojis.js'
 import getResources from './getResources.js'
 import applyResource from './applyResource.js'

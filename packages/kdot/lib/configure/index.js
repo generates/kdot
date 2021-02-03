@@ -9,7 +9,7 @@ import configureSecrets from './secrets.js'
 import configurePriorityClass from './priorityClass.js'
 import configureNamespaces from './namespaces.js'
 import configureRoles from './roles.js'
-import { makeClients } from '../k8sApi.js'
+import { kc } from '../k8s.js'
 
 const require = createRequire(import.meta.url)
 const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
@@ -26,7 +26,7 @@ function toEnv ([name, value]) {
 }
 
 function taggedImage () {
-  return typeof this.image === 'string'
+  return !this.image || typeof this.image === 'string'
     ? this.image
     : `${this.image.repo}:${this.image.tag || 'latest'}`
 }
@@ -58,10 +58,10 @@ export default async function configure ({ ext, ...input }) {
   logger.debug('Initial configuration', cfg)
 
   // Re-initialize clients with the given context if sepcified.
-  if (cfg.context) makeClients(cfg.context)
+  if (cfg.context) kc.setCurrentContext(cfg.context)
 
-  // Initialize the map of resources.
-  cfg.resources = { all: [], namespaces: [], deployments: [], services: [] }
+  // Initialize the collection of resources.
+  cfg.resources = cfg.resources || []
 
   // If there is a top-level namespace, add it to the resources array.
   if (cfg.namespace !== 'default') configureNamespaces(cfg)
@@ -114,7 +114,7 @@ export default async function configure ({ ext, ...input }) {
       // Add the taggedImage getter to the app object for convenience.
       Object.defineProperty(app, 'taggedImage', { get: taggedImage })
 
-      cfg.resources.deployments.push({
+      cfg.resources.push({
         app,
         kind: 'Deployment',
         metadata: {
@@ -158,7 +158,7 @@ export default async function configure ({ ext, ...input }) {
         // (e.g. type).
         merge(service, app.service)
 
-        cfg.resources.services.push(service)
+        cfg.resources.push(service)
 
         const hostPorts = app.ports.filter(p => p.hosts)
         if (hostPorts.length) {
@@ -185,23 +185,18 @@ export default async function configure ({ ext, ...input }) {
             ingress.spec.tls.push({ hosts: p.hosts, secretName })
           }
 
-          cfg.resources.ingresses = cfg.resources.ingresses || []
-          cfg.resources.ingresses.push(ingress)
+          cfg.resources.push(ingress)
         }
       }
 
       if (app.custom?.length) {
-        cfg.resources.custom = cfg.resources.custom || []
         for (const custom of app.custom) custom.app = app
-        cfg.resources.custom = cfg.resources.custom.concat(app.custom)
+        cfg.resources = cfg.resources.concat(app.custom)
       }
     }
   }
 
-  if (cfg.custom?.length) {
-    cfg.resources.custom = cfg.resources.custom || []
-    cfg.resources.custom = cfg.resources.custom.concat(cfg.custom)
-  }
+  if (cfg.custom?.length) cfg.resources = cfg.resources.concat(cfg.custom)
 
   return cfg
 }
