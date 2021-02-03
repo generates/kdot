@@ -12,6 +12,7 @@ export default function kdotProxy ({ email, provider, secret } = {}) {
     apps: {
       'external-dns': {
         image: { repo: 'k8s.gcr.io/external-dns/external-dns', tag: 'v0.7.3' },
+        deployStrategy: 'Recreate',
         args: [
           '--source=ingress',
           `--provider=${provider}`,

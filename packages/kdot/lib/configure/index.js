@@ -126,6 +126,7 @@ export default async function configure ({ ext, ...input }) {
         spec: {
           replicas: Number.isInteger(app.replicas) ? app.replicas : 1,
           selector: { matchLabels: appLabel },
+          ...app.deployStrategy && { stategy: { type: app.deployStrategy } },
           template: {
             metadata: { labels: { ...labels, ...appLabel } },
             spec: {
