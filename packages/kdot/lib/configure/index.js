@@ -9,7 +9,7 @@ import configureSecrets from './secrets.js'
 import configurePriorityClass from './priorityClass.js'
 import configureNamespaces from './namespaces.js'
 import configureRoles from './roles.js'
-import { kc } from '../k8s.js'
+import { configureClients } from '../k8s.js'
 
 const require = createRequire(import.meta.url)
 const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
@@ -58,7 +58,7 @@ export default async function configure ({ ext, ...input }) {
   logger.debug('Initial configuration', cfg)
 
   // Re-initialize clients with the given context if sepcified.
-  if (cfg.context) kc.setCurrentContext(cfg.context)
+  if (cfg.context) configureClients(cfg.context)
 
   // Initialize the collection of resources.
   cfg.resources = cfg.resources || []
@@ -116,6 +116,7 @@ export default async function configure ({ ext, ...input }) {
 
       cfg.resources.push({
         app,
+        apiVersion: 'apps/v1',
         kind: 'Deployment',
         metadata: {
           name,

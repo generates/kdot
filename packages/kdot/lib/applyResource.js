@@ -1,5 +1,5 @@
 import { createLogger } from '@generates/logger'
-import { client } from './k8s.js'
+import { k8s } from './k8s.js'
 import getRunningPod from './getRunningPod.js'
 
 const logger = createLogger({ namespace: 'kdot.apply', level: 'info' })
@@ -16,10 +16,10 @@ export default async function applyResource ({ app, ...resource }, opts = {}) {
     }
 
     if (uid) {
-      await client.patch(resource)
+      await k8s.client.patch(resource)
       logger.success(`Updated ${resource.kind}:`, name)
     } else {
-      await client.create(resource)
+      await k8s.client.create(resource)
       logger.success(`Created ${resource.kind}:`, name)
     }
   } catch (err) {

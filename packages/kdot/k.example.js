@@ -1,8 +1,7 @@
-import kdotProxy from '@generates/kdot-proxy'
-
 const context = 'git://github.com/generates/kdot.git#refs/heads/actions-runner'
 
 export default {
+  context: 'do-nyc3-cluster-chance',
   namespace: 'dev',
   apps: {
     redis: {
@@ -31,13 +30,5 @@ export default {
   build: {
     user: process.env.DOCKER_USER,
     pass: process.env.DOCKER_PASS
-  },
-  ...kdotProxy({
-    email: process.env.LETSENCRYPT_EMAIL || 'user@example.com',
-    provider: 'cloudflare',
-    secret: {
-      ref: 'apiToken',
-      values: [{ 'api-token': 'CLOUDFLARE_API_TOKEN' }]
-    }
-  })
+  }
 }

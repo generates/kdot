@@ -7,6 +7,7 @@ export default function configurePriorityClass (cfg, app) {
     existing.description += `, ${appName}`
   } else {
     cfg.resources.push({
+      apiVersion: 'scheduling.k8s.io/v1',
       kind: 'PriorityClass',
       metadata: { name, labels: { managedBy: 'kdot' } },
       value: app.priority,

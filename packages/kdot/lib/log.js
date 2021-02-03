@@ -1,6 +1,6 @@
 import stream from 'stream'
 import { createLogger, chalk } from '@generates/logger'
-import { klog } from './k8s.js'
+import { k8s } from './k8s.js'
 import getPods from './getPods.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
@@ -67,7 +67,7 @@ async function streamLogs (app, color) {
     const podName = chalk.dim(pod.metadata.name.replace(`${app.name}-`, ''))
     const logName = `${chalk.bold[color](app.name)} • ${podName}`
 
-    await klog.log(
+    await k8s.klog.log(
       app.namespace,
       pod.metadata.name,
       undefined,
