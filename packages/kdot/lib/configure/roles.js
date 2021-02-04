@@ -7,8 +7,13 @@ export default function configureRoles (cfg, owner) {
     const kind = role.cluster ? 'ClusterRole' : 'Role'
 
     if (role.rules) {
-      const metadata = { ...role.cluster ? {} : { namespace }, name }
-      cfg.resources.push({ app: owner, kind, metadata, rules: role.rules })
+      cfg.resources.push({
+        apiVersion: 'rbac.authorization.k8s.io/v1',
+        app: owner,
+        kind,
+        metadata: { ...role.cluster ? {} : { namespace }, name },
+        rules: role.rules
+      })
     }
 
     if (owner) {
@@ -16,6 +21,7 @@ export default function configureRoles (cfg, owner) {
       cfg.resources.push({ app: owner, kind: 'ServiceAccount', metadata })
 
       cfg.resources.push({
+        apiVersion: 'rbac.authorization.k8s.io/v1',
         app: owner,
         kind: role.cluster ? 'ClusterRoleBinding' : 'RoleBinding',
         metadata: { ...role.cluster ? {} : { namespace }, name },

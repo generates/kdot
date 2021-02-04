@@ -24,7 +24,7 @@ export default async function applyResource ({ app, ...resource }, opts = {}) {
     }
   } catch (err) {
     const msg = `Failed to apply ${resource.kind}:`
-    logger[logLevel](msg, name, err.response?.body)
+    logger[logLevel](msg, name, err.response?.body || err)
     if (logLevel === 'fatal') process.exit(1)
   }
 }

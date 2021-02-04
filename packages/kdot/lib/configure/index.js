@@ -102,7 +102,7 @@ export default async function configure ({ ext, ...input }) {
       if (app.secrets) configureSecrets(cfg, app)
 
       // Configure app-level Roles, ServiceAccounts, and RoleBindings.
-      if (app.roles) configureRoles(cfg, app)
+      if (app.role) configureRoles(cfg, app)
 
       // Map environment variables from key-value pairs to Objects in an Array.
       if (app.env) app.env = Object.entries(app.env).map(toEnv)
