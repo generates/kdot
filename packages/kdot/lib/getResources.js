@@ -1,14 +1,16 @@
 import { createLogger } from '@generates/logger'
-import { merge } from '@generates/merger'
 import got from 'got'
 import pReduce from 'p-reduce'
 import extractor from '@generates/extractor'
 import { k8s, loadAllYaml } from './k8s.js'
-import extractExistingResource from './extractExistingResource.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const toMeta = r => r.metadata
-const toExtractedResource = r => extractor.excluding(r, 'spec')
+const toExtractedResource = r => {
+  const props = ['app']
+  if (r.kind === 'CustomResourceDefinition') props.push('spec')
+  return extractor.excluding(r, ...props)
+}
 
 export default async function getResources (cfg, filter) {
   let resources = cfg.resources
@@ -38,22 +40,29 @@ export default async function getResources (cfg, filter) {
   resources = await pReduce(
     resources,
     async (acc, resource) => {
-      const representation = toExtractedResource(resource)
+      // Get a console-friendly representation of the resource.
+      const rep = toExtractedResource(resource)
+
+      //
+      if (!filter(resource)) {
+        logger.debug('Filtered out resource', rep)
+        return acc
+      }
+
       try {
         // Fetch the existing resource from Kubernetes if it exists.
         const { body } = await k8s.client.read(resource)
 
         // Merge the existing config with the configured resource.
-        merge(resource, extractExistingResource(body))
+        resource.metadata.uid = body.metadata.uid
 
-        logger.debug('Existing resource found', representation)
+        logger.debug('Existing resource found', rep)
       } catch (err) {
-        logger.debug('Existing resource not found', representation, err)
+        logger.debug('Existing resource not found', rep)
       }
 
-      // If the resource isn't filtered out, add it to the colleciton of
-      // resources.
-      if (filter(resource)) acc.push(resource)
+      // Add resource to the colleciton of resources.
+      acc.push(resource)
 
       return acc
     },

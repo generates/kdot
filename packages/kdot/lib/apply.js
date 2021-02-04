@@ -29,7 +29,10 @@ function setupApplyResource (cfg) {
  * Add configured apps to the cluster.
  */
 export default async function apply (cfg) {
-  const filter = cfg.input.update === false ? byNewOrDep : byNotExistingNs
+  const stateFilter = cfg.input.update === false ? byNewOrDep : byNotExistingNs
+  const filter = cfg.input.args.length
+    ? r => stateFilter(r) && r.app && cfg.input.args.includes(r.app.name)
+    : stateFilter
   const resources = await getResources(cfg, filter)
 
   if (cfg.input.prompt && resources.length) {
