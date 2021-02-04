@@ -22,15 +22,10 @@ export default function kdotProxy ({ email, provider, secret } = {}) {
             `--provider=${provider}`,
             ...isCloudflare ? ['--cloudflare-proxied'] : []
           ],
-          env: {
-            ...isCloudflare && {
-              CF_API_EMAIL: process.env.CF_API_EMAIL || email
-            }
-          },
           secrets: [{
             name: secret.name,
             values: [
-              ...isCloudflare ? [{ CF_API_KEY: secret.value }] : []
+              ...isCloudflare ? [{ CF_API_TOKEN: secret.value }] : []
             ]
           }],
           role: {
