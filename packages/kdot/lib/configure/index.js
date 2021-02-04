@@ -171,8 +171,9 @@ export default async function configure ({ ext, ...input }) {
             labels,
             annotations: { 'cert-manager.io/cluster-issuer': clusterIssuer }
           }
+          const apiVersion = 'networking.k8s.io/v1'
           const spec = { rules: [], tls: [] }
-          const ingress = { app, kind: 'Ingress', metadata, spec }
+          const ingress = { app, apiVersion, kind: 'Ingress', metadata, spec }
 
           for (const p of hostPorts) {
             const pathType = p.pathType || 'Prefix'
