@@ -1,4 +1,4 @@
-FROM node:15.4-buster
+FROM node:15.8-buster
 
 ENV RUNNER_VERSION=2.263.0
 
