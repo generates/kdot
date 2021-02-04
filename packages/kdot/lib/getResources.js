@@ -2,13 +2,16 @@ import { createLogger } from '@generates/logger'
 import { merge } from '@generates/merger'
 import got from 'got'
 import pReduce from 'p-reduce'
+import extractor from '@generates/extractor'
 import { k8s, loadAllYaml } from './k8s.js'
+import extractExistingResource from './extractExistingResource.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const toMeta = r => r.metadata
+const toExtractedResource = r => extractor.excluding(r, 'spec')
 
 export default async function getResources (cfg, filter) {
-  let resources = []
+  let resources = cfg.resources
 
   if (!filter) filter = r => r
 
@@ -33,18 +36,19 @@ export default async function getResources (cfg, filter) {
   }
 
   resources = await pReduce(
-    cfg.resources,
+    resources,
     async (acc, resource) => {
+      const representation = toExtractedResource(resource)
       try {
         // Fetch the existing resource from Kubernetes if it exists.
         const { body } = await k8s.client.read(resource)
 
         // Merge the existing config with the configured resource.
-        merge(resource, body)
+        merge(resource, extractExistingResource(body))
 
-        logger.debug('Found existing resource', resource.metadata)
+        logger.debug('Found existing resource', representation)
       } catch (err) {
-        logger.debug('Existing resource not found', resource.metadata)
+        logger.debug('Existing resource not found', representation)
       }
 
       // If the resource isn't filtered out, add it to the colleciton of
@@ -56,7 +60,7 @@ export default async function getResources (cfg, filter) {
     []
   )
 
-  logger.debug('getResources', resources)
+  logger.debug('getResources', resources.map(toExtractedResource))
 
   return resources
 }
