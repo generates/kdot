@@ -46,9 +46,9 @@ export default async function getResources (cfg, filter) {
         // Merge the existing config with the configured resource.
         merge(resource, extractExistingResource(body))
 
-        logger.debug('Found existing resource', representation)
+        logger.debug('Existing resource found', representation)
       } catch (err) {
-        logger.debug('Existing resource not found', representation)
+        logger.debug('Existing resource not found', representation, err)
       }
 
       // If the resource isn't filtered out, add it to the colleciton of
