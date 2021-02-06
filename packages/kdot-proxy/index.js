@@ -72,7 +72,7 @@ export default function kdotProxy (config) {
     ],
     ...email && dnsProvider && secret
       ? {
-          custom: [{
+          resources: [{
             apiVersion: 'cert-manager.io/v1',
             kind: 'ClusterIssuer',
             metadata: {
