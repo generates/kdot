@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.0.20
+
+### Patch Changes
+
+- 533bf60: Apply refactor, initial versions of kdot-proxy and kdot-auth-proxy
+- 16ea1c1: Allowing cluster context to be configured
+
 ## 0.0.19
 
 ### Patch Changes
