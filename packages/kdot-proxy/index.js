@@ -1,16 +1,31 @@
-export default function kdotProxy ({ email, provider, secret } = {}) {
+const certManager = 'https://github.com/jetstack/cert-manager/releases/download/v1.1.0/cert-manager.yaml'
+
+export default function kdotProxy (config) {
+  const {
+    email = process.env.LETSENCRYPT_EMAIL,
+    dnsProvider,
+    lbProvider,
+    secret,
+    useCloudflareProxy
+  } = config || {}
+
   // Add default secret configuration.
   if (secret) {
     if (!secret.name) secret.name = 'dns-credentials'
     if (!secret.ref) secret.ref = 'token'
   }
 
-  const isCloudflare = provider === 'cloudflare'
+  const isCloudflareDns = dnsProvider === 'cloudflare'
+
+  let ingressNginx = 'https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.43.0/deploy/static/provider/do/deploy.yaml'
+  if (lbProvider === 'google') {
+    ingressNginx = 'https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.44.0/deploy/static/provider/cloud/deploy.yaml'
+  }
 
   return {
     namespace: 'proxy',
     apps: {
-      ...provider && {
+      ...dnsProvider && secret && {
         'external-dns': {
           image: {
             repo: 'k8s.gcr.io/external-dns/external-dns',
@@ -19,13 +34,13 @@ export default function kdotProxy ({ email, provider, secret } = {}) {
           deployStrategy: 'Recreate',
           args: [
             '--source=ingress',
-            `--provider=${provider}`,
-            ...isCloudflare ? ['--cloudflare-proxied'] : []
+            `--provider=${dnsProvider}`,
+            ...useCloudflareProxy ? ['--cloudflare-proxied'] : []
           ],
           secrets: [{
             name: secret.name,
             values: [
-              ...isCloudflare ? [{ CF_API_TOKEN: secret.value }] : []
+              ...isCloudflareDns ? [{ CF_API_TOKEN: secret.value }] : []
             ]
           }],
           role: {
@@ -52,10 +67,10 @@ export default function kdotProxy ({ email, provider, secret } = {}) {
       }
     },
     externalResources: [
-      'https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.43.0/deploy/static/provider/do/deploy.yaml',
-      'https://github.com/jetstack/cert-manager/releases/download/v1.1.0/cert-manager.yaml'
+      ...lbProvider ? [ingressNginx] : [],
+      ...dnsProvider ? [certManager] : []
     ],
-    ...email && provider && secret
+    ...email && dnsProvider && secret
       ? {
           custom: [{
             apiVersion: 'cert-manager.io/v1',
@@ -71,7 +86,7 @@ export default function kdotProxy ({ email, provider, secret } = {}) {
                 solvers: [
                   {
                     dns01: {
-                      [provider]: {
+                      [dnsProvider]: {
                         [`${secret.ref}SecretRef`]: {
                           name: secret.name,
                           key: secret.key
