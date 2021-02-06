@@ -1,0 +1,14 @@
+{
+  "users.example.com": {
+    "url": "http://localhost:3006",
+    "proxyUrl": "http://localhost:3004",
+    "users": [
+      "ianwalter"
+    ]
+  },
+  "org.example.com": {
+    "url": "http://localhost:3006",
+    "proxyUrl": "http://localhost:3005",
+    "org": "binxhealth"
+  }
+}

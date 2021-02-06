@@ -8,7 +8,8 @@ import configureConfigMaps from './configMaps.js'
 import configureSecrets from './secrets.js'
 import configurePriorityClass from './priorityClass.js'
 import configureNamespaces from './namespaces.js'
-import { makeClients } from '../k8sApi.js'
+import configureRoles from './roles.js'
+import { configureClients } from '../k8s.js'
 
 const require = createRequire(import.meta.url)
 const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
@@ -25,7 +26,7 @@ function toEnv ([name, value]) {
 }
 
 function taggedImage () {
-  return typeof this.image === 'string'
+  return !this.image || typeof this.image === 'string'
     ? this.image
     : `${this.image.repo}:${this.image.tag || 'latest'}`
 }
@@ -57,10 +58,10 @@ export default async function configure ({ ext, ...input }) {
   logger.debug('Initial configuration', cfg)
 
   // Re-initialize clients with the given context if sepcified.
-  if (cfg.context) makeClients(cfg.context)
+  if (cfg.context) configureClients(cfg.context)
 
-  // Initialize the map of resources.
-  cfg.resources = { all: [], namespaces: [], deployments: [], services: [] }
+  // Initialize the collection of resources.
+  cfg.resources = cfg.resources || []
 
   // If there is a top-level namespace, add it to the resources array.
   if (cfg.namespace !== 'default') configureNamespaces(cfg)
@@ -100,6 +101,9 @@ export default async function configure ({ ext, ...input }) {
       // Configure app-level Secrets and Secret references.
       if (app.secrets) configureSecrets(cfg, app)
 
+      // Configure app-level Roles, ServiceAccounts, and RoleBindings.
+      if (app.role) configureRoles(cfg, app)
+
       // Map environment variables from key-value pairs to Objects in an Array.
       if (app.env) app.env = Object.entries(app.env).map(toEnv)
 
@@ -110,8 +114,9 @@ export default async function configure ({ ext, ...input }) {
       // Add the taggedImage getter to the app object for convenience.
       Object.defineProperty(app, 'taggedImage', { get: taggedImage })
 
-      cfg.resources.deployments.push({
+      cfg.resources.push({
         app,
+        apiVersion: 'apps/v1',
         kind: 'Deployment',
         metadata: {
           name,
@@ -121,9 +126,11 @@ export default async function configure ({ ext, ...input }) {
         spec: {
           replicas: Number.isInteger(app.replicas) ? app.replicas : 1,
           selector: { matchLabels: appLabel },
+          ...app.deployStrategy && { strategy: { type: app.deployStrategy } },
           template: {
             metadata: { labels: { ...labels, ...appLabel } },
             spec: {
+              ...app.role ? { serviceAccountName: app.role.name || name } : {},
               containers: [
                 {
                   ...including(app, ...containerAttrs),
@@ -148,13 +155,25 @@ export default async function configure ({ ext, ...input }) {
           metadata: { name, namespace: app.namespace, labels },
           spec: { selector: appLabel, ports: app.ports.map(toServicePort) }
         }
-        cfg.resources.services.push(service)
+
+        // Merge in any additional service properties specified on the app
+        // (e.g. type).
+        merge(service, app.service)
+
+        cfg.resources.push(service)
 
         const hostPorts = app.ports.filter(p => p.hosts)
         if (hostPorts.length) {
-          const metadata = { name, namespace: app.namespace, labels }
-          const spec = { rules: [] }
-          const ingress = { app, kind: 'Ingress', metadata, spec }
+          const clusterIssuer = cfg.clusterIssuer || 'kdot-cluster-issuer'
+          const metadata = {
+            name,
+            namespace: app.namespace,
+            labels,
+            annotations: { 'cert-manager.io/cluster-issuer': clusterIssuer }
+          }
+          const apiVersion = 'networking.k8s.io/v1'
+          const spec = { rules: [], tls: [] }
+          const ingress = { app, apiVersion, kind: 'Ingress', metadata, spec }
 
           for (const p of hostPorts) {
             const pathType = p.pathType || 'Prefix'
@@ -163,10 +182,13 @@ export default async function configure ({ ext, ...input }) {
             for (const host of p.hosts) {
               ingress.spec.rules.push({ host, http: { paths: [path] } })
             }
+
+            // Configure the TLS settings for cert-manager.
+            const secretName = `${name}${p.name ? `-${p.name}` : ''}-cert`
+            ingress.spec.tls.push({ hosts: p.hosts, secretName })
           }
 
-          cfg.resources.ingresses = cfg.resources.ingresses || []
-          cfg.resources.ingresses.push(ingress)
+          cfg.resources.push(ingress)
         }
       }
     }

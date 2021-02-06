@@ -37,8 +37,9 @@ export default async function build (cfg) {
 
   const volumes = []
   const volumeMounts = []
-  if (cfg.build?.user) {
+  if (cfg.build?.token || (cfg.build?.user && cfg.build?.pass)) {
     const name = 'registry-credentials'
+    const creds = cfg.build.token || `${cfg.build.user}:${cfg.build.pass}`
     build.resources.secrets.push({
       kind: 'Secret',
       metadata: { namespace: cfg.namespace, name },
@@ -47,7 +48,7 @@ export default async function build (cfg) {
           {
             "auths": {
               "${cfg.build.registry || 'https://index.docker.io/v1/'}": {
-                "auth": "${encode(`${cfg.build.user}:${cfg.build.pass}`)}"
+                "auth": "${cfg.build.token || encode(creds)}"
               }
             }
           }

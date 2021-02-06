@@ -1,95 +1,75 @@
 import { createLogger } from '@generates/logger'
-import { clients } from './k8sApi.js'
+import got from 'got'
+import pReduce from 'p-reduce'
+import extractor from '@generates/extractor'
+import { k8s, loadAllYaml } from './k8s.js'
 
-const { core, apps, net, sched } = clients
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
+const toMeta = r => r.metadata
+const toExtractedResource = r => {
+  const props = ['app']
+  if (r.kind === 'CustomResourceDefinition') props.push('spec')
+  return extractor.excluding(r, ...props)
+}
 
 export default async function getResources (cfg, filter) {
-  const resources = []
+  let resources = cfg.resources
 
   if (!filter) filter = r => r
 
-  if (cfg.resources.namespaces?.length) {
-    const { body: { items } } = await core.listNamespace()
-    for (const namespace of cfg.resources.namespaces) {
-      const { name } = namespace.metadata
-      const existing = items.find(n => n.metadata.name === name)
-      if (existing) namespace.metadata.uid = existing.metadata.uid
-      if (filter(namespace)) resources.push(namespace)
+  if (cfg.externalResources?.length) {
+    for (const url of cfg.externalResources) {
+      logger.debug('Getting external resource', url)
+
+      try {
+        // Fetch the yaml text.
+        const response = await got(url)
+
+        // Convert the yaml text into Kubernetes resource objects.
+        const externalResources = loadAllYaml(response.body)
+        logger.debug('Got external resources', externalResources.map(toMeta))
+
+        // Add the external resources to the collection of all resources.
+        resources = resources.concat(externalResources)
+      } catch (err) {
+        logger.error(err)
+      }
     }
   }
 
-  if (cfg.resources.configMaps?.length) {
-    for (const configMap of cfg.resources.configMaps) {
-      const { name, namespace } = configMap.metadata
-      const { body: { items } } = await core.listNamespacedConfigMap(namespace)
-      const existing = items.find(i => {
-        return i.metadata.name === name && i.metadata.namespace === namespace
-      })
-      if (existing) configMap.metadata.uid = existing.metadata.uid
-      if (filter(configMap)) resources.push(configMap)
-    }
-  }
+  resources = await pReduce(
+    resources,
+    async (acc, resource) => {
+      // Get a console-friendly representation of the resource.
+      const rep = toExtractedResource(resource)
 
-  if (cfg.resources.secrets?.length) {
-    for (const secret of cfg.resources.secrets) {
-      const { name, namespace } = secret.metadata
-      const { body: { items } } = await core.listNamespacedSecret(namespace)
-      const existing = items.find(i => {
-        return i.metadata.name === name && i.metadata.namespace === namespace
-      })
-      if (existing) secret.metadata.uid = existing.metadata.uid
-      if (filter(secret)) resources.push(secret)
-    }
-  }
+      // Filter out resources based on the filter given by the caller.
+      if (!filter(resource)) {
+        logger.debug('Filtered out resource', rep)
+        return acc
+      }
 
-  if (cfg.resources.priorityClasses?.length) {
-    const { body: { items } } = await sched.listPriorityClass()
-    for (const priorityClass of cfg.resources.priorityClasses) {
-      const { name } = priorityClass.metadata
-      const existing = items.find(i => i.metadata.name === name)
-      if (existing) priorityClass.metadata.uid = existing.metadata.uid
-      if (filter(priorityClass)) resources.push(priorityClass)
-    }
-  }
+      try {
+        // Fetch the existing resource from Kubernetes if it exists.
+        const { body } = await k8s.client.read(resource)
 
-  if (cfg.resources.deployments?.length) {
-    const { body: { items } } = await apps.listDeploymentForAllNamespaces()
-    for (const deployment of cfg.resources.deployments) {
-      const { name, namespace } = deployment.metadata
-      const existing = items.find(i => {
-        return i.metadata.name === name && i.metadata.namespace === namespace
-      })
-      if (existing) deployment.metadata.uid = existing.metadata.uid
-      if (filter(deployment)) resources.push(deployment)
-    }
-  }
+        // Merge the existing config with the configured resource.
+        resource.metadata.uid = body.metadata.uid
 
-  if (cfg.resources.services?.length) {
-    const { body: { items } } = await core.listServiceForAllNamespaces()
-    for (const service of cfg.resources.services) {
-      const { name, namespace } = service.metadata
-      const existing = items.find(i => {
-        return i.metadata.name === name && i.metadata.namespace === namespace
-      })
-      if (existing) service.metadata.uid = existing.metadata.uid
-      if (filter(service)) resources.push(service)
-    }
-  }
+        logger.debug('Existing resource found', rep)
+      } catch (err) {
+        logger.debug('Existing resource not found', rep)
+      }
 
-  if (cfg.resources.ingresses?.length) {
-    const { body: { items } } = await net.listIngressForAllNamespaces()
-    for (const ingress of cfg.resources.ingresses) {
-      const { name, namespace } = ingress.metadata
-      const existing = items.find(i => {
-        return i.metadata.name === name && i.metadata.namespace === namespace
-      })
-      if (existing) ingress.metadata.uid = existing.metadata.uid
-      if (filter(ingress)) resources.push(ingress)
-    }
-  }
+      // Add resource to the colleciton of resources.
+      acc.push(resource)
 
-  logger.debug('getResources', resources)
+      return acc
+    },
+    []
+  )
+
+  logger.debug('getResources', resources.map(toExtractedResource))
 
   return resources
 }

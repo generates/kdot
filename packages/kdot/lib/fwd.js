@@ -2,7 +2,7 @@ import net from 'net'
 import enableDestroy from 'server-destroy'
 import { createLogger } from '@generates/logger'
 import { oneLine } from 'common-tags'
-import { k8s, kc } from './k8sApi.js'
+import { PortForward, kc } from './k8s.js'
 import getRunningPod from './getRunningPod.js'
 
 const logger = createLogger({ namespace: 'kdot.fwd', level: 'info' })
@@ -18,7 +18,7 @@ function forwardPort (app, pod, portConfig) {
       // pod.
       server = net.createServer(async socket => {
         // Create the WebSocket that will transport requests and responses.
-        const portForwarder = new k8s.PortForward(kc)
+        const portForwarder = new PortForward(kc)
         await portForwarder.portForward(
           namespace,
           name,

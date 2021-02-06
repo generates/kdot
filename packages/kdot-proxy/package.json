@@ -1,7 +1,7 @@
 {
-  "name": "@generates/kdot-actions-runner",
-  "description": "Resource configuration for GitHub Actions Runner",
-  "version": "0.0.1",
+  "name": "@generates/kdot-proxy",
+  "description": "Resource configuration for nginx-ingress, cert-manager, and external-dns",
+  "version": "0.0.0",
   "author": {
     "name": "Ian Walter",
     "url": "https://ianwalter.dev"
@@ -12,18 +12,17 @@
   "files": [
     "index.js"
   ],
-  "homepage": "https://github.com/generates/kdot/tree/main/packages/kdot-actions-runner#readme",
+  "homepage": "https://github.com/generates/kdot/tree/main/packages/kdot-proxy#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/generates/kdot.git",
-    "directory": "packages/kdot-actions-runner"
+    "directory": "packages/kdot-proxy"
   },
   "keywords": [
     "kdot",
-    "kdot-actions-runner",
-    "github",
-    "actions",
-    "runner",
+    "nginx-ingress",
+    "cert-manager",
+    "external-dns",
     "kubernetes"
   ],
   "bugs": {
