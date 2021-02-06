@@ -1,7 +1,7 @@
 {
   "name": "@generates/kdot-proxy",
   "description": "Resource configuration for nginx-ingress, cert-manager, and external-dns",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "author": {
     "name": "Ian Walter",
     "url": "https://ianwalter.dev"
