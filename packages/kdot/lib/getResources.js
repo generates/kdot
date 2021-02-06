@@ -43,7 +43,7 @@ export default async function getResources (cfg, filter) {
       // Get a console-friendly representation of the resource.
       const rep = toExtractedResource(resource)
 
-      //
+      // Filter out resources based on the filter given by the caller.
       if (!filter(resource)) {
         logger.debug('Filtered out resource', rep)
         return acc

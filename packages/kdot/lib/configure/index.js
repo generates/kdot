@@ -191,15 +191,8 @@ export default async function configure ({ ext, ...input }) {
           cfg.resources.push(ingress)
         }
       }
-
-      if (app.custom?.length) {
-        for (const custom of app.custom) custom.app = app
-        cfg.resources = cfg.resources.concat(app.custom)
-      }
     }
   }
-
-  if (cfg.custom?.length) cfg.resources = cfg.resources.concat(cfg.custom)
 
   return cfg
 }
