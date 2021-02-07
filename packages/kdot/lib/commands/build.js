@@ -1,14 +1,12 @@
 import { createLogger } from '@generates/logger'
 import { stripIndent } from 'common-tags'
-import applyResource from '../applyResource.js'
+import { k8s } from '../k8s.js'
 import getPods from '../getPods.js'
-import getResources from '../getResources.js'
 import poll from '../poll.js'
 import configureNamespaces from '../configure/namespaces.js'
 import encode from '../encode.js'
 import toEnv from '../toEnv.js'
 import apply from '../apply.js'
-import { del } from '@generates/dotter'
 
 const statuses = ['Succeeded', 'Failed']
 const defaultDigest = '/dev/termination-log'
@@ -69,10 +67,8 @@ export default async function build (cfg) {
     env.GOOGLE_APPLICATION_CREDENTIALS = '/kaniko/config.json'
   }
 
-  const building = []
   for (const app of Object.values(cfg.apps).filter(app => app.enabled)) {
     if (app.build) {
-      building.push(app.name)
       const ref = app.build.context.ref ? `#${app.build.context.ref}` : ''
       const sha = app.build.context.sha ? `#${app.build.context.sha}` : ''
       const contextValue = `${app.build.context.repo}${ref}${sha}`
@@ -120,26 +116,34 @@ export default async function build (cfg) {
     }
   }
 
+  // Create an array of pods to be created.
+  const pods = build.resources.filter(byPod)
+
   // Delete any existing build pods.
-  // await del(build)
+  await Promise.all(pods.map(pod => k8s.client.delete(pod)))
 
   // Create the build pods and associated resources.
   await apply(build)
 
-  process.stdout.write('\n')
-  for (const name of building) logger.info(`Building ${name}...`)
+  // Add a blank line between before the building log message.
   process.stdout.write('\n')
 
   // Wait for the build pod to complete.
-  await Promise.all(build.resources.filter(byPod).map(async pod => {
+  await Promise.all(pods.map(async pod => {
     const { app, metadata } = pod
+
+    logger.info(`Building ${app.name}...`)
 
     const request = () => getPods(metadata.namespace, metadata.name, 1)
     const condition = pod => statuses.includes(pod?.status?.phase)
-    pod = await poll({ request, condition, interval: 2000 })
+    const buildPod = await poll({ request, condition, interval: 2000 })
 
-    const { state } = pod.status.containerStatuses[0]
-    if (pod.status.phase === 'Succeeded') {
+    const { state } = buildPod.status.containerStatuses[0]
+    if (buildPod.status.phase === 'Succeeded') {
+      // Delete the build pod now that it has completed successfully.
+      await k8s.client.delete(pod)
+
+      // Log the built image information.
       const digest = state.terminated.message
       logger.success(`Built ${app.taggedImage} for ${app.name}: ${digest}`)
     } else {
