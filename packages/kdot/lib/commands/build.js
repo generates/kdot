@@ -144,8 +144,8 @@ export default async function build (cfg) {
       await k8s.client.delete(pod)
 
       // Log the built image information.
-      const digest = state.terminated.message
-      logger.success(`Built ${app.taggedImage} for ${app.name}: ${digest}`)
+      const digest = state.terminated.message.split(':')
+      logger.success(`Built ${app.taggedImage} for ${app.name}: ${digest[1]}`)
     } else {
       logger.fatal(`Build ${app.taggedImage} failed for ${app.name}:`, state)
 
