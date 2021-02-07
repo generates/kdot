@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.0.21
+
+### Patch Changes
+
+- f8d5990: kdot-datadog initial release
+- 39f105d: Refactoring/simplifying build
+
 ## 0.0.20
 
 ### Patch Changes
