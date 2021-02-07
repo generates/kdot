@@ -6,49 +6,49 @@ import getResources from '../getResources.js'
 import poll from '../poll.js'
 import configureNamespaces from '../configure/namespaces.js'
 import encode from '../encode.js'
+import toEnv from '../toEnv.js'
+import apply from '../apply.js'
+import { del } from '@generates/dotter'
 
-const toApp = a => a[1]
 const statuses = ['Succeeded', 'Failed']
 const defaultDigest = '/dev/termination-log'
 const logger = createLogger({ namespace: 'kdot.build', level: 'info' })
+const byPod = resource => resource.kind === 'Pod'
 
 export default async function build (cfg) {
-  const byEnabled = ([name, app]) => cfg.input.args.length
-    ? cfg.input.args.includes(name) && app.enabled && !app.isDependency
-    : app.enabled && !app.isDependency
+  // Configure the build config object.
+  const namespace = cfg.build.namespace || cfg.namespace
+  const build = { ...cfg, namespace, resources: [] }
 
-  //
-  const build = { namespace: cfg.namespace, resources: { secrets: [] } }
+  // Configure the namespace that will be used for the build.
   configureNamespaces(build)
 
-  // If there is a build secret, like GIT_TOKEN, add it to the pod environment
-  // variable config.
-  const env = (cfg.build?.secrets || []).reduce(
-    (acc, secret) => {
-      for (const value of secret.values) {
-        const [key] = Object.keys(value)
-        const secretKeyRef = { name: secret.name, key }
-        acc[key] = { valueFrom: { secretKeyRef } }
-      }
-      return acc
-    },
-    {}
-  )
+  const env = {}
+  if (cfg.build.gitToken) {
+    // Create a secret for the git token.
+    const name = 'git-token'
+    const metadata = { namespace, name }
+    const data = { GIT_TOKEN: encode(cfg.build.gitToken) }
+    build.resources.push({ kind: 'Secret', metadata, data })
+
+    // Reference the git-token secret in the build pod's environment.
+    env.GIT_TOKEN = { secretKeyRef: { name, key: 'GIT_TOKEN' } }
+  }
 
   const volumes = []
   const volumeMounts = []
-  if (cfg.build?.token || (cfg.build?.user && cfg.build?.pass)) {
+  if (cfg.build.registryToken || (cfg.build.user && cfg.build.pass)) {
     const name = 'registry-credentials'
-    const creds = cfg.build.token || `${cfg.build.user}:${cfg.build.pass}`
-    build.resources.secrets.push({
+    const creds = `${cfg.build.user}:${cfg.build.pass}`
+    build.resources.push({
       kind: 'Secret',
-      metadata: { namespace: cfg.namespace, name },
+      metadata: { namespace, name },
       data: {
         'config.json': encode(stripIndent`
           {
             "auths": {
               "${cfg.build.registry || 'https://index.docker.io/v1/'}": {
-                "auth": "${cfg.build.token || encode(creds)}"
+                "auth": "${cfg.build.registryToken || encode(creds)}"
               }
             }
           }
@@ -57,11 +57,11 @@ export default async function build (cfg) {
     })
     volumes.push({ name, secret: { secretName: name } })
     volumeMounts.push({ name, mountPath: '/kaniko/.docker/', readOnly: true })
-  } else if (cfg.build?.gcr) {
+  } else if (cfg.build.gcr) {
     const name = 'gcr-credentials'
-    build.resources.secrets.push({
+    build.resources.push({
       kind: 'Secret',
-      metadata: { namespace: cfg.namespace, name },
+      metadata: { namespace, name },
       data: { 'config.json': cfg.build.gcr }
     })
     volumes.push({ name, secret: { secretName: name } })
@@ -69,13 +69,18 @@ export default async function build (cfg) {
     env.GOOGLE_APPLICATION_CREDENTIALS = '/kaniko/config.json'
   }
 
-  const pods = []
-  for (const app of Object.entries(cfg.apps).filter(byEnabled).map(toApp)) {
+  const building = []
+  for (const app of Object.values(cfg.apps).filter(app => app.enabled)) {
     if (app.build) {
+      building.push(app.name)
+      const ref = app.build.context.ref ? `#${app.build.context.ref}` : ''
+      const sha = app.build.context.sha ? `#${app.build.context.sha}` : ''
+      const contextValue = `${app.build.context.repo}${ref}${sha}`
+
       // Deconstruct the build args so that they can be overridden if necessary.
       const {
         dockerfile = `--dockerfile=${app.build.dockerfile || 'Dockerfile'}`,
-        context = `--context=${app.build.context}`,
+        context = `--context=${contextValue}`,
         destination = `--destination=${app.taggedImage}`,
         digestFile = `--digest-file=${app.build.digestFile || defaultDigest}`,
         skipUnusedStaged = '--skip-unused-stages',
@@ -84,11 +89,12 @@ export default async function build (cfg) {
       } = app.build.args || {}
 
       // Create the pod configuration.
-      const name = `build-${app.name}`
-      pods.push({
+      const shaName = app.build.context.sha ? `-${app.build.context.sha}` : ''
+      const name = `build-${app.name}${shaName}`
+      build.resources.push({
         app,
         kind: 'Pod',
-        metadata: { namespace: cfg.namespace, name, labels: { app: name } },
+        metadata: { namespace, name, labels: { app: name } },
         spec: {
           restartPolicy: 'Never',
           containers: [
@@ -104,7 +110,7 @@ export default async function build (cfg) {
                 ...cache ? [cache] : [],
                 ...args ? Object.values(args) : []
               ],
-              env,
+              env: Object.entries(env).map(toEnv),
               volumeMounts
             }
           ],
@@ -114,20 +120,20 @@ export default async function build (cfg) {
     }
   }
 
-  // Create any namespace or secret resources before creating the build pods.
-  const resources = await getResources(build, r => !r.metadata.uid)
-  if (resources.length) await Promise.all(resources.map(applyResource))
+  // Delete any existing build pods.
+  // await del(build)
 
-  logger.debug('Build pods', pods)
+  // Create the build pods and associated resources.
+  await apply(build)
 
-  // Perform the image builds by deploying the build pods to the cluster.
-  await Promise.all(pods.map(async pod => {
+  process.stdout.write('\n')
+  for (const name of building) logger.info(`Building ${name}...`)
+  process.stdout.write('\n')
+
+  // Wait for the build pod to complete.
+  await Promise.all(build.resources.filter(byPod).map(async pod => {
     const { app, metadata } = pod
 
-    // Deploy the build pod.
-    await applyResource(pod)
-
-    // Wait for the build pod to complete.
     const request = () => getPods(metadata.namespace, metadata.name, 1)
     const condition = pod => statuses.includes(pod?.status?.phase)
     pod = await poll({ request, condition, interval: 2000 })
@@ -138,6 +144,9 @@ export default async function build (cfg) {
       logger.success(`Built ${app.taggedImage} for ${app.name}: ${digest}`)
     } else {
       logger.fatal(`Build ${app.taggedImage} failed for ${app.name}:`, state)
+
+      // TODO: OUTPUT BUILD POD LOG
+
       process.exit(1)
     }
   }))

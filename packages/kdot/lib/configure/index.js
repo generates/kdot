@@ -10,6 +10,7 @@ import configurePriorityClass from './priorityClass.js'
 import configureNamespaces from './namespaces.js'
 import configureRoles from './roles.js'
 import { configureClients } from '../k8s.js'
+import toEnv from '../toEnv.js'
 
 const require = createRequire(import.meta.url)
 const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
@@ -18,11 +19,6 @@ const containerAttrs = V1Container.attributeTypeMap.map(a => a.name)
 
 function toServicePort ({ localPort, ...port }) {
   return port
-}
-
-function toEnv ([name, value]) {
-  if (typeof value === 'object') return { name, valueFrom: value }
-  return { name, value }
 }
 
 function taggedImage () {
