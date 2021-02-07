@@ -46,6 +46,7 @@ export default async function apply (cfg) {
       if (response === 'No') process.exit(0)
     } catch (err) {
       logger.debug(err)
+      process.exit(0)
     }
   }
 
