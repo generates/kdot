@@ -62,7 +62,7 @@ export default async function apply (cfg) {
   await Promise.all(resources.filter(byTopLevel).map(applyResource))
 
   // Apply the app-level resources.
-  await Promise.all(Object.entries(cfg.apps).map(async ([name]) => {
+  await Promise.all(Object.entries(cfg.apps || {}).map(async ([name]) => {
     for (const resource of resources.filter(r => r.app?.name === name)) {
       await applyResource(resource)
     }

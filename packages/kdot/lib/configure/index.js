@@ -66,7 +66,7 @@ export default async function configure ({ ext, ...input }) {
   if (cfg.secrets) configureSecrets(cfg)
 
   // Break apps down into individual Kubernetes resources.
-  for (const [name, app] of Object.entries(cfg.apps)) {
+  for (const [name, app] of Object.entries(cfg.apps || {})) {
     const enabled = app.enabled !== false && input.args.length === 0
 
     // Determien if this app is being depended on by another specified app.
