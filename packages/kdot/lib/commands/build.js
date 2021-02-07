@@ -120,7 +120,7 @@ export default async function build (cfg) {
   const pods = build.resources.filter(byPod)
 
   // Delete any existing build pods.
-  await Promise.all(pods.map(pod => k8s.client.delete(pod)))
+  await Promise.allSettled(pods.map(pod => k8s.client.delete(pod)))
 
   // Create the build pods and associated resources.
   await apply(build)

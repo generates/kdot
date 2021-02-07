@@ -9,7 +9,7 @@ const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const byTopLevelNamespace = r => !r.app && r.kind === 'Namespace'
 const byTopLevel = r => !r.app && r.kind !== 'Namespace'
 const byNewOrDep = r => !r.metadata.uid || r.app?.isDependency
-const byNotExistingNs = r => !r.metadata.uid || r.kind !== 'Namespace'
+const byNotExistingNs = r => !r.metadata.uid && r.kind !== 'Namespace'
 
 function logUpdate (resource) {
   const change = resource.metadata.uid
@@ -43,10 +43,9 @@ export default async function apply (cfg) {
       const question = `Are you sure you want to apply these changes to ${c}?`
       const response = await prompt.select(question)
       process.stdout.write('\n')
-      if (response === 'No') return
+      if (response === 'No') process.exit(0)
     } catch (err) {
       logger.debug(err)
-      process.exit(0)
     }
   }
 
