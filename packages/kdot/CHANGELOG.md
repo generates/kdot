@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.22
+
+### Patch Changes
+
+- a1f8bdb: Adding --wait flag to apply
+
 ## 0.0.21
 
 ### Patch Changes
