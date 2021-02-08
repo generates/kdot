@@ -4,12 +4,14 @@ import { kc } from './k8s.js'
 import emojis from './emojis.js'
 import getResources from './getResources.js'
 import applyResource from './applyResource.js'
+import getRunningPod from './getRunningPod.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const byTopLevelNamespace = r => !r.app && r.kind === 'Namespace'
 const byTopLevel = r => !r.app && r.kind !== 'Namespace'
 const byNewOrDep = r => !r.metadata.uid || r.app?.isDependency
 const byNotExistingNs = r => !r.metadata.uid && r.kind !== 'Namespace'
+const byDeployment = r => r.kind === 'Deployment'
 
 function logUpdate (resource) {
   const change = resource.metadata.uid
@@ -25,9 +27,6 @@ function setupApplyResource (cfg) {
   return resource => applyResource(resource, { logLevel })
 }
 
-/**
- * Add configured apps to the cluster.
- */
 export default async function apply (cfg) {
   const stateFilter = cfg.input.update === false ? byNewOrDep : byNotExistingNs
   const filter = cfg.input.args.length
@@ -67,4 +66,11 @@ export default async function apply (cfg) {
       await applyResource(resource)
     }
   }))
+
+  if (cfg.input.wait) {
+    await Promise.all(resources.filter(byDeployment).map(async deployment => {
+      const { namespace, name } = deployment.metadata
+      await getRunningPod(namespace, name)
+    }))
+  }
 }

@@ -51,6 +51,9 @@ const { _: [command, ...args], packageJson, ...input } = cli({
     update: {
       alias: 'u',
       description: 'Update resources before executing subsequent commands'
+    },
+    wait: {
+      alias: 'w'
     }
   }
 })
