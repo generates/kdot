@@ -71,11 +71,11 @@ export default async function build (cfg) {
   const gitinfo = createGitinfo()
   for (const app of Object.values(cfg.apps).filter(app => app.enabled)) {
     if (app.build) {
-      const repo = app.build.context.repo || gitinfo.getRemoteUrl()
-      const ref = app.build.context.ref
+      const repo = app.build.context?.repo || gitinfo.getRemoteUrl()
+      const ref = app.build.context?.ref
         ? `#${app.build.context.ref}`
         : `#refs/heads/${gitinfo.getBranchName()}`
-      const sha = app.build.context.sha
+      const sha = app.build.context?.sha
         ? `#${app.build.context.sha}`
         : `#${gitinfo.getHeadSha()}`
       const contextValue = `${repo}${ref}${sha}`
