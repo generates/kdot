@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.26
+
+### Patch Changes
+
+- 3d07a4f: Fixing isRunning logic
+
 ## 0.0.25
 
 ### Patch Changes
