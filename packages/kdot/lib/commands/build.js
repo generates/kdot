@@ -1,6 +1,6 @@
 import { createLogger } from '@generates/logger'
 import { stripIndent } from 'common-tags'
-import createGitinfo from 'gitinfo'
+import gitinfo from 'gitinfo'
 import { k8s } from '../k8s.js'
 import getPods from '../getPods.js'
 import poll from '../poll.js'
@@ -9,6 +9,7 @@ import encode from '../encode.js'
 import toEnv from '../toEnv.js'
 import apply from './apply.js'
 
+const createGitinfo = gitinfo.default
 const statuses = ['Succeeded', 'Failed']
 const defaultDigest = '/dev/termination-log'
 const logger = createLogger({ namespace: 'kdot.build', level: 'info' })
