@@ -69,9 +69,11 @@ export default async function build (cfg) {
 
   for (const app of Object.values(cfg.apps).filter(app => app.enabled)) {
     if (app.build) {
-      const ref = app.build.context.ref ? `#${app.build.context.ref}` : ''
-      const sha = app.build.context.sha ? `#${app.build.context.sha}` : ''
-      const contextValue = `${app.build.context.repo}${ref}${sha}`
+      const buildContext = app.build.context
+      const ref = buildContext.ref ? `#refs/heads/${buildContext.ref}` : ''
+      const sha = buildContext.sha ? `#${buildContext.sha}` : ''
+      const contextValue = `${buildContext.repo}${ref}${sha}`
+      logger.debug('Context:', contextValue)
 
       // Deconstruct the build args so that they can be overridden if necessary.
       const {
@@ -85,8 +87,9 @@ export default async function build (cfg) {
       } = app.build.args || {}
 
       // Create the pod configuration.
-      const shaName = app.build.context.sha ? `-${app.build.context.sha}` : ''
+      const shaName = buildContext.sha ? `-${buildContext.sha}` : ''
       const name = `build-${app.name}${shaName}`
+      logger.debug('Build pod:', name)
       build.resources.push({
         app,
         kind: 'Pod',
