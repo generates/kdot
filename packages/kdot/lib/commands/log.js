@@ -1,7 +1,7 @@
 import stream from 'stream'
 import { createLogger, chalk } from '@generates/logger'
-import { k8s } from './k8s.js'
-import getPods from './getPods.js'
+import { k8s } from '../k8s.js'
+import getPods from '../getPods.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const colors = [

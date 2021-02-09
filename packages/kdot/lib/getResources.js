@@ -12,10 +12,8 @@ const toExtractedResource = r => {
   return extractor.excluding(r, ...props)
 }
 
-export default async function getResources (cfg, filter) {
+export default async function getResources (cfg, filter = r => r) {
   let resources = cfg.resources
-
-  if (!filter) filter = r => r
 
   if (cfg.externalResources?.length) {
     for (const url of cfg.externalResources) {
@@ -43,12 +41,6 @@ export default async function getResources (cfg, filter) {
       // Get a console-friendly representation of the resource.
       const rep = toExtractedResource(resource)
 
-      // Filter out resources based on the filter given by the caller.
-      if (!filter(resource)) {
-        logger.debug('Filtered out resource', rep)
-        return acc
-      }
-
       try {
         // Fetch the existing resource from Kubernetes if it exists.
         const { body } = await k8s.client.read(resource)
@@ -59,6 +51,12 @@ export default async function getResources (cfg, filter) {
         logger.debug('Existing resource found', rep)
       } catch (err) {
         logger.debug('Existing resource not found', rep)
+      }
+
+      // Filter out resources based on the filter given by the caller.
+      if (!filter(resource)) {
+        logger.debug('Filtered out resource', rep)
+        return acc
       }
 
       // Add resource to the colleciton of resources.

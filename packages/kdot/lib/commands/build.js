@@ -6,7 +6,7 @@ import poll from '../poll.js'
 import configureNamespaces from '../configure/namespaces.js'
 import encode from '../encode.js'
 import toEnv from '../toEnv.js'
-import apply from '../apply.js'
+import apply from './apply.js'
 
 const statuses = ['Succeeded', 'Failed']
 const defaultDigest = '/dev/termination-log'
@@ -123,6 +123,10 @@ export default async function build (cfg) {
 
   // Delete any existing build pods.
   await Promise.allSettled(pods.map(pod => k8s.client.delete(pod)))
+
+  // Don't update existing resources when running apply through build unless
+  // explicitly specified.
+  if (cfg.input.update === undefined) cfg.input.update = false
 
   // Create the build pods and associated resources.
   await apply(build)

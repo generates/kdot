@@ -107,6 +107,9 @@ export default async function configure ({ ext, ...input }) {
       const hasPriority = Number.isInteger(app.priority)
       if (hasPriority) configurePriorityClass(cfg, app)
 
+      // Extract config for Pod imagePullSecrets.
+      const imagePullSecret = app.imagePullSecret || cfg.imagePullSecret
+
       // Add the taggedImage getter to the app object for convenience.
       Object.defineProperty(app, 'taggedImage', { get: taggedImage })
 
@@ -138,6 +141,9 @@ export default async function configure ({ ext, ...input }) {
               ...app.volumes ? { volumes: app.volumes } : {},
               ...hasPriority
                 ? { priorityClassName: `priority-${app.priority}` }
+                : {},
+              ...imagePullSecret
+                ? { imagePullSecrets: [{ name: imagePullSecret }] }
                 : {}
             }
           }

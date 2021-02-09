@@ -2,8 +2,8 @@ import net from 'net'
 import enableDestroy from 'server-destroy'
 import { createLogger } from '@generates/logger'
 import { oneLine } from 'common-tags'
-import { PortForward, kc } from './k8s.js'
-import getRunningPod from './getRunningPod.js'
+import { PortForward, kc } from '../k8s.js'
+import getRunningPod from '../getRunningPod.js'
 
 const logger = createLogger({ namespace: 'kdot.fwd', level: 'info' })
 const pollConfig = { interval: 1000, timeout: 300000 }
