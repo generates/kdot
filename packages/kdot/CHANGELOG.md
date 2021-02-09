@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.24
+
+### Patch Changes
+
+- c09ab16: Reverting build git ref change
+
 ## 0.0.23
 
 ### Patch Changes
