@@ -5,9 +5,8 @@ import poll from './poll.js'
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 
 function isRunning (pod) {
-  return pod &&
-    !pod.metadata.deletionTimestamp &&
-    pod.status.containerStatuses[0]?.state.running
+  const [status] = pod?.status?.containerStatuses || []
+  return status?.state.running && !pod.metadata.deletionTimestamp
 }
 
 async function getPod (namespace, name) {
