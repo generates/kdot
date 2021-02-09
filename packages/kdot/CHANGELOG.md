@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.28
+
+### Patch Changes
+
+- 76c33a5: Fixing gitinfo import
+
 ## 0.0.27
 
 ### Patch Changes
