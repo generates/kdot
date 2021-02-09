@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.23
+
+### Patch Changes
+
+- c47127e: Fixing git ref for build context
+
 ## 0.0.22
 
 ### Patch Changes
