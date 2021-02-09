@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.27
+
+### Patch Changes
+
+- 5ae3e8c: Getting git info for build context defaults
+
 ## 0.0.26
 
 ### Patch Changes
