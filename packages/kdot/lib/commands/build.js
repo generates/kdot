@@ -1,5 +1,6 @@
 import { createLogger } from '@generates/logger'
 import { stripIndent } from 'common-tags'
+import createGitinfo from 'gitinfo'
 import { k8s } from '../k8s.js'
 import getPods from '../getPods.js'
 import poll from '../poll.js'
@@ -67,10 +68,15 @@ export default async function build (cfg) {
     env.GOOGLE_APPLICATION_CREDENTIALS = '/kaniko/config.json'
   }
 
+  const gitinfo = createGitinfo()
   for (const app of Object.values(cfg.apps).filter(app => app.enabled)) {
     if (app.build) {
-      const ref = app.build.context.ref ? `#${app.build.context.ref}` : ''
-      const sha = app.build.context.sha ? `#${app.build.context.sha}` : ''
+      const ref = app.build.context.ref
+        ? `#${app.build.context.ref}`
+        : `#refs/heads/${gitinfo.getBranchName()}`
+      const sha = app.build.context.sha
+        ? `#${app.build.context.sha}`
+        : `#${gitinfo.getHeadSha()}`
       const contextValue = `${app.build.context.repo}${ref}${sha}`
       logger.debug('Context:', contextValue)
 
@@ -86,8 +92,8 @@ export default async function build (cfg) {
       } = app.build.args || {}
 
       // Create the pod configuration.
-      const shaName = app.build.context.sha ? `-${app.build.context.sha}` : ''
-      const name = `build-${app.name}${shaName}`
+      const tag = app.image.tag || 'latest'
+      const name = app.build.id || `build-${app.name}-${tag}`
       logger.debug('Build pod:', name)
       build.resources.push({
         app,
