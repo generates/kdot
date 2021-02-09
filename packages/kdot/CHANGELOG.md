@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.25
+
+### Patch Changes
+
+- fcd391a: Adding imagePullSecret config and fixing getResources filter
+
 ## 0.0.24
 
 ### Patch Changes
