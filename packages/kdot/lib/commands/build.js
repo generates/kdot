@@ -1,6 +1,7 @@
 import { createLogger } from '@generates/logger'
 import { stripIndent } from 'common-tags'
 import gitinfo from 'gitinfo'
+import parseGitUrl from 'git-url-parse'
 import { k8s } from '../k8s.js'
 import getPods from '../getPods.js'
 import poll from '../poll.js'
@@ -69,10 +70,12 @@ export default async function build (cfg) {
     env.GOOGLE_APPLICATION_CREDENTIALS = '/kaniko/config.json'
   }
 
-  const gitinfo = createGitinfo()
+  const gitinfo = createGitinfo({ gitPath: process.cwd() })
   for (const app of Object.values(cfg.apps).filter(app => app.enabled)) {
     if (app.build) {
-      const repo = app.build.context?.repo || gitinfo.getRemoteUrl()
+      const gitUrl = parseGitUrl(gitinfo.getRemoteUrl())
+      const repoUrl = `git://${gitUrl.source}${gitUrl.pathname}`
+      const repo = app.build.context?.repo || repoUrl
       const ref = app.build.context?.ref
         ? `#${app.build.context.ref}`
         : `#refs/heads/${gitinfo.getBranchName()}`
