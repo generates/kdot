@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.30
+
+### Patch Changes
+
+- 371707c: Using github env vars before reading git info because of checkout differences
+
 ## 0.0.29
 
 ### Patch Changes
