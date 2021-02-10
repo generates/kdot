@@ -76,13 +76,15 @@ export default async function build (cfg) {
       const gitUrl = parseGitUrl(gitinfo.getRemoteUrl())
       const repoUrl = `git://${gitUrl.source}${gitUrl.pathname}`
       const repo = app.build.context?.repo || repoUrl
-      const ref = app.build.context?.ref
+      const branchName = process.env.GITHUB_HEAD_REF || gitinfo.getBranchName()
+      const sha = process.env.GITHUB_SHA || gitinfo.getHeadSha()
+      const refPath = app.build.context?.ref
         ? `#${app.build.context.ref}`
-        : `#refs/heads/${gitinfo.getBranchName()}`
-      const sha = app.build.context?.sha
+        : `#refs/heads/${branchName}`
+      const shaPath = app.build.context?.sha
         ? `#${app.build.context.sha}`
-        : `#${gitinfo.getHeadSha()}`
-      const contextValue = `${repo}${ref}${sha}`
+        : `#${sha}`
+      const contextValue = `${repo}${refPath}${shaPath}`
       logger.debug('Context:', contextValue)
 
       // Deconstruct the build args so that they can be overridden if necessary.
