@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.29
+
+### Patch Changes
+
+- d1143cc: Fixing build git defaults
+
 ## 0.0.28
 
 ### Patch Changes
