@@ -73,9 +73,18 @@ export default async function build (cfg) {
   const gitinfo = createGitinfo({ gitPath: process.cwd() })
   for (const app of Object.values(cfg.apps).filter(app => app.enabled)) {
     if (app.build) {
-      const gitUrl = parseGitUrl(gitinfo.getRemoteUrl())
-      const repoUrl = `git://${gitUrl.source}${gitUrl.pathname}`
-      const repo = app.build.context?.repo || repoUrl
+      let repo = app.build.context?.repo
+      if (repo === undefined) {
+        const pathname = `/${process.env.GITHUB_REPOSITORY}.git`
+        let gitUrl = { source: 'github.com', pathname }
+        try {
+          gitUrl = parseGitUrl(gitinfo.getRemoteUrl())
+        } catch (err) {
+          // Ignore the error and just use the defaults.
+        }
+        repo = `git://${gitUrl.source}${gitUrl.pathname}`
+      }
+
       const branchName = process.env.GITHUB_HEAD_REF || gitinfo.getBranchName()
       const sha = process.env.GITHUB_SHA || gitinfo.getHeadSha()
       const refPath = app.build.context?.ref
