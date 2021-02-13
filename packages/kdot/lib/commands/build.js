@@ -1,7 +1,5 @@
 import { createLogger } from '@generates/logger'
 import { stripIndent } from 'common-tags'
-import gitinfo from 'gitinfo'
-import parseGitUrl from 'git-url-parse'
 import { k8s } from '../k8s.js'
 import getPods from '../getPods.js'
 import poll from '../poll.js'
@@ -9,8 +7,8 @@ import configureNamespaces from '../configure/namespaces.js'
 import encode from '../encode.js'
 import toEnv from '../toEnv.js'
 import apply from './apply.js'
+import getBuildContext from '../getBuildContext.js'
 
-const createGitinfo = gitinfo.default
 const statuses = ['Succeeded', 'Failed']
 const defaultDigest = '/dev/termination-log'
 const logger = createLogger({ namespace: 'kdot.build', level: 'info' })
@@ -70,36 +68,15 @@ export default async function build (cfg) {
     env.GOOGLE_APPLICATION_CREDENTIALS = '/kaniko/config.json'
   }
 
-  const gitinfo = createGitinfo({ gitPath: process.cwd() })
   for (const app of Object.values(cfg.apps).filter(app => app.enabled)) {
     if (app.build) {
-      let repo = app.build.context?.repo
-      if (repo === undefined) {
-        const pathname = `/${process.env.GITHUB_REPOSITORY}.git`
-        let gitUrl = { source: 'github.com', pathname }
-        try {
-          gitUrl = parseGitUrl(gitinfo.getRemoteUrl())
-        } catch (err) {
-          // Ignore the error and just use the defaults.
-        }
-        repo = `git://${gitUrl.source}${gitUrl.pathname}`
-      }
-
-      const branchName = process.env.GITHUB_HEAD_REF || gitinfo.getBranchName()
-      const sha = process.env.GITHUB_SHA || gitinfo.getHeadSha()
-      const refPath = app.build.context?.ref
-        ? `#${app.build.context.ref}`
-        : `#refs/heads/${branchName}`
-      const shaPath = app.build.context?.sha
-        ? `#${app.build.context.sha}`
-        : `#${sha}`
-      const contextValue = `${repo}${refPath}${shaPath}`
-      logger.debug('Context:', contextValue)
+      const buildContext = getBuildContext(app.build.context)
+      logger.debug('Context:', buildContext)
 
       // Deconstruct the build args so that they can be overridden if necessary.
       const {
         dockerfile = `--dockerfile=${app.build.dockerfile || 'Dockerfile'}`,
-        context = `--context=${contextValue}`,
+        context = `--context=${buildContext}`,
         destination = `--destination=${app.taggedImage}`,
         digestFile = `--digest-file=${app.build.digestFile || defaultDigest}`,
         skipUnusedStaged = '--skip-unused-stages',
