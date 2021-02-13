@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.33
+
+### Patch Changes
+
+- 6f4d384: Getting rid of sha from build context
+
 ## 0.0.32
 
 ### Patch Changes
