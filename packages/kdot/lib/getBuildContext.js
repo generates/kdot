@@ -5,7 +5,7 @@ import { createLogger } from '@generates/logger'
 const createGitInfo = gitinfo.default
 const logger = createLogger({ level: 'info', namespace: 'kdot.build' })
 
-export default function getBuildContext (context) {
+export default function getBuildContext (context = {}) {
   let {
     repo,
     ref = process.env.GITHUB_HEAD_REF,
