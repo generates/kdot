@@ -6,11 +6,7 @@ const createGitInfo = gitinfo.default
 const logger = createLogger({ level: 'info', namespace: 'kdot.build' })
 
 export default function getBuildContext (context = {}) {
-  let {
-    repo,
-    ref = process.env.GITHUB_HEAD_REF,
-    sha = process.env.GITHUB_SHA
-  } = context
+  let { repo, ref = process.env.GITHUB_HEAD_REF } = context
 
   if (!repo || !ref || !sha) {
     const gitInfo = createGitInfo({ gitPath: process.cwd() })
@@ -38,16 +34,7 @@ export default function getBuildContext (context = {}) {
         logger.warning("Can't determine build ref")
       }
     }
-
-    if (!sha) {
-      try {
-        sha = gitInfo.getHeadSha()
-      } catch (err) {
-        logger.debug(err)
-        logger.warning("Can't determine build sha")
-      }
-    }
   }
 
-  return `${repo}${ref ? `#refs/heads/${ref}` : ''}${sha ? `#${sha}` : ''}`
+  return `${repo}${ref ? `#refs/heads/${ref}` : ''}`
 }
