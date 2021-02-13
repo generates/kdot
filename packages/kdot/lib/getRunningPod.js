@@ -12,7 +12,7 @@ function isRunning (pod) {
 async function getPod (namespace, name) {
   const pods = await getPods(namespace, name)
   const pod = pods.find(isRunning) || (pods.length && pods[0])
-  logger.debug('getPod', pod)
+  logger.debug('getPod', ...pod?.status?.containerStatuses || [])
   return pod
 }
 
