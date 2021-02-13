@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.34
+
+### Patch Changes
+
+- 18aaa17: Cleaning up getRunningPod debug log
+
 ## 0.0.33
 
 ### Patch Changes
