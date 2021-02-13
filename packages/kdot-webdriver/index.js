@@ -1,19 +1,50 @@
 import { merge } from '@generates/merger'
 
 export default function kdotWebdriver (config = {}) {
-  const { chrome, firefox, grid } = config
+  const {
+    chrome,
+    firefox,
+    hub,
+    image = { repo: 'elgalu/selenium', tag: '3.141.59-p42' }
+  } = config
 
   return {
     apps: {
-      grid: merge(
+      hub: merge(
         {
+          image,
+          ports: [{ port: 4444 }],
+          // volumes:
+          //   - /dev/shm:/dev/shm
+          env: {
+            SELENIUM_HUB_HOST: 'hub',
+            SELENIUM_HUB_PORT: '4444',
+            GRID: 'true',
+            CHROME: 'false',
+            FIREFOX: 'false'
+          }
         },
-        grid
+        hub
       ),
       ...chrome
         ? {
             chrome: merge(
               {
+                image,
+                dependsOn: ['hub'],
+                // volumes:
+                //   - /dev/shm:/dev/shm
+                env: {
+                  NOVNC: 'true',
+                  // - SELENIUM_NODE_HOST={{CONTAINER_IP}}
+                  SELENIUM_HUB_HOST: 'hub',
+                  SELENIUM_HUB_PORT: '4444',
+                  VIDEO: 'false',
+                  AUDIO: 'false',
+                  GRID: 'false',
+                  CHROME: 'true',
+                  FIREFOX: 'false'
+                }
               },
               chrome
             )
@@ -23,6 +54,21 @@ export default function kdotWebdriver (config = {}) {
         ? {
             firefox: merge(
               {
+                image,
+                dependsOn: ['hub'],
+                // volumes:
+                //   - /dev/shm:/dev/shm
+                env: {
+                  NOVNC: 'true',
+                  // - SELENIUM_NODE_HOST={{CONTAINER_IP}}
+                  SELENIUM_HUB_HOST: 'hub',
+                  SELENIUM_HUB_PORT: '4444',
+                  VIDEO: 'false',
+                  AUDIO: 'false',
+                  GRID: 'false',
+                  CHROME: 'false',
+                  FIREFOX: 'true'
+                }
               },
               firefox
             )
