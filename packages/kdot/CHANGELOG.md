@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.32
+
+### Patch Changes
+
+- 0d50fd1: Fixing missed default for getBuildContext
+
 ## 0.0.31
 
 ### Patch Changes
