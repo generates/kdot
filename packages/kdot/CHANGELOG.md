@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.31
+
+### Patch Changes
+
+- c524b2b: Fixing build context logic
+
 ## 0.0.30
 
 ### Patch Changes
