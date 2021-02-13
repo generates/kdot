@@ -8,7 +8,7 @@ const logger = createLogger({ level: 'info', namespace: 'kdot.build' })
 export default function getBuildContext (context = {}) {
   let { repo, ref = process.env.GITHUB_HEAD_REF } = context
 
-  if (!repo || !ref || !sha) {
+  if (!repo || !ref) {
     const gitInfo = createGitInfo({ gitPath: process.cwd() })
 
     if (!repo) {
