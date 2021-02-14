@@ -5,7 +5,7 @@ export default function kdotWebdriver (config = {}) {
     chrome,
     firefox,
     hub,
-    image = { repo: 'elgalu/selenium', tag: '3.141.59-p42' }
+    image = { repo: 'elgalu/selenium', tag: '3.141.59-p54' }
   } = config
 
   return {
