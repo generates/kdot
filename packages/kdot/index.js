@@ -7,6 +7,7 @@ import del from './lib/del.js'
 import set from './lib/commands/set.js'
 import get from './lib/get.js'
 import build from './lib/commands/build.js'
+import cp from './lib/commands/cp.js'
 
 export {
   apply,
@@ -17,5 +18,6 @@ export {
   del,
   set,
   get,
-  build
+  build,
+  cp
 }

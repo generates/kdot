@@ -90,6 +90,8 @@ try {
       kdot.down(cfg)
     } else if (command === 'del') {
       kdot.del(cfg)
+    } else if (command === 'cp') {
+      kdot.cp(cfg)
     }
   }
 } catch (err) {
