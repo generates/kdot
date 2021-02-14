@@ -35,12 +35,8 @@ export default function kdotWebdriver (config = {}) {
                 // volumes:
                 //   - /dev/shm:/dev/shm
                 env: {
-                  NOVNC: 'true',
-                  // - SELENIUM_NODE_HOST={{CONTAINER_IP}}
                   SELENIUM_HUB_HOST: 'hub',
                   SELENIUM_HUB_PORT: '4444',
-                  VIDEO: 'false',
-                  AUDIO: 'false',
                   GRID: 'false',
                   CHROME: 'true',
                   FIREFOX: 'false'
@@ -59,12 +55,8 @@ export default function kdotWebdriver (config = {}) {
                 // volumes:
                 //   - /dev/shm:/dev/shm
                 env: {
-                  NOVNC: 'true',
-                  // - SELENIUM_NODE_HOST={{CONTAINER_IP}}
                   SELENIUM_HUB_HOST: 'hub',
                   SELENIUM_HUB_PORT: '4444',
-                  VIDEO: 'false',
-                  AUDIO: 'false',
                   GRID: 'false',
                   CHROME: 'false',
                   FIREFOX: 'true'

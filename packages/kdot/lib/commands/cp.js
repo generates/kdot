@@ -32,6 +32,7 @@ export default async function cp (cfg) {
       from,
       to
     )
+    logger.success(`Successfully copied ${name}:${from} to ${to}`)
   } else {
     logger.fatal('Could not get running pod', { namespace, name })
     process.exit(1)
