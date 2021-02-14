@@ -54,6 +54,9 @@ const { _: [command, ...args], packageJson, ...input } = cli({
     },
     wait: {
       alias: 'w'
+    },
+    timeout: {
+      alias: 't'
     }
   }
 })
