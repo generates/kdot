@@ -21,5 +21,8 @@ export function configureClients (context) {
 
   // Create the Log client using the Kubernetes config.
   k8s.klog = new kubernetes.Log(kc)
+
+  // Create the copy client using the Kubernetes config.
+  k8s.cp = new kubernetes.Cp(kc)
 }
 configureClients()

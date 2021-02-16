@@ -54,6 +54,9 @@ const { _: [command, ...args], packageJson, ...input } = cli({
     },
     wait: {
       alias: 'w'
+    },
+    timeout: {
+      alias: 't'
     }
   }
 })
@@ -90,6 +93,8 @@ try {
       kdot.down(cfg)
     } else if (command === 'del') {
       kdot.del(cfg)
+    } else if (command === 'cp') {
+      kdot.cp(cfg)
     }
   }
 } catch (err) {
