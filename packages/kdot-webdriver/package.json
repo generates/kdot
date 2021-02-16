@@ -20,10 +20,13 @@
   },
   "keywords": [
     "kdot",
-    "nginx-ingress",
-    "cert-manager",
-    "external-dns",
-    "kubernetes"
+    "webdriver",
+    "selenium",
+    "kubernetes",
+    "chrome",
+    "firefox",
+    "grid",
+    "hub"
   ],
   "bugs": {
     "url": "https://github.com/generates/kdot/issues"
