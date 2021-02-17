@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.36
+
+### Patch Changes
+
+- 2b601a2: Trying to fix build status issue
+
 ## 0.0.35
 
 ### Patch Changes
