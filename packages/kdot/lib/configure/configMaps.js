@@ -12,8 +12,10 @@ export default async function configureConfigMaps (cfg, owner) {
     const configMap = { app: owner, kind: 'ConfigMap', metadata, data: {} }
 
     for (const file of cm.files) {
-      const key = path.basename(file)
-      configMap.data[key] = await fs.readFile(path.resolve(file), 'utf8')
+      const isUrl = file instanceof URL
+      const key = isUrl ? path.basename(file.toString()) : path.basename(file)
+      const filePath = isUrl ? file : path.resolve(file)
+      configMap.data[key] = await fs.readFile(filePath, 'utf8')
     }
 
     // If the ConfigMap is app-level and has a mountPath, add a volume to the
