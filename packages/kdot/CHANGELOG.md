@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.0.38
+
+### Patch Changes
+
+- 9e14e1e: Accepting URL for path to configmap file
+- 173b38a: Adding forgotten await
+
 ## 0.0.37
 
 ### Patch Changes

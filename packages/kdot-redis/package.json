@@ -1,7 +1,7 @@
 {
   "name": "@generates/kdot-redis",
   "description": "Resource configuration for non-production Redis instances",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "author": {
     "name": "Ian Walter",
     "url": "https://ianwalter.dev"
