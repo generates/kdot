@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.37
+
+### Patch Changes
+
+- 51d92ac: Replace gitinfo logic in getBuildContext
+
 ## 0.0.36
 
 ### Patch Changes
