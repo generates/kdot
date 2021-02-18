@@ -70,7 +70,7 @@ export default async function build (cfg) {
 
   for (const app of Object.values(cfg.apps).filter(app => app.enabled)) {
     if (app.build) {
-      const buildContext = getBuildContext(app.build.context)
+      const buildContext = await getBuildContext(app.build.context)
       logger.debug('Context:', buildContext)
 
       // Deconstruct the build args so that they can be overridden if necessary.
