@@ -41,7 +41,7 @@ export default async function configure ({ ext, ...input }) {
       const mod = await import(js)
       merge(cfg, mod.default)
     } catch (err) {
-      logger.debug('Error importing config file', err)
+      logger.error('Error importing config file', err)
     }
 
     try {
