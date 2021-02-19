@@ -50,7 +50,7 @@
     "@generates/merger": "^0.1.2",
     "@generates/package-updater": "^0.0.2",
     "@generates/prompt": "^0.0.0",
-    "@kubernetes/client-node": "^0.13.2",
+    "@kubernetes/client-node": "^0.14.0",
     "common-tags": "^1.8.0",
     "dotenv": "^8.2.0",
     "execa": "^5.0.0",
