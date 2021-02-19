@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.0.39
+
+### Patch Changes
+
+- 7c6cbe0: Update dependency @kubernetes/client-node to ^0.14.0
+- 13d6dca: Adding cleanup command
+
 ## 0.0.38
 
 ### Patch Changes
