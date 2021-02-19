@@ -1,7 +1,7 @@
 import { createLogger, chalk } from '@generates/logger'
 import prompt from '@generates/prompt'
 import { oneLine } from 'common-tags'
-import { kc, k8s } from './k8s.js'
+import { kc, k8s } from '../k8s.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const noYesOptions = [

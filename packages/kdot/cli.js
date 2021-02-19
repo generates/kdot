@@ -98,6 +98,11 @@ try {
       kdot.del(cfg)
     } else if (command === 'cp') {
       kdot.cp(cfg)
+    } else if (command === 'cleanup') {
+      kdot.cleanup(cfg)
+    } else {
+      process.stdout.write('\n')
+      logger.info(input.helpText)
     }
   }
 } catch (err) {

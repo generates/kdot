@@ -11,5 +11,8 @@ export default {
   Secret: '🤐',
   Service: '🛎️',
   ServiceAccount: '🤖',
-  k8: '☸️'
+  k8: '☸️',
+  killed: '☠️',
+  error: '💥',
+  evicted: '👋'
 }
