@@ -65,7 +65,10 @@ const { _: [command, ...args], packageJson, ...input } = cli({
 input.args = args
 
 try {
-  if (command === 'set') {
+  if (input.help) {
+    process.stdout.write('\n')
+    logger.info(input.helpText)
+  } else if (command === 'set') {
     kdot.set(input)
   } else {
     // Consolidate the configuration into a single set of values.
@@ -101,5 +104,3 @@ try {
   logger.fatal(err)
   process.exit(1)
 }
-
-process.stdout.write('\n')

@@ -1,5 +1,5 @@
 # @generates/kdot
-> A tool for developing, deploying, and running CI on Kubernetes
+> A tool for managing apps on Kubernetes
 
 ## Workflows
 
