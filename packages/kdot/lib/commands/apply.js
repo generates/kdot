@@ -5,6 +5,7 @@ import emojis from '../emojis.js'
 import getResources from '../getResources.js'
 import applyResource from '../applyResource.js'
 import getRunningPod from '../getRunningPod.js'
+import configure from '../configure/index.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const byTopLevelNamespace = r => !r.app && r.kind === 'Namespace'
@@ -22,19 +23,20 @@ function logUpdate (resource) {
   logger.log(emojis[resource.kind] || emojis.k8, message)
 }
 
-function setupApplyResource (cfg) {
-  const logLevel = cfg.input.failFast ? 'fatal' : 'error'
+function setupApplyResource (input) {
+  const logLevel = input.failFast ? 'fatal' : 'error'
   return resource => applyResource(resource, { logLevel })
 }
 
-export default async function apply (cfg) {
-  const stateFilter = cfg.input.update === false ? byNewOrDep : byNotExistingNs
-  const filter = cfg.input.args.length
-    ? r => stateFilter(r) && r.app && cfg.input.args.includes(r.app.name)
+export default async function apply (input) {
+  const cfg = await configure(input)
+  const stateFilter = input.update === false ? byNewOrDep : byNotExistingNs
+  const filter = input.args.length
+    ? r => stateFilter(r) && r.app && input.args.includes(r.app.name)
     : stateFilter
   const resources = await getResources(cfg, filter)
 
-  if (cfg.input.prompt && resources.length) {
+  if (input.prompt && resources.length) {
     try {
       process.stdout.write('\n')
       resources.forEach(logUpdate)
@@ -50,7 +52,7 @@ export default async function apply (cfg) {
   }
 
   // Setup the applyResource function with the run configuration.
-  const applyResource = setupApplyResource(cfg)
+  const applyResource = setupApplyResource(input)
 
   // Apply top-level namespaces before other resources in case they depend on
   // them.
@@ -67,7 +69,7 @@ export default async function apply (cfg) {
     }
   }))
 
-  if (cfg.input.wait) {
+  if (input.wait) {
     process.stdout.write('\n')
     logger.info('Waiting for pods to run...')
     await Promise.all(resources.filter(byDeployment).map(async deployment => {

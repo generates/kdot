@@ -8,7 +8,7 @@ import emojis from '../emojis.js'
 const logger = createLogger({ namespace: 'kdot.cleanup', level: 'info' })
 const separator = chalk.dim('•')
 
-export default async function cleanup (cfg) {
+export default async function clean (cfg) {
   const failedPods = []
 
   const pods = await getPods(cfg.namespace)

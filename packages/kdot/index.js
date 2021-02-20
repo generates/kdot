@@ -8,7 +8,7 @@ import set from './lib/commands/set.js'
 import get from './lib/get.js'
 import build from './lib/commands/build.js'
 import cp from './lib/commands/cp.js'
-import cleanup from './lib/commands/cleanup.js'
+import clean from './lib/commands/clean.js'
 
 export {
   apply,
@@ -21,5 +21,5 @@ export {
   get,
   build,
   cp,
-  cleanup
+  clean
 }
