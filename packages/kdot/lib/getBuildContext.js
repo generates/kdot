@@ -30,7 +30,7 @@ export default async function getBuildContext (context = {}) {
         branch = stdout
       } catch (err) {
         logger.debug(err)
-        logger.warning("Can't determine build branch")
+        logger.warn("Can't determine build branch")
       }
     }
   }
