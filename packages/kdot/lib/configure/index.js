@@ -1,3 +1,4 @@
+import 'dotenv/config.js'
 import { createRequire } from 'module'
 import path from 'path'
 import { merge } from '@generates/merger'

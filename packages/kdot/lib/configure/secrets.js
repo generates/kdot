@@ -1,4 +1,3 @@
-import 'dotenv/config.js'
 import { createLogger } from '@generates/logger'
 import { oneLine } from 'common-tags'
 import encode from '../encode.js'
