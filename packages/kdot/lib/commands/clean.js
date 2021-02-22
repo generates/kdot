@@ -4,13 +4,15 @@ import { oneLine } from 'common-tags'
 import { kc, k8s } from '../k8s.js'
 import getPods from '../getPods.js'
 import emojis from '../emojis.js'
+import configure from '../configure/index.js'
 
 const logger = createLogger({ namespace: 'kdot.cleanup', level: 'info' })
 const separator = chalk.dim('•')
 
-export default async function clean (cfg) {
+export default async function clean (input) {
   const failedPods = []
 
+  const cfg = await configure(input)
   const pods = await getPods(cfg.namespace)
   await Promise.all(pods.map(async pod => {
     logger.debug('Pod', pod.metadata.name, pod.status)

@@ -4,6 +4,7 @@ import { createLogger } from '@generates/logger'
 import { oneLine } from 'common-tags'
 import { PortForward, kc } from '../k8s.js'
 import getRunningPod from '../getRunningPod.js'
+import configure from '../configure/index.js'
 
 const logger = createLogger({ namespace: 'kdot.fwd', level: 'info' })
 const pollConfig = { interval: 1000, timeout: 300000 }
@@ -85,7 +86,8 @@ function forwardPort (app, pod, portConfig) {
  * Setup port forwarding between configured apps in the cluster and the
  * local host.
  */
-export default async function fwd (cfg) {
+export default async function fwd (input) {
+  const cfg = await configure(input)
   const apps = Object.values(cfg.apps).filter(a => a.enabled)
   await Promise.all(apps.map(async app => {
     try {

@@ -2,6 +2,7 @@ import { createLogger, chalk } from '@generates/logger'
 import emojis from '../emojis.js'
 import getResources from '../getResources.js'
 import getPods from '../getPods.js'
+import configure from '../configure/index.js'
 
 const logger = createLogger({ namespace: 'kdot.show', level: 'info' })
 
@@ -38,18 +39,15 @@ async function showResource (resource) {
   logger.log(emojis[kind] || emojis.k8, message)
 }
 
-export default async function show (cfg) {
-  try {
-    const resources = await getResources(cfg)
+export default async function show (input) {
+  const cfg = await configure(input)
+  const resources = await getResources(cfg)
 
-    process.stdout.write('\n')
-    await Promise.all(Object.entries(cfg.apps).map(async ([name]) => {
-      for (const resource of resources.filter(r => r.app?.name === name)) {
-        await showResource(resource)
-      }
-    }))
-    process.stdout.write('\n')
-  } catch (err) {
-    logger.error(err)
-  }
+  process.stdout.write('\n')
+  await Promise.all(Object.entries(cfg.apps).map(async ([name]) => {
+    for (const resource of resources.filter(r => r.app?.name === name)) {
+      await showResource(resource)
+    }
+  }))
+  process.stdout.write('\n')
 }

@@ -1,11 +1,13 @@
 import { createLogger } from '@generates/logger'
 import { k8s } from '../k8s.js'
 import getRunningPod from '../getRunningPod.js'
+import configure from '../configure/index.js'
 
 const logger = createLogger({ level: 'info', namespace: 'kdot.cp' })
 
-export default async function cp (cfg) {
-  const [name, from, to] = cfg.input.args
+export default async function cp (input) {
+  const [name, from, to] = input.args
+  const cfg = await configure(input)
 
   if (!name) {
     logger.fatal('An app needs to be specified')

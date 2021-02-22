@@ -1,8 +1,11 @@
 import apply from './apply.js'
 import log from './log.js'
 import fwd from './fwd.js'
+import configure from '../configure/index.js'
 
-export default async function start (cfg) {
+export default async function start (input) {
+  const cfg = await configure(input)
+
   // Don't update existing resources when running apply through start unless
   // explicitly specified.
   if (cfg.input.update === undefined) cfg.input.update = false
