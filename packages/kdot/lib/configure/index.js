@@ -1,15 +1,15 @@
+import 'dotenv/config.js'
 import { createRequire } from 'module'
 import path from 'path'
 import { merge } from '@generates/merger'
 import { createLogger } from '@generates/logger'
 import { including } from '@generates/extractor'
-import { V1Container } from '@kubernetes/client-node'
 import configureConfigMaps from './configMaps.js'
 import configureSecrets from './secrets.js'
 import configurePriorityClass from './priorityClass.js'
 import configureNamespaces from './namespaces.js'
 import configureRoles from './roles.js'
-import { configureClients } from '../k8s.js'
+import { configureClients, V1Container } from '../k8s.js'
 import toEnv from '../toEnv.js'
 
 const require = createRequire(import.meta.url)

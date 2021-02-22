@@ -1,6 +1,8 @@
 import { createLogger } from '@generates/logger'
 import { stripIndent } from 'common-tags'
-import { k8s } from '../k8s.js'
+import { including } from '@generates/extractor'
+import { merge } from '@generates/merger'
+import { k8s, V1Container } from '../k8s.js'
 import getPods from '../getPods.js'
 import poll from '../poll.js'
 import configureNamespaces from '../configure/namespaces.js'
@@ -13,6 +15,7 @@ const statuses = ['Succeeded', 'Failed']
 const defaultDigest = '/dev/termination-log'
 const logger = createLogger({ namespace: 'kdot.build', level: 'info' })
 const byPod = resource => resource.kind === 'Pod'
+const containerAttrs = V1Container.attributeTypeMap.map(a => a.name)
 
 export default async function build (cfg) {
   // Configure the build config object.
@@ -95,21 +98,27 @@ export default async function build (cfg) {
         spec: {
           restartPolicy: 'Never',
           containers: [
-            {
-              name: `build-${app.name}`,
-              image: 'gcr.io/kaniko-project/executor',
-              args: [
-                ...dockerfile ? [dockerfile] : [],
-                ...context ? [context] : [],
-                ...destination ? [destination] : [],
-                ...digestFile ? [digestFile] : [],
-                ...skipUnusedStaged ? [skipUnusedStaged] : [],
-                ...cache ? [cache] : [],
-                ...args ? Object.values(args) : []
-              ],
-              env: Object.entries(env).map(toEnv),
-              volumeMounts
-            }
+            merge(
+              {
+                name: `build-${app.name}`,
+                image: 'gcr.io/kaniko-project/executor',
+                args: [
+                  ...dockerfile ? [dockerfile] : [],
+                  ...context ? [context] : [],
+                  ...destination ? [destination] : [],
+                  ...digestFile ? [digestFile] : [],
+                  ...skipUnusedStaged ? [skipUnusedStaged] : [],
+                  ...cache ? [cache] : [],
+                  ...args ? Object.values(args) : []
+                ],
+                env: Object.entries(env).map(toEnv),
+                volumeMounts,
+                resources: {
+                  requests: { cpu: '1', memory: '1Gi' }
+                }
+              },
+              including(cfg.build, ...containerAttrs)
+            )
           ],
           volumes
         }
