@@ -14,7 +14,8 @@ export default async function cleanup (cfg) {
   const pods = await getPods(cfg.namespace)
   await Promise.all(pods.map(async pod => {
     logger.debug('Pod', pod.metadata.name, pod.status)
-    if (pod.status.phase === 'Failed') failedPods.push(pod)
+    const { phase } = pod.status
+    if (phase === 'Failed' || phase === 'Completed') failedPods.push(pod)
   }))
 
   for (const pod of failedPods) {
@@ -26,6 +27,9 @@ export default async function cleanup (cfg) {
     } else if (status?.state?.terminated?.reason === 'OOMKilled') {
       const reason = chalk.bold.white('Killed: out of memory')
       logger.log(emojis.killed, name, separator, reason)
+    } else if (pod.status.phase === 'Completed') {
+      const reason = chalk.bold.white('Completed')
+      logger.success(pod.metadata.name, separator, reason)
     } else {
       logger.log(emojis.error, name, separator, chalk.bold.white('Error'))
     }
