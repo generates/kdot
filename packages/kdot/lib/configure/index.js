@@ -28,7 +28,7 @@ function taggedImage () {
 }
 
 export default async function configure ({ ext, ...input }) {
-  const cfg = { input, namespace: 'default' }
+  const cfg = { namespace: 'default', input }
 
   const configs = Array.isArray(input.config) ? input.config : [input.config]
   for (const config of configs) {

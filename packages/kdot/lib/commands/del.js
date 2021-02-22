@@ -2,6 +2,7 @@ import { createLogger, chalk } from '@generates/logger'
 import prompt from '@generates/prompt'
 import { oneLine } from 'common-tags'
 import { kc, k8s } from '../k8s.js'
+import configure from '../configure/index.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const noYesOptions = [
@@ -9,7 +10,8 @@ const noYesOptions = [
   { label: 'Yes', value: true }
 ]
 
-export default async function del (cfg) {
+export default async function del (input) {
+  const cfg = input.input ? input : await configure(input)
   if (cfg.namespace !== 'default') {
     if (cfg.input.prompt) {
       try {

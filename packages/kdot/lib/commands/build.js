@@ -10,6 +10,7 @@ import encode from '../encode.js'
 import toEnv from '../toEnv.js'
 import apply from './apply.js'
 import getBuildContext from '../getBuildContext.js'
+import configure from '../configure/index.js'
 
 const statuses = ['Succeeded', 'Failed']
 const defaultDigest = '/dev/termination-log'
@@ -17,7 +18,9 @@ const logger = createLogger({ namespace: 'kdot.build', level: 'info' })
 const byPod = resource => resource.kind === 'Pod'
 const containerAttrs = V1Container.attributeTypeMap.map(a => a.name)
 
-export default async function build (cfg) {
+export default async function build (input) {
+  const cfg = input.input ? input : await configure(input)
+
   // Configure the build config object.
   const namespace = cfg.build.namespace || cfg.namespace
   const build = { ...cfg, namespace, resources: [] }

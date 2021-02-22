@@ -2,6 +2,7 @@ import stream from 'stream'
 import { createLogger, chalk } from '@generates/logger'
 import { k8s } from '../k8s.js'
 import getPods from '../getPods.js'
+import configure from '../configure/index.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const colors = [
@@ -91,7 +92,8 @@ async function streamLogs (app, color) {
   }
 }
 
-export default async function log (cfg) {
+export default async function log (input) {
+  const cfg = input.input ? input : await configure(input)
   const apps = Object.values(cfg.apps).filter(a => a.enabled)
   await Promise.all(apps.map(async (app, index) => {
     try {

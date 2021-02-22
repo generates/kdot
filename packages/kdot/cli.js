@@ -3,109 +3,181 @@
 import { createLogger } from '@generates/logger'
 import cli from '@generates/cli'
 import * as kdot from './index.js'
-import configure from './lib/configure/index.js'
 
 const logger = createLogger({ level: 'info', namespace: 'kdot.cli' })
 
-const { _: [command, ...args], packageJson, ...input } = cli({
+const input = cli({
   name: 'kdot',
   description: 'A tool for managing apps on Kubernetes',
-  usage: 'kdot [command] [apps] [options]',
-  // FIXME: get this to work.
+  usage: 'kdot [command] [args/apps] [options]',
   commands: {
-    up: {},
-    fwd: {
-      aliases: ['forward']
+    apply: {
+      description: `
+        Create or update resources in a cluster for a given configuration
+      `,
+      options: {
+        prompt: {
+          aliases: ['p'],
+          description: `
+            Whether to show a confirmation prompt before applying resources
+          `,
+          default: true
+        },
+        failFast: {
+          aliases: ['f'],
+          description: 'Whether to exit on the first failure encountered',
+          default: false
+        },
+        wait: { aliases: ['w'] }
+      },
+      run: kdot.apply
     },
-    log: {
-      aliases: ['logs']
+    start: {
+      description: `
+        Facilitate local development by applying resources, streaming logs, and
+        forwarding ports so that resources can be used locally
+      `,
+      options: {
+        update: {
+          aliases: ['u'],
+          description: `
+            Whether to update resources before streaming logs and forwarding
+            ports
+          `
+        }
+      },
+      run: kdot.start
     },
-    del: {
-      aliases: ['delete']
+    forward: {
+      aliases: ['fwd'],
+      description: `
+        Forward local ports to apps in the cluster for a given configuration
+      `,
+      run: kdot.fwd
+    },
+    logs: {
+      aliases: ['log'],
+      description: `
+        Stream logs from apps in the cluster for a given configuration to stdout
+      `,
+      run: kdot.log
+    },
+    stop: {
+      description: `
+        Stop forwarding ports and streaming logs when start was run in detached
+        mode (in development)
+      `,
+      run: kdot.stop
+    },
+    show: {
+      description: `
+        Show a list of resources in the cluster for a given configuration that
+        is configured by kdot
+      `,
+      run: kdot.show
+    },
+    scale: {
+      description: `
+        Scale up or down the number of replicas for an app in the cluster (in
+        development)
+      `,
+      run: kdot.scale
+    },
+    delete: {
+      aliases: ['del'],
+      description: `
+        Delete a namespace or resources for a given app in the cluster for a
+        given configuration
+      `,
+      options: {
+        prompt: {
+          aliases: ['p'],
+          description: `
+            Whether to show a confirmation prompt before deleting resources
+          `,
+          default: true
+        }
+      },
+      run: kdot.del
+    },
+    build: {
+      description: `
+        Build container images in the cluster using Kaniko for apps in a given
+        configuration
+      `,
+      options: {
+        timeout: {
+          aliases: ['t']
+        }
+      },
+      run: kdot.build
+    },
+    copy: {
+      description: `
+        Copy files locally from a container belonging to an app running in the
+        cluster for a given configuration
+      `,
+      aliases: ['cp'],
+      run: kdot.cp
+    },
+    cleanup: {
+      aliases: ['clean'],
+      description: `
+        Delete failed pods in a namespace for a given configuration'
+      `,
+      run: kdot.clean
+    },
+    set: {
+      description: 'Set a configuration value for a given configuration',
+      options: {
+        prop: {
+          description: ''
+        }
+      },
+      run: kdot.set
+    },
+    get: {
+      description: 'Log a configuration value for a given configuration',
+      options: {
+        prop: {
+          description: ''
+        }
+      },
+      run: kdot.get
     }
   },
   options: {
     config: {
-      alias: 'c',
+      aliases: ['c'],
       description: 'The name of the config to use',
       default: 'personal'
     },
     ext: {
-      alias: 'e',
+      aliases: ['e'],
       description: 'Extend/override a config value using dot notation',
       default: {}
-    },
-    prompt: {
-      alias: 'p',
-      description: 'Whether to show a prompt before applying resources',
-      default: true
-    },
-    failFast: {
-      alias: 'f',
-      description: 'Specifies whether to exit on the first failure',
-      default: false
-    },
-    prop: {
-      description: ''
-    },
-    update: {
-      alias: 'u',
-      description: 'Update resources before executing subsequent commands'
-    },
-    wait: {
-      alias: 'w'
-    },
-    timeout: {
-      alias: 't'
     }
   }
 })
 
-//
-input.args = args
+if (input?.helpText) {
+  process.stdout.write('\n')
 
-try {
-  if (input.help) {
+  const [command] = input.args || []
+  if (command) {
+    logger.error(`Command "${command}" not found`)
     process.stdout.write('\n')
-    logger.info(input.helpText)
-  } else if (command === 'set') {
-    kdot.set(input)
-  } else {
-    // Consolidate the configuration into a single set of values.
-    const cfg = await configure(input)
-
-    if (command === 'get') {
-      kdot.get(cfg)
-    } else if (command === 'build') {
-      await kdot.build(cfg)
-    } else if (command === 'apply') {
-      kdot.apply(cfg)
-    } else if (command === 'fwd') {
-      kdot.fwd(cfg)
-    } else if (command === 'log') {
-      kdot.log(cfg)
-    } else if (command === 'show') {
-      kdot.show(cfg)
-    } else if (command === 'start') {
-      kdot.start(cfg)
-    } else if (command === 'stop') {
-      kdot.stop(cfg)
-    } else if (command === 'up') {
-      kdot.up(cfg)
-    } else if (command === 'down') {
-      kdot.down(cfg)
-    } else if (command === 'del') {
-      kdot.del(cfg)
-    } else if (command === 'cp') {
-      kdot.cp(cfg)
-    } else if (command === 'cleanup') {
-      kdot.cleanup(cfg)
-    } else {
-      process.stdout.write('\n')
-      logger.info(input.helpText)
-    }
   }
-} catch (err) {
-  logger.fatal(err)
-  process.exit(1)
+
+  logger.info(input.helpText)
+  process.stdout.write('\n')
+
+  if (command) process.exit(1)
+}
+
+if (input.catch) {
+  input.catch(err => {
+    logger.fatal(err)
+    process.exit(1)
+  })
 }

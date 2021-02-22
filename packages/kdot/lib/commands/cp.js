@@ -1,10 +1,12 @@
 import { createLogger } from '@generates/logger'
 import { k8s } from '../k8s.js'
 import getRunningPod from '../getRunningPod.js'
+import configure from '../configure/index.js'
 
 const logger = createLogger({ level: 'info', namespace: 'kdot.cp' })
 
-export default async function cp (cfg) {
+export default async function cp (input) {
+  const cfg = input.input ? input : await configure(input)
   const [name, from, to] = cfg.input.args
 
   if (!name) {

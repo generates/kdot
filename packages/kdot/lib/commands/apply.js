@@ -5,6 +5,7 @@ import emojis from '../emojis.js'
 import getResources from '../getResources.js'
 import applyResource from '../applyResource.js'
 import getRunningPod from '../getRunningPod.js'
+import configure from '../configure/index.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const byTopLevelNamespace = r => !r.app && r.kind === 'Namespace'
@@ -22,12 +23,13 @@ function logUpdate (resource) {
   logger.log(emojis[resource.kind] || emojis.k8, message)
 }
 
-function setupApplyResource (cfg) {
-  const logLevel = cfg.input.failFast ? 'fatal' : 'error'
+function setupApplyResource (input) {
+  const logLevel = input.failFast ? 'fatal' : 'error'
   return resource => applyResource(resource, { logLevel })
 }
 
-export default async function apply (cfg) {
+export default async function apply (input) {
+  const cfg = input.input ? input : await configure(input)
   const stateFilter = cfg.input.update === false ? byNewOrDep : byNotExistingNs
   const filter = cfg.input.args.length
     ? r => stateFilter(r) && r.app && cfg.input.args.includes(r.app.name)
@@ -50,7 +52,7 @@ export default async function apply (cfg) {
   }
 
   // Setup the applyResource function with the run configuration.
-  const applyResource = setupApplyResource(cfg)
+  const applyResource = setupApplyResource(cfg.input)
 
   // Apply top-level namespaces before other resources in case they depend on
   // them.
