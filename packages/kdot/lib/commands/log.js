@@ -93,7 +93,7 @@ async function streamLogs (app, color) {
 }
 
 export default async function log (input) {
-  const cfg = await configure(input)
+  const cfg = input.input ? input : await configure(input)
   const apps = Object.values(cfg.apps).filter(a => a.enabled)
   await Promise.all(apps.map(async (app, index) => {
     try {

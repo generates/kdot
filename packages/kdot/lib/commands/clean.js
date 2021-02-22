@@ -12,7 +12,7 @@ const separator = chalk.dim('•')
 export default async function clean (input) {
   const failedPods = []
 
-  const cfg = await configure(input)
+  const cfg = input.input ? input : await configure(input)
   const pods = await getPods(cfg.namespace)
   await Promise.all(pods.map(async pod => {
     logger.debug('Pod', pod.metadata.name, pod.status)

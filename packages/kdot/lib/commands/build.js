@@ -19,7 +19,7 @@ const byPod = resource => resource.kind === 'Pod'
 const containerAttrs = V1Container.attributeTypeMap.map(a => a.name)
 
 export default async function build (input) {
-  const cfg = await configure(input)
+  const cfg = input.input ? input : await configure(input)
 
   // Configure the build config object.
   const namespace = cfg.build.namespace || cfg.namespace

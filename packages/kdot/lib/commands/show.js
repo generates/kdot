@@ -40,7 +40,7 @@ async function showResource (resource) {
 }
 
 export default async function show (input) {
-  const cfg = await configure(input)
+  const cfg = input.input ? input : await configure(input)
   const resources = await getResources(cfg)
 
   process.stdout.write('\n')

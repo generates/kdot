@@ -11,7 +11,7 @@ const noYesOptions = [
 ]
 
 export default async function del (input) {
-  const cfg = await configure(input)
+  const cfg = input.input ? input : await configure(input)
   if (cfg.namespace !== 'default') {
     if (cfg.input.prompt) {
       try {

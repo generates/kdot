@@ -87,7 +87,7 @@ function forwardPort (app, pod, portConfig) {
  * local host.
  */
 export default async function fwd (input) {
-  const cfg = await configure(input)
+  const cfg = input.input ? input : await configure(input)
   const apps = Object.values(cfg.apps).filter(a => a.enabled)
   await Promise.all(apps.map(async app => {
     try {

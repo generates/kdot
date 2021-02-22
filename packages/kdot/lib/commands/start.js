@@ -4,7 +4,7 @@ import fwd from './fwd.js'
 import configure from '../configure/index.js'
 
 export default async function start (input) {
-  const cfg = await configure(input)
+  const cfg = input.input ? input : await configure(input)
 
   // Don't update existing resources when running apply through start unless
   // explicitly specified.

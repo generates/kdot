@@ -6,8 +6,8 @@ import configure from '../configure/index.js'
 const logger = createLogger({ level: 'info', namespace: 'kdot.cp' })
 
 export default async function cp (input) {
-  const [name, from, to] = input.args
-  const cfg = await configure(input)
+  const cfg = input.input ? input : await configure(input)
+  const [name, from, to] = cfg.input.args
 
   if (!name) {
     logger.fatal('An app needs to be specified')
