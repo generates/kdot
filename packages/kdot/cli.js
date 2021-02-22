@@ -6,10 +6,10 @@ import * as kdot from './index.js'
 
 const logger = createLogger({ level: 'info', namespace: 'kdot.cli' })
 
-cli({
+const input = cli({
   name: 'kdot',
   description: 'A tool for managing apps on Kubernetes',
-  usage: 'kdot [command] [apps] [options]',
+  usage: 'kdot [command] [args/apps] [options]',
   commands: {
     apply: {
       description: `
@@ -159,14 +159,25 @@ cli({
     }
   }
 })
-  .then(input => {
-    if (input?.helpText) {
-      process.stdout.write('\n')
-      logger.info(input.helpText)
-      process.exit(1)
-    }
-  })
-  .catch(err => {
+
+if (input?.helpText) {
+  process.stdout.write('\n')
+
+  const [command] = input.args || []
+  if (command) {
+    logger.error(`Command "${command}" not found`)
+    process.stdout.write('\n')
+  }
+
+  logger.info(input.helpText)
+  process.stdout.write('\n')
+
+  if (command) process.exit(1)
+}
+
+if (input.catch) {
+  input.catch(err => {
     logger.fatal(err)
     process.exit(1)
   })
+}
