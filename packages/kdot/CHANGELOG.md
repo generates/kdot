@@ -1,5 +1,14 @@
 # @generates/kdot
 
+## 0.0.40
+
+### Patch Changes
+
+- d27c915: Fixing log and moving dotenv import to configure/index.js
+- 61efee8: Adding resource requests to build pod and making it customizeable
+- 2550669: Update cli
+- 32410c5: #79: Also cleanup completed pods
+
 ## 0.0.39
 
 ### Patch Changes
