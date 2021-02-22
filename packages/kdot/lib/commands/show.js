@@ -30,13 +30,15 @@ async function getStatus (namespace, name) {
 }
 
 async function showResource (resource) {
-  const { kind, namespace, name, uid } = resource.metadata
+  const { namespace, name, uid } = resource.metadata
   let status = uid ? chalk.green('Existing') : chalk.dim('Unknown')
 
-  if (kind === 'Deployment' && uid) status = await getStatus(namespace, name)
+  if (resource.kind === 'Deployment' && uid) {
+    status = await getStatus(namespace, name)
+  }
 
   const message = `${resource.kind} ${chalk.yellow(name)}: ${status}`
-  logger.log(emojis[kind] || emojis.k8, message)
+  logger.log(emojis[resource.kind] || emojis.k8, message)
 }
 
 export default async function show (input) {
