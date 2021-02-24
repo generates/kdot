@@ -1,4 +1,4 @@
-FROM node:15.9-buster
+FROM node:15.10-buster
 
 ENV NODE_ENV production
 
