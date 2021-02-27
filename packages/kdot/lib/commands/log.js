@@ -80,7 +80,7 @@ async function streamLogs (app, color) {
       function done (err) {
         if (err) logger.error(err)
         logger.warn('Logs done for:', app.name)
-        streamLogs(app)
+        streamLogs(app, color)
       },
       // FIXME: Add config for tailLines
       { follow: true, tailLines: 100 }
