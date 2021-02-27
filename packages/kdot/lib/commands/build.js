@@ -11,8 +11,8 @@ import toEnv from '../toEnv.js'
 import apply from './apply.js'
 import getBuildContext from '../getBuildContext.js'
 import configure from '../configure/index.js'
+import streamPodLogs from '../streamPodLogs.js'
 
-const statuses = ['Succeeded', 'Failed']
 const defaultDigest = '/dev/termination-log'
 const logger = createLogger({ namespace: 'kdot.build', level: 'info' })
 const byPod = resource => resource.kind === 'Pod'
@@ -142,19 +142,28 @@ export default async function build (input) {
   // Create the build pods and associated resources.
   await apply(build)
 
-  // Add a blank line between before the building log message.
-  process.stdout.write('\n')
-
   // Wait for the build pod to complete.
   await Promise.all(pods.map(async pod => {
     const { app, metadata } = pod
 
-    logger.info(`Building ${app.name}...`)
-
+    // Wait for the build pod to enter the Running state.
     const request = () => getPods(metadata.namespace, metadata.name, 1)
-    const condition = pod => statuses.includes(pod?.status?.phase)
-    const buildPod = await poll({ request, condition, interval: 2000 })
+    const condition = pod => pod?.status?.phase === 'Running'
+    await poll({ request, condition, interval: 500 })
 
+    // Stream the build pod logs to stdout.
+    try {
+      const logStream = resolve => streamPodLogs({ ...metadata, done: resolve })
+      await new Promise(logStream)
+    } catch (err) {
+      logger.error('Streaming logs failed', err)
+    }
+
+    // Add a blank line between before the build log and result message.
+    process.stdout.write('\n')
+
+    // Determine the result of the build from the status of the build pod.
+    const buildPod = await request()
     const [status] = buildPod.status.containerStatuses || []
     if (status && buildPod.status.phase === 'Succeeded') {
       // Delete the build pod now that it has completed successfully.
@@ -164,12 +173,12 @@ export default async function build (input) {
       const digest = status.state.terminated.message.split(':')
       logger.success(`Built ${app.taggedImage} for ${app.name}: ${digest[1]}`)
     } else {
+      // Don't delete the build pod in case it needs to be inspected.
       const message = `Build ${app.taggedImage} failed for ${app.name}:`
       logger.fatal(message, buildPod.status)
-
-      // TODO: OUTPUT BUILD POD LOG
-
       process.exit(1)
     }
+
+    process.stdout.write('\n')
   }))
 }
