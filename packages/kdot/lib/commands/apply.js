@@ -69,9 +69,11 @@ export default async function apply (input) {
     }
   }))
 
+  process.stdout.write('\n')
+
   if (cfg.input.wait) {
-    process.stdout.write('\n')
     logger.info('Waiting for pods to run...')
+    process.stdout.write('\n')
     await Promise.all(resources.filter(byDeployment).map(async deployment => {
       const { namespace, name } = deployment.metadata
       await getRunningPod(namespace, name)
