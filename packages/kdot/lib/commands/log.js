@@ -1,8 +1,7 @@
-import stream from 'stream'
 import { createLogger, chalk } from '@generates/logger'
-import { k8s } from '../k8s.js'
 import getPods from '../getPods.js'
 import configure from '../configure/index.js'
+import streamPodLogs from '../streamPodLogs.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const colors = [
@@ -61,34 +60,20 @@ async function getReadyPods (namespace, name) {
   }
 }
 
-const streamedPods = []
 async function streamLogs (app, color) {
   const pods = await getReadyPods(app.namespace, app.name)
-  for (const pod of pods.filter(p => !streamedPods.includes(p.metadata.name))) {
+  for (const pod of pods) {
     const podName = chalk.dim(pod.metadata.name.replace(`${app.name}-`, ''))
-    const logName = `${chalk.bold[color](app.name)} • ${podName}`
-
-    await k8s.klog.log(
-      app.namespace,
-      pod.metadata.name,
-      undefined,
-      new stream.Transform({
-        transform (chunk, encoding, callback) {
-          process.stdout.write(`${logName} • ` + chunk.toString(), callback)
-        }
-      }),
-      function done (err) {
+    await streamPodLogs({
+      namespace: app.namespace,
+      name: pod.metadata.name,
+      logName: `${chalk.bold[color](app.name)} • ${podName}`,
+      done (err) {
         if (err) logger.error(err)
         logger.warn('Logs done for:', app.name)
-        streamLogs(app)
-      },
-      // FIXME: Add config for tailLines
-      { follow: true, tailLines: 100 }
-    )
-
-    // Add the pod to the streamed pods list so that the logs don't get
-    // duplicated.
-    streamedPods.push(pod.metadata.name)
+        streamLogs(app, color)
+      }
+    })
   }
 }
 

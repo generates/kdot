@@ -3,6 +3,7 @@ import prompt from '@generates/prompt'
 import { oneLine } from 'common-tags'
 import { kc, k8s } from '../k8s.js'
 import configure from '../configure/index.js'
+import showResources from '../showResources.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const noYesOptions = [
@@ -12,64 +13,72 @@ const noYesOptions = [
 
 export default async function del (input) {
   const cfg = input.input ? input : await configure(input)
-  if (cfg.namespace !== 'default') {
-    if (cfg.input.prompt) {
-      try {
-        const namespace = chalk.yellow(cfg.namespace)
-        const cluster = chalk.yellow(kc.currentContext)
-        process.stdout.write('\n')
+  const { namespace } = cfg
+  const cluster = chalk.yellow(kc.currentContext)
+
+  // Collect and log the matching resources.
+  process.stdout.write('\n')
+  const resources = await showResources(cfg)
+
+  try {
+    if (input.args.length) {
+      if (cfg.input.prompt) {
+        // Show resource deletion confirmation prompt.
         const response = await prompt.select(
           oneLine`
-            Are you sure you want to delete the ${namespace} namespace and all
-            resources associated with it from ${cluster}?
+            Are you sure you want to delete the preceding resources from
+            ${cluster}?
           `,
           { options: noYesOptions }
         )
-        process.stdout.write('\n')
         if (response === 'No') return
-      } catch (err) {
-        logger.debug(err)
-        return
       }
-    }
 
-    const namespace = cfg.resources.find(r => (
-      r.kind === 'Namespace' && r.metadata.name === cfg.namespace
-    ))
-    await k8s.client.delete(namespace)
-    logger.success('Deleted resources in namespace:', cfg.namespace)
-    process.stdout.write('\n')
+      // Delete the given app's resources from the cluster.
+      process.stdout.write('\n')
+      await Promise.all(resources.map(async resource => {
+        try {
+          await k8s.client.delete(resource)
+        } catch (err) {
+          const msg = err.message
+          logger.warn(
+            oneLine`
+              Error thrown deleting ${resource.kind} ${resource.metadata.name}
+              ${msg ? ':' : ''}
+            `,
+            msg
+          )
+          logger.debug(err)
+        }
+      }))
+    } else if (namespace !== 'default') {
+      if (cfg.input.prompt) {
+        // Show namespace deletion confirmation prompt.
+        const response = await prompt.select(
+          oneLine`
+            Are you sure you want to delete the ${chalk.yellow(namespace)}
+            namespace and all resources associated with it from ${cluster}?
+          `,
+          { options: noYesOptions }
+        )
+        if (response === 'No') return
+      }
+
+      // Delete the namespace from the cluster.
+      process.stdout.write('\n')
+      const ns = r => r.kind === 'Namespace' && r.metadata.name === namespace
+      await k8s.client.delete(cfg.resources.find(ns))
+    } else {
+      logger.error('No apps specified and cannot delete default namespace')
+      process.exit(1)
+    }
+  } catch (err) {
+    const msg = err.message
+    logger.warn(`Error thrown during delete${msg ? ':' : ''}`, msg)
+    logger.debug(err)
+    return
   }
 
-  // await Promise.allSettled(cfg.resources.map(async resource => {
-  //   const { name, namespace } = resource.metadata
-  //   try {
-  //     if (resource.kind === 'Deplyoment') {
-  //       await apps.deleteNamespacedDeployment(
-  //         name,
-  //         namespace,
-  //         undefined,
-  //         undefined,
-  //         undefined,
-  //         undefined,
-  //         undefined,
-  //         'Foreground'
-  //       )
-  //       logger.success('Removed Deployment:', name)
-  //     } else if (resource.kind === 'Service') {
-  //       await core.deleteNamespacedService(name, namespace)
-  //       logger.success('Removed Service:', name)
-  //     }
-  //   } catch (err) {
-  //     logger.error(err)
-  //   }
-  // }))
-
-  // await Promise.allSettled(cfg.namespaces.map(async ns => {
-  //   try {
-  //     await core.deleteNamespace(ns.metadata.name)
-  //   } catch (err) {
-  //     logger.error(err)
-  //   }
-  // }))
+  logger.success('Successfully deleted resources')
+  process.stdout.write('\n')
 }

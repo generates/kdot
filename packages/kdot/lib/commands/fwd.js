@@ -35,8 +35,6 @@ function forwardPort (app, pod, portConfig) {
       enableDestroy(server)
 
       const reconnect = async () => {
-        logger.warn('Port forwarding disconnected for:', name)
-
         try {
           // Kill the existing server.
           server.destroy()
@@ -46,24 +44,26 @@ function forwardPort (app, pod, portConfig) {
 
           // Create a new port forward to the new pod.
           server = await forwardPort(app, pod, portConfig)
-        } catch (err) {
-          const msg = 'Recreating the port forward failed for:'
-          logger.error(msg, app.name, err || '')
+        } catch (e) {
+          logger.error('Port forward reconnect failed for:', app.name, e || '')
         }
       }
 
-      process.on('unhandledRejection', ({ target, error }) => {
-        const hasErr = error.message.includes('Unexpected server response: 404')
-        if (hasErr && target?._url?.includes(name)) {
-          logger.debug('Unhandled rejection', error)
+      process.on('unhandledRejection', ctx => {
+        const message = ctx.error?.message
+        const url = ctx.target?._url
+        if (url?.includes(name)) {
+          logger.warn('Attempting port forward reconnect', { message, url })
           reconnect()
+        } else if (!url) {
+          logger.error('Port forward error', ctx)
         }
       })
 
-      server.on('error', err => {
-        logger.debug('Server error', err)
-        reconnect()
-      })
+      // server.on('error', err => {
+      //   logger.debug('Server error', err)
+      //   reconnect()
+      // })
 
       // Instruct the local server to listen on a port.
       const localPort = portConfig.localPort || portConfig.port

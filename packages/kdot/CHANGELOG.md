@@ -1,5 +1,13 @@
 # @generates/kdot
 
+## 0.0.41
+
+### Patch Changes
+
+- c25780f: Streaming build pod logs
+- 40afc22: Refactoring del command
+- 782df3c: Improving port forward reconnect
+
 ## 0.0.40
 
 ### Patch Changes

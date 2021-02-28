@@ -36,9 +36,10 @@ export default async function apply (input) {
     : stateFilter
   const resources = await getResources(cfg, filter)
 
+  process.stdout.write('\n')
+
   if (cfg.input.prompt && resources.length) {
     try {
-      process.stdout.write('\n')
       resources.forEach(logUpdate)
       const c = chalk.yellow(kc.currentContext)
       const question = `Are you sure you want to apply these changes to ${c}?`
@@ -69,9 +70,11 @@ export default async function apply (input) {
     }
   }))
 
+  process.stdout.write('\n')
+
   if (cfg.input.wait) {
-    process.stdout.write('\n')
     logger.info('Waiting for pods to run...')
+    process.stdout.write('\n')
     await Promise.all(resources.filter(byDeployment).map(async deployment => {
       const { namespace, name } = deployment.metadata
       await getRunningPod(namespace, name)
