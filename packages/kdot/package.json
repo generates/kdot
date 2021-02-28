@@ -1,6 +1,6 @@
 {
   "name": "@generates/kdot",
-  "description": "A tool for developing, deploying, and running CI on Kubernetes",
+  "description": "A tool for managing apps on Kubernetes",
   "version": "0.0.41",
   "author": {
     "name": "Ian Walter",

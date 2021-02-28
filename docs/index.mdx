@@ -1,0 +1,27 @@
+# kdot
+> A tool for managing apps on Kubernetes
+
+## Plugins
+
+The goal is to make the typical software development process easier end-to-end,
+but everyone's process is different so you can install optional "plugins" that
+will work with `kdot` to make different parts of the process easier. The
+official plugins are listed here:
+
+### kdot-webdriver
+> Resource configuration for Selenium Grid, Chrome, and Firefox
+
+### kdot-actions-runner
+>
+
+### kdot-auth-proxy
+>
+
+### kdot-redis
+> Resource configuration for non-production Redis instances
+
+This plugin makes it easy to add a non-production Redis instance to your
+cluster. For example, if you need a Redis instance for a personal or CI
+namespace, but don't care about availability and persistence, then you can
+use this plugin to easily setup a Redis instance without having to configure it
+yourself.
