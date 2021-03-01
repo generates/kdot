@@ -14,6 +14,9 @@ function byIsRunning (pod) {
 export default async function getRunningPods (namespace, name, config = {}) {
   const request = async () => {
     const allPods = await getPods(namespace, name)
+    if (allPods.every(p => p.status?.phase === 'Failed')) {
+      throw new Error(`All retrieved pods are in failed state: ${name}`)
+    }
     const pods = allPods?.filter(byIsRunning).slice(0, config.limit) || []
     logger.debug('getRunningPods', pods.map(toContainerStatuses))
     return config.limit === 1 ? pods.shift() : pods
