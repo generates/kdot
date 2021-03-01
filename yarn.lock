@@ -1592,10 +1592,10 @@
     external-editor "^3.1.0"
     sisteransi "^1.0.5"
 
-"@generates/skrt@^0.0.4":
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/@generates/skrt/-/skrt-0.0.4.tgz#337ddd743309d576c5abe65d4fbff0e44ba244f6"
-  integrity sha512-yHiGwKyE0rm6Xbr+3n/PIIhVZEgkD7hsfou7Y07e5HavW5WdzWzKDPCHp6MNj22HgFlqXnjBkTX04DVOzOrWHw==
+"@generates/skrt@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@generates/skrt/-/skrt-0.0.5.tgz#ff169f75966e00634023480b4d163700e00e770c"
+  integrity sha512-LtH8ItsrZXeY5yy/mRogtYE92eW2pztvQYj1W1vSR+vULrdPxMPE+N/tVexlqWCGQmUD/cviqS6K7oWspugkKg==
   dependencies:
     "@babel/core" "^7.13.1"
     "@babel/generator" "^7.13.0"
