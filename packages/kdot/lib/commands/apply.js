@@ -4,7 +4,7 @@ import { kc } from '../k8s.js'
 import emojis from '../emojis.js'
 import getResources from '../getResources.js'
 import applyResource from '../applyResource.js'
-import getRunningPod from '../getRunningPod.js'
+import getRunningPods from '../getRunningPods.js'
 import configure from '../configure/index.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
@@ -77,7 +77,7 @@ export default async function apply (input) {
     process.stdout.write('\n')
     await Promise.all(resources.filter(byDeployment).map(async deployment => {
       const { namespace, name } = deployment.metadata
-      await getRunningPod(namespace, name)
+      await getRunningPods(namespace, name, { limit: 1 })
     }))
   }
 }

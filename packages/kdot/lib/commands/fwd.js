@@ -3,11 +3,11 @@ import enableDestroy from 'server-destroy'
 import { createLogger } from '@generates/logger'
 import { oneLine } from 'common-tags'
 import { PortForward, kc } from '../k8s.js'
-import getRunningPod from '../getRunningPod.js'
+import getRunningPods from '../getRunningPods.js'
 import configure from '../configure/index.js'
 
 const logger = createLogger({ namespace: 'kdot.fwd', level: 'info' })
-const pollConfig = { interval: 1000, timeout: 300000 }
+const pollConfig = { interval: 1000, timeout: 300000, limit: 1 }
 
 function forwardPort (app, pod, portConfig) {
   return new Promise((resolve, reject) => {
@@ -40,7 +40,7 @@ function forwardPort (app, pod, portConfig) {
           server.destroy()
 
           // Attempt to get a running pod.
-          const pod = await getRunningPod(namespace, app.name, pollConfig)
+          const pod = await getRunningPods(namespace, app.name, pollConfig)
 
           // Create a new port forward to the new pod.
           server = await forwardPort(app, pod, portConfig)
@@ -92,7 +92,7 @@ export default async function fwd (input) {
   await Promise.all(apps.map(async app => {
     try {
       const namespace = app.namespace || cfg.namespace
-      const pod = await getRunningPod(namespace, app.name, pollConfig)
+      const pod = await getRunningPods(namespace, app.name, pollConfig)
       for (const p of app.ports) await forwardPort(app, pod, p)
     } catch (err) {
       logger.error(err)
