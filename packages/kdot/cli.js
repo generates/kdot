@@ -108,6 +108,13 @@ const input = cli({
       options: {
         timeout: {
           aliases: ['t']
+        },
+        rebuild: {
+          description: `
+            Continue with image build even when the configured tag already
+            exists within the registry
+          `,
+          default: false
         }
       },
       run: kdot.build

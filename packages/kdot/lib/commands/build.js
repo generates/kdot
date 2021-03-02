@@ -2,6 +2,7 @@ import { createLogger } from '@generates/logger'
 import { stripIndent } from 'common-tags'
 import { including } from '@generates/extractor'
 import { merge } from '@generates/merger'
+import { requester } from '@ianwalter/requester'
 import { k8s, V1Container } from '../k8s.js'
 import getPods from '../getPods.js'
 import poll from '../poll.js'
@@ -78,6 +79,27 @@ export default async function build (input) {
     if (app.build) {
       const buildContext = await getBuildContext(app.build.context)
       logger.debug('Context:', buildContext)
+
+      //
+      if (cfg.input.rebuild === false) {
+        try {
+          if (cfg.build.gcr) {
+            // TODO:
+          } else {
+            const authorization = `Bearer ${cfg.build.registryToken}`
+            const headers = { authorization }
+            const repo = new URL(`https://${app.image.repo}`)
+            const url = new URL(`/v2${repo.pathname}/tags/list`, repo.origin)
+            console.log('URK', url.href)
+            const response = await requester.get(url.href, { headers })
+            logger.info('RESPONSE', response.body)
+            return
+          }
+        } catch (err) {
+          logger.error(err, err.response?.body, err.response?.headers)
+          return
+        }
+      }
 
       // Deconstruct the build args so that they can be overridden if necessary.
       const {

@@ -9,6 +9,7 @@ import get from './lib/commands/get.js'
 import build from './lib/commands/build.js'
 import cp from './lib/commands/cp.js'
 import clean from './lib/commands/clean.js'
+import getVersion from './lib/getVersion.js'
 
 export {
   apply,
@@ -21,5 +22,6 @@ export {
   get,
   build,
   cp,
-  clean
+  clean,
+  getVersion
 }
