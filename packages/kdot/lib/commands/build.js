@@ -162,6 +162,10 @@ export default async function build (input) {
     // Add a blank line between before the build log and result message.
     process.stdout.write('\n')
 
+    // Wait for the pod to go from Running to Failed or Succeeded state.
+    const finishedRunning = pod => pod?.status?.phase !== 'Running'
+    await poll({ request, condition: finishedRunning, interval: 250 })
+
     // Determine the result of the build from the status of the build pod.
     const buildPod = await request()
     const [status] = buildPod.status.containerStatuses || []

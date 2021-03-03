@@ -7,6 +7,11 @@
   resolved "https://registry.yarnpkg.com/@arr/every/-/every-1.0.1.tgz#22fe1f8e6355beca6c7c7bde965eb15cf994387b"
   integrity sha512-UQFQ6SgyJ6LX42W8rHCs8KVc0JS0tzVL9ct4XYedJukskYVWTo49tNiMEK9C2HTyarbNiT/RVIRSY82vH+6sTg==
 
+"@assemblyscript/loader@^0.10.1":
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/@assemblyscript/loader/-/loader-0.10.1.tgz#70e45678f06c72fa2e350e8553ec4a4d72b92e06"
+  integrity sha512-H71nDOOL8Y7kWRLqf6Sums+01Q5msqBW2KhDUTemh1tvY04eSkSXrK0uj/4mmY0Xr16/3zyZmsrxN7CKuRbNRg==
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.12.11":
   version "7.12.11"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.12.11.tgz#f4ad435aa263db935b8f10f2c552d23fb716a63f"
@@ -1670,6 +1675,31 @@
     p-series "^2.1.0"
     workerpool "^6.0.4"
 
+"@ianwalter/bff@^10.0.5":
+  version "10.0.5"
+  resolved "https://registry.yarnpkg.com/@ianwalter/bff/-/bff-10.0.5.tgz#d871dee335d21076cc518b72ce48af0650b2fbf9"
+  integrity sha512-B2aXtYVxAwd6ZxiMxx2+pbkaExaEptg8wIxeSBynYm8GxIbKuyU4KLctZnSL5aZFt2EpZ7EI8eLmM/wNGXkVCg==
+  dependencies:
+    "@generates/logger" "^0.1.0"
+    "@generates/merger" "^0.1.3"
+    "@ianwalter/cli" "^4.1.0"
+    "@ianwalter/clone" "^6.0.1"
+    "@ianwalter/cloneable" "^2.0.0"
+    "@ianwalter/sleep" "^0.0.1"
+    "@ianwalter/subpub" "^3.0.0"
+    "@ianwalter/timer" "^2.0.2"
+    array-shuffle "^2.0.0"
+    callsites "^3.1.0"
+    camaro "^6.1.0"
+    common-tags "^1.8.0"
+    esm-to-cjs "^1.2.0"
+    expect "^26.6.2"
+    glob "^7.1.6"
+    jest-snapshot "^26.6.2"
+    junit-report-builder "^2.0.0"
+    p-series "^2.1.0"
+    workerpool "^6.1.0"
+
 "@ianwalter/chromafi@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@ianwalter/chromafi/-/chromafi-1.0.1.tgz#6df9f38719cbfea689e820e04c5d292da38f15ca"
@@ -3155,6 +3185,13 @@ camaro@^6.0.2:
   integrity sha512-A8kkwqbg5nw0KErrr3yDuLD2+C7WIP7a1TfklRdYbmb6ss5rxlvzyLXKbBNtC3EJaOXYPEFr4SXYp74jcfULIw==
   dependencies:
     piscina "^1.6.3"
+
+camaro@^6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/camaro/-/camaro-6.1.0.tgz#d56694a19b54c257f3e020d3c1ee4822c8d11e97"
+  integrity sha512-Aa9q2fxR+9i90Z8BOH3JBt2TCa+JZbhaqj0Mmx4zsTUe8G1UyA4djLXjQimcp2+WByZWTYVEK7TPPzmdi7MObw==
+  dependencies:
+    piscina "^2.1.0"
 
 camelcase-css@2.0.1:
   version "2.0.1"
@@ -5412,12 +5449,26 @@ hdr-histogram-js@^1.0.0, hdr-histogram-js@^1.2.0:
     base64-js "^1.2.0"
     pako "^1.0.3"
 
+hdr-histogram-js@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/hdr-histogram-js/-/hdr-histogram-js-2.0.1.tgz#ecb1ff2bcb6181c3e93ff4af9472c28c7e97284e"
+  integrity sha512-uPZxl1dAFnjUFHWLZmt93vUUvtHeaBay9nVNHu38SdOjMSF/4KqJUqa1Seuj08ptU1rEb6AHvB41X8n/zFZ74Q==
+  dependencies:
+    "@assemblyscript/loader" "^0.10.1"
+    base64-js "^1.2.0"
+    pako "^1.0.3"
+
 hdr-histogram-percentiles-obj@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/hdr-histogram-percentiles-obj/-/hdr-histogram-percentiles-obj-2.0.1.tgz#7a4d52fa02087118c66469e6b66b74f9fbb44d82"
   integrity sha512-QBvbTxPlGwHj36IRF16XLoYEbUv5YEyO385kiS0IS3831fcSTNXTR785VtFFZ2ahY733z0ky8Jv4d6In+Ss+wQ==
   dependencies:
     hdr-histogram-js "^1.0.0"
+
+hdr-histogram-percentiles-obj@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/hdr-histogram-percentiles-obj/-/hdr-histogram-percentiles-obj-3.0.0.tgz#9409f4de0c2dda78e61de2d9d78b1e9f3cba283c"
+  integrity sha512-7kIufnBqdsBGcSZLPJwqHT3yhk1QTsSlFsVD3kx5ixH/AlgBs9yM1q6DPhXZ8f8gtdqgh7N7/5btRLpQsS2gHw==
 
 he@^1.1.1:
   version "1.2.0"
@@ -8066,6 +8117,17 @@ piscina@^1.6.3:
   optionalDependencies:
     nice-napi "^1.0.2"
 
+piscina@^2.1.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/piscina/-/piscina-2.2.0.tgz#8fd5236f07aaa9676c4100a3e4d90b6b7aaabf4c"
+  integrity sha512-CQb0DfyTdC9FBIMYkVV/00fXRLKDjmWKA8S0N1zDg2JGEc5z3P9qHXtoq8OkJQ+vjCfXySkVonTNMqskMFOW/w==
+  dependencies:
+    eventemitter-asyncresource "^1.0.0"
+    hdr-histogram-js "^2.0.1"
+    hdr-histogram-percentiles-obj "^3.0.0"
+  optionalDependencies:
+    nice-napi "^1.0.2"
+
 pkg-dir@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/pkg-dir/-/pkg-dir-2.0.0.tgz#f6d5d1109e19d63edf428e0bd57e12777615334b"
@@ -10321,6 +10383,11 @@ workerpool@^6.0.4:
   version "6.0.4"
   resolved "https://registry.yarnpkg.com/workerpool/-/workerpool-6.0.4.tgz#f83ecf101b35c034cb20ed38cedd619dde9d722c"
   integrity sha512-sAc9w9oAJQ2680gDArGinjw0Ygj2K3KF1ZCRfslBKUCzc9Gycwlj9ZIAbizPRBftcXxhXgoGMVPxJE0VMNnWbw==
+
+workerpool@^6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/workerpool/-/workerpool-6.1.0.tgz#a8e038b4c94569596852de7a8ea4228eefdeb37b"
+  integrity sha512-toV7q9rWNYha963Pl/qyeZ6wG+3nnsyvolaNUS8+R5Wtw6qJPTxIlOP1ZSvcGhEJw+l3HMMmtiNo9Gl61G4GVg==
 
 wrap-ansi@^6.2.0:
   version "6.2.0"
