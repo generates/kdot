@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.0.42
+
+### Patch Changes
+
+- e7a5027: Refactoring log to use poll
+- 9a6df04: Adding getVersion method
+
 ## 0.0.41
 
 ### Patch Changes
