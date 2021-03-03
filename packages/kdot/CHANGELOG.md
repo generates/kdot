@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.44
+
+### Patch Changes
+
+- 8c4f59e: Fixing getRunningPods failed check
+
 ## 0.0.43
 
 ### Patch Changes
