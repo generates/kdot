@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.45
+
+### Patch Changes
+
+- b7307b8: Add error listener to port forward socket
+
 ## 0.0.44
 
 ### Patch Changes
