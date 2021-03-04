@@ -1597,10 +1597,10 @@
     external-editor "^3.1.0"
     sisteransi "^1.0.5"
 
-"@generates/skrt@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@generates/skrt/-/skrt-0.0.5.tgz#ff169f75966e00634023480b4d163700e00e770c"
-  integrity sha512-LtH8ItsrZXeY5yy/mRogtYE92eW2pztvQYj1W1vSR+vULrdPxMPE+N/tVexlqWCGQmUD/cviqS6K7oWspugkKg==
+"@generates/skrt@^0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@generates/skrt/-/skrt-0.0.6.tgz#e3957c806175dbb08b106e8a7c44b0828114236b"
+  integrity sha512-shb9ArvOVu26Wmy5sbZo1WFSFSkEKd8sQFsBmhxx57LW+OfWNzMTcYl8IqTaM2C31AooD74dTZ/ssNZFe51F7w==
   dependencies:
     "@babel/core" "^7.13.1"
     "@babel/generator" "^7.13.0"
@@ -1613,6 +1613,7 @@
     "@mdx-js/mdx" "^1.6.22"
     "@mdx-js/react" "^1.6.22"
     browser-sync "^2.26.14"
+    common-tags "^1.8.0"
     glob "^7.1.6"
     mdast-util-toc "^5.1.0"
     pirates "^4.0.1"
