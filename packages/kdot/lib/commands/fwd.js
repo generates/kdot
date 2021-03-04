@@ -18,6 +18,9 @@ function forwardPort (app, pod, portConfig) {
       // Create the server the local server that will forward requests to the
       // pod.
       server = net.createServer(async socket => {
+        // Catch any error events on the socket.
+        socket.on('error', err => logger.error(err))
+
         // Create the WebSocket that will transport requests and responses.
         const portForwarder = new PortForward(kc)
         await portForwarder.portForward(
@@ -59,11 +62,6 @@ function forwardPort (app, pod, portConfig) {
           logger.error('Port forward error', ctx)
         }
       })
-
-      // server.on('error', err => {
-      //   logger.debug('Server error', err)
-      //   reconnect()
-      // })
 
       // Instruct the local server to listen on a port.
       const localPort = portConfig.localPort || portConfig.port
