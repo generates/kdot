@@ -67,11 +67,11 @@ export default async function build (input) {
     build.resources.push({
       kind: 'Secret',
       metadata: { namespace, name },
-      data: { 'config.json': cfg.build.gcr }
+      data: { 'config.json': encode(cfg.build.gcr) }
     })
     volumes.push({ name, secret: { secretName: name } })
-    volumeMounts.push({ name, mountPath: '/kaniko/', readOnly: true })
-    env.GOOGLE_APPLICATION_CREDENTIALS = '/kaniko/config.json'
+    volumeMounts.push({ name, mountPath: '/kaniko/gcr', readOnly: true })
+    env.GOOGLE_APPLICATION_CREDENTIALS = '/kaniko/gcr/config.json'
   }
 
   for (const app of Object.values(cfg.apps).filter(app => app.enabled)) {
@@ -83,6 +83,7 @@ export default async function build (input) {
       const {
         dockerfile = `--dockerfile=${app.build.dockerfile || 'Dockerfile'}`,
         context = `--context=${buildContext}`,
+        contextSubPath = `--context-sub-path=${app.build.contextSubPath}`,
         destination = `--destination=${app.taggedImage}`,
         digestFile = `--digest-file=${app.build.digestFile || defaultDigest}`,
         skipUnusedStaged = '--skip-unused-stages',
@@ -108,6 +109,7 @@ export default async function build (input) {
                 args: [
                   ...dockerfile ? [dockerfile] : [],
                   ...context ? [context] : [],
+                  ...contextSubPath ? [contextSubPath] : [],
                   ...destination ? [destination] : [],
                   ...digestFile ? [digestFile] : [],
                   ...skipUnusedStaged ? [skipUnusedStaged] : [],

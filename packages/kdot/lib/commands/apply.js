@@ -32,7 +32,7 @@ export default async function apply (input) {
   const cfg = input.input ? input : await configure(input)
   const stateFilter = cfg.input.update === false ? byNewOrDep : byNotExistingNs
   const filter = cfg.input.args.length
-    ? r => stateFilter(r) && r.app && cfg.input.args.includes(r.app.name)
+    ? r => stateFilter(r) && (!r.app || cfg.input.args.includes(r.app.name))
     : stateFilter
   const resources = await getResources(cfg, filter)
 
