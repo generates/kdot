@@ -127,6 +127,24 @@ const input = cli({
       `,
       run: kdot.clean
     },
+    exec: {
+      usage: 'kdot exec [app] [options] [command]',
+      description: `
+        Execute a command within a contain belonging to an app running in the
+        cluster for a given configuration
+      `,
+      aliases: ['e'],
+      options: {
+        pod: {
+          aliases: ['p'],
+          description: `
+            Specify the pod containing the container the command will execute in
+          `
+        },
+        container: { description: 'The container the command will execute in' }
+      },
+      run: kdot.exec
+    },
     set: {
       description: 'Set a configuration value for a given configuration',
       options: {

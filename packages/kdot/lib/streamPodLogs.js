@@ -2,7 +2,7 @@ import stream from 'stream'
 import { k8s } from './k8s.js'
 
 export default async function streamPodLogs (options) {
-  await k8s.klog.log(
+  await k8s.lg.log(
     options.namespace,
     options.name,
     undefined,
