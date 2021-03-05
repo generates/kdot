@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.46
+
+### Patch Changes
+
+- 5078891: Fixing GCR build
+
 ## 0.0.45
 
 ### Patch Changes
