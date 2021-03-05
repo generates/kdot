@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.47
+
+### Patch Changes
+
+- 66e8a99: Adding support for exec
+
 ## 0.0.46
 
 ### Patch Changes
