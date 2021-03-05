@@ -20,9 +20,12 @@ export function configureClients (context) {
   k8s.client = kubernetes.KubernetesObjectApi.makeApiClient(kc)
 
   // Create the Log client using the Kubernetes config.
-  k8s.klog = new kubernetes.Log(kc)
+  k8s.lg = new kubernetes.Log(kc)
 
   // Create the copy client using the Kubernetes config.
   k8s.cp = new kubernetes.Cp(kc)
+
+  // Create the exec client using the Kubernetes config.
+  k8s.ex = new kubernetes.Exec(kc)
 }
 configureClients()
