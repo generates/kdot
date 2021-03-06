@@ -7,7 +7,14 @@ export * from '@kubernetes/client-node'
 
 // Load the Kubernetes config.
 export const kc = new kubernetes.KubeConfig()
-kc.loadFromDefault()
+if (process.env.KUBECONFIG) {
+  kc.loadFromFile(process.env.KUBECONFIG)
+} else {
+  kc.loadFromDefault()
+}
+
+console.log('kc', kc.currentContext)
+process.exit(0)
 
 export const k8s = {}
 export function configureClients (context) {
