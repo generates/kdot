@@ -13,9 +13,6 @@ if (process.env.KUBECONFIG) {
   kc.loadFromDefault()
 }
 
-console.log('kc', kc.currentContext)
-process.exit(0)
-
 export const k8s = {}
 export function configureClients (context) {
   logger.debug('configureClients', context || '')
