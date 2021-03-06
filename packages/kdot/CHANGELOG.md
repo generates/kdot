@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.48
+
+### Patch Changes
+
+- 3262be2: Loading from file if KUBECONFIG env var set
+
 ## 0.0.47
 
 ### Patch Changes
