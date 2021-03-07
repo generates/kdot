@@ -7,12 +7,15 @@ import { k8s, loadAllYaml } from './k8s.js'
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const toMeta = r => r.metadata
 const toExtractedResource = r => {
-  const props = ['app']
+  const props = ['app', 'data']
   if (r.kind === 'CustomResourceDefinition') props.push('spec')
   return extractor.excluding(r, ...props)
 }
+function byTruthy (resource) {
+  return resource
+}
 
-export default async function getResources (cfg, filter = r => r) {
+export default async function getResources (cfg, filter = byTruthy) {
   let resources = cfg.resources
 
   if (cfg.externalResources?.length) {
@@ -55,7 +58,7 @@ export default async function getResources (cfg, filter = r => r) {
 
       // Filter out resources based on the filter given by the caller.
       if (!filter(resource)) {
-        logger.debug('Filtered out resource', rep)
+        logger.debug('Filtered out resource', filter.name, rep)
         return acc
       }
 
