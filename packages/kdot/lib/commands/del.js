@@ -79,6 +79,6 @@ export default async function del (input) {
     return
   }
 
-  logger.success('Successfully deleted resources')
+  logger.success('Successfully deleting resources')
   process.stdout.write('\n')
 }

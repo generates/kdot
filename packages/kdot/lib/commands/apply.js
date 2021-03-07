@@ -10,8 +10,6 @@ import configure from '../configure/index.js'
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const byTopLevelNamespace = r => !r.app && r.kind === 'Namespace'
 const byTopLevel = r => !r.app && r.kind !== 'Namespace'
-const byNewOrDep = r => !r.metadata.uid || r.app?.isDependency
-const byNotExistingNs = r => !r.metadata.uid || r.kind !== 'Namespace'
 const byDeployment = r => r.kind === 'Deployment'
 
 function logUpdate (resource) {
@@ -30,10 +28,18 @@ function setupApplyResource (input) {
 
 export default async function apply (input) {
   const cfg = input.input ? input : await configure(input)
-  const stateFilter = cfg.input.update === false ? byNewOrDep : byNotExistingNs
-  const filter = cfg.input.args.length
-    ? r => stateFilter(r) && (!r.app || cfg.input.args.includes(r.app.name))
-    : stateFilter
+
+  function isRequired (r) {
+    const isArg = r.app && cfg.input.args.includes(r.app.name)
+    return !cfg.input.args.length || isArg || r.app?.isDependency || !r.app
+  }
+  function byNew (r) {
+    return !r.metadata?.uid && isRequired(r)
+  }
+  function byNotExistingNs (r) {
+    return (!r.metadata?.uid || r.kind !== 'Namespace') && isRequired(r)
+  }
+  const filter = cfg.input.update === false ? byNew : byNotExistingNs
   const resources = await getResources(cfg, filter)
 
   process.stdout.write('\n')
