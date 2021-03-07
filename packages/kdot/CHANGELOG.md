@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.50
+
+### Patch Changes
+
+- 4259ddd: Updating cli to 1.0.2
+
 ## 0.0.49
 
 ### Patch Changes
