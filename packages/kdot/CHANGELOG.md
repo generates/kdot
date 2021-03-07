@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.49
+
+### Patch Changes
+
+- 593798d: Fixing getResource filters and improving debugging
+
 ## 0.0.48
 
 ### Patch Changes
