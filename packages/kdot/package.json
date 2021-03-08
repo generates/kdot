@@ -66,5 +66,10 @@
     "config": [
       "example"
     ]
+  },
+  "example": {
+    "test": {
+      "v": "0.0.1"
+    }
   }
 }

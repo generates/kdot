@@ -17,6 +17,5 @@ jobs:
         run: yarn
       - name: Lint
         run: yarn lint
-      # Uncomment when kind is set up.
-      # - name: Test
-      #   run: yarn test:ci
+      - name: Test
+        run: yarn test:ci
