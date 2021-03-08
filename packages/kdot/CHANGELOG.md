@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.51
+
+### Patch Changes
+
+- 639bb5c: Adding prop param to getVersion'
+
 ## 0.0.50
 
 ### Patch Changes
