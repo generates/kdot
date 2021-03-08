@@ -1,6 +1,6 @@
-FROM node:15.10-buster
+FROM node:15-buster
 
-ENV RUNNER_VERSION=2.263.0
+ENV RUNNER_VERSION=2.277.1
 
 RUN useradd -m actions
 RUN apt-get -yqq update && apt-get install -yqq curl jq wget
