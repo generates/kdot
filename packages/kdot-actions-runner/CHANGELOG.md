@@ -1,5 +1,11 @@
 # @generates/kdot-actions-runner
 
+## 1.0.0
+
+### Major Changes
+
+- e5b1b39: Updating actions runner to v2.277.1
+
 ## 0.0.2
 
 ### Patch Changes
