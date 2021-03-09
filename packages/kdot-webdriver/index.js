@@ -7,6 +7,9 @@ export default function kdotWebdriver (config = {}) {
     hub,
     image = { repo: 'elgalu/selenium', tag: '3.141.59-p54' }
   } = config
+  const volumes = [{ name: 'dshm', emptyDir: { medium: 'Memory' } }]
+  const volumeMounts = [{ name: 'dshm', mountPath: '/dev/shm' }]
+  const shm = { volumeMounts, volumes }
 
   return {
     apps: {
@@ -14,8 +17,6 @@ export default function kdotWebdriver (config = {}) {
         {
           image,
           ports: [{ port: 4444 }],
-          // volumes:
-          //   - /dev/shm:/dev/shm
           env: {
             SELENIUM_HUB_HOST: 'hub',
             SELENIUM_HUB_PORT: '4444',
@@ -30,10 +31,9 @@ export default function kdotWebdriver (config = {}) {
         ? {
             chrome: merge(
               {
-                image,
                 dependsOn: ['hub'],
-                // volumes:
-                //   - /dev/shm:/dev/shm
+                image,
+                ...shm,
                 env: {
                   SELENIUM_HUB_HOST: 'hub',
                   SELENIUM_HUB_PORT: '4444',
@@ -50,10 +50,9 @@ export default function kdotWebdriver (config = {}) {
         ? {
             firefox: merge(
               {
-                image,
                 dependsOn: ['hub'],
-                // volumes:
-                //   - /dev/shm:/dev/shm
+                image,
+                ...shm,
                 env: {
                   SELENIUM_HUB_HOST: 'hub',
                   SELENIUM_HUB_PORT: '4444',
