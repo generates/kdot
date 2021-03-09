@@ -88,12 +88,14 @@ export default async function fwd (input) {
   const cfg = input.input ? input : await configure(input)
   const apps = Object.values(cfg.apps).filter(a => a.enabled)
   await Promise.all(apps.map(async app => {
-    try {
-      const namespace = app.namespace || cfg.namespace
-      const pod = await getRunningPods(namespace, app.name, pollConfig)
-      for (const p of app.ports) await forwardPort(app, pod, p)
-    } catch (err) {
-      logger.error(err)
+    if (app.ports) {
+      try {
+        const namespace = app.namespace || cfg.namespace
+        const pod = await getRunningPods(namespace, app.name, pollConfig)
+        for (const p of app.ports) await forwardPort(app, pod, p)
+      } catch (err) {
+        logger.error(err)
+      }
     }
   }))
 }
