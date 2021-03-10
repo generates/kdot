@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.0.52
+
+### Patch Changes
+
+- f1d438f: Updating merger
+- 7f9a615: Checking for app.ports in fwd
+
 ## 0.0.51
 
 ### Patch Changes
