@@ -22,9 +22,15 @@ function toServicePort ({ localPort, ...port }) {
 }
 
 function taggedImage () {
-  return !this.image || typeof this.image === 'string'
-    ? this.image
-    : `${this.image.repo}:${this.image.tag || 'latest'}`
+  const [firstTag] = this.image?.tags || []
+  const tag = this.image?.tag || firstTag || 'latest'
+  const isNotObject = !this.image || typeof this.image === 'string'
+  return isNotObject ? this.image : `${this.image.repo}:${tag}`
+}
+function taggedImages () {
+  const tags = this.image?.tags?.length
+  if (tags) return this.image.tags.map(tag => `${this.image.repo}:${tag}`)
+  return [this.taggedImage]
 }
 
 export default async function configure ({ ext, ...input }) {
@@ -110,8 +116,9 @@ export default async function configure ({ ext, ...input }) {
       // Extract config for Pod imagePullSecrets.
       const imagePullSecret = app.imagePullSecret || cfg.imagePullSecret
 
-      // Add the taggedImage getter to the app object for convenience.
+      // Add the taggedImage getters to the app object for convenience.
       Object.defineProperty(app, 'taggedImage', { get: taggedImage })
+      Object.defineProperty(app, 'taggedImages', { get: taggedImages })
 
       cfg.resources.push({
         app,

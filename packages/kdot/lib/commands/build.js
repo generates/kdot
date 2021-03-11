@@ -84,7 +84,7 @@ export default async function build (input) {
         dockerfile = `--dockerfile=${app.build.dockerfile || 'Dockerfile'}`,
         context = `--context=${buildContext}`,
         contextSubPath = `--context-sub-path=${app.build.contextSubPath}`,
-        destination = `--destination=${app.taggedImage}`,
+        destination = app.taggedImages.map(image => `--destination=${image}`),
         digestFile = `--digest-file=${app.build.digestFile || defaultDigest}`,
         skipUnusedStaged = '--skip-unused-stages',
         cache = '--cache=true',
@@ -92,7 +92,8 @@ export default async function build (input) {
       } = app.build.args || {}
 
       // Create the pod configuration.
-      const tag = app.image.tag || 'latest'
+      const [firstTag] = app.image?.tags || []
+      const tag = app.image?.tag || firstTag || 'latest'
       const name = app.build.id || `build-${app.name}-${tag}`
       logger.debug('Build pod:', name)
       build.resources.push({
@@ -110,7 +111,7 @@ export default async function build (input) {
                   ...dockerfile ? [dockerfile] : [],
                   ...context ? [context] : [],
                   ...contextSubPath ? [contextSubPath] : [],
-                  ...destination ? [destination] : [],
+                  ...destination || [],
                   ...digestFile ? [digestFile] : [],
                   ...skipUnusedStaged ? [skipUnusedStaged] : [],
                   ...cache ? [cache] : [],
