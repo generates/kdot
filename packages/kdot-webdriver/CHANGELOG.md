@@ -1,5 +1,11 @@
 # @generates/kdot-webdriver
 
+## 0.0.4
+
+### Patch Changes
+
+- 5a61d2c: Switching from elgalu/selenium to docker-selenium
+
 ## 0.0.3
 
 ### Patch Changes

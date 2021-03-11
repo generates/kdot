@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.53
+
+### Patch Changes
+
+- 12f7a22: Allowing multiple tags for build
+
 ## 0.0.52
 
 ### Patch Changes
