@@ -1,12 +1,7 @@
 import { merge } from '@generates/merger'
 
 export default function kdotWebdriver (config = {}) {
-  const {
-    chrome,
-    firefox,
-    hub,
-    image = { repo: 'elgalu/selenium', tag: '3.141.59-p54' }
-  } = config
+  const { chrome, firefox, hub } = config
   const volumes = [{ name: 'dshm', emptyDir: { medium: 'Memory' } }]
   const volumeMounts = [{ name: 'dshm', mountPath: '/dev/shm' }]
   const shm = { volumeMounts, volumes }
@@ -15,15 +10,15 @@ export default function kdotWebdriver (config = {}) {
     apps: {
       hub: merge(
         {
-          image,
-          ports: [{ port: 4444 }],
-          env: {
-            SELENIUM_HUB_HOST: 'hub',
-            SELENIUM_HUB_PORT: '4444',
-            GRID: 'true',
-            CHROME: 'false',
-            FIREFOX: 'false'
-          }
+          image: {
+            repo: 'selenium/hub',
+            tag: '4.0.0-beta-2-prerelease-20210310'
+          },
+          ports: [
+            { name: 'pub', port: 4442 },
+            { name: 'sub', port: 4443 },
+            { name: 'hub', port: 4444 }
+          ]
         },
         hub
       ),
@@ -32,15 +27,18 @@ export default function kdotWebdriver (config = {}) {
             chrome: merge(
               {
                 dependsOn: ['hub'],
-                image,
+                image: {
+                  repo: 'selenium/node-chrome',
+                  tag: '4.0.0-beta-2-prerelease-20210310'
+                },
                 ...shm,
                 env: {
-                  SELENIUM_HUB_HOST: 'hub',
-                  SELENIUM_HUB_PORT: '4444',
-                  GRID: 'false',
-                  CHROME: 'true',
-                  FIREFOX: 'false'
-                }
+                  SE_EVENT_BUS_HOST: 'hub',
+                  SE_EVENT_BUS_PUBLISH_PORT: '4442',
+                  SE_EVENT_BUS_SUBSCRIBE_PORT: '4443',
+                  VNC_NO_PASSWORD: '1'
+                },
+                ports: [{ port: 5900, localPort: 5900 }]
               },
               chrome
             )
@@ -51,15 +49,18 @@ export default function kdotWebdriver (config = {}) {
             firefox: merge(
               {
                 dependsOn: ['hub'],
-                image,
+                image: {
+                  repo: 'selenium/node-firefox',
+                  tag: '4.0.0-beta-2-prerelease-20210310'
+                },
                 ...shm,
                 env: {
-                  SELENIUM_HUB_HOST: 'hub',
-                  SELENIUM_HUB_PORT: '4444',
-                  GRID: 'false',
-                  CHROME: 'false',
-                  FIREFOX: 'true'
-                }
+                  SE_EVENT_BUS_HOST: 'hub',
+                  SE_EVENT_BUS_PUBLISH_PORT: '4442',
+                  SE_EVENT_BUS_SUBSCRIBE_PORT: '4443',
+                  VNC_NO_PASSWORD: '1'
+                },
+                ports: [{ port: 5900, localPort: 5901 }]
               },
               firefox
             )
