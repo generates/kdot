@@ -6,7 +6,9 @@ export default function kdotProxy (config) {
     dnsProvider,
     lbProvider,
     secret,
-    useCloudflareProxy
+    externalDnsArgs = [],
+    useCloudflareProxy,
+    googleProject
   } = config || {}
 
   // Add default secret configuration.
@@ -22,6 +24,9 @@ export default function kdotProxy (config) {
     ingressNginx = 'https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.44.0/deploy/static/provider/cloud/deploy.yaml'
   }
 
+  let externalDnsProvider = dnsProvider
+  if (dnsProvider === 'cloudDNS') externalDnsProvider = 'google'
+
   return {
     namespace: 'proxy',
     apps: {
@@ -34,8 +39,10 @@ export default function kdotProxy (config) {
           deployStrategy: 'Recreate',
           args: [
             '--source=ingress',
-            `--provider=${dnsProvider}`,
-            ...useCloudflareProxy ? ['--cloudflare-proxied'] : []
+            `--provider=${externalDnsProvider}`,
+            ...useCloudflareProxy ? ['--cloudflare-proxied'] : [],
+            ...googleProject ? [`--google-project=${googleProject}`] : [],
+            ...externalDnsArgs
           ],
           secrets: [{
             name: secret.name,
@@ -90,7 +97,8 @@ export default function kdotProxy (config) {
                         [`${secret.ref}SecretRef`]: {
                           name: secret.name,
                           key: secret.key
-                        }
+                        },
+                        ...googleProject ? { project: googleProject } : {}
                       }
                     }
                   }

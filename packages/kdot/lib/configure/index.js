@@ -186,8 +186,8 @@ export default async function configure ({ ext, ...input }) {
 
           for (const p of hostPorts) {
             const pathType = p.pathType || 'Prefix'
-            const service = { name, port: { number: p.port } }
-            const path = { path: p.path || '/', pathType, backend: { service } }
+            const backend = { service: { name, port: { number: p.port } } }
+            const path = { path: p.path || '/*', pathType, backend }
             for (const host of p.hosts) {
               ingress.spec.rules.push({ host, http: { paths: [path] } })
             }
