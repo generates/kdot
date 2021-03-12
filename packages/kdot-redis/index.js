@@ -4,12 +4,11 @@ export default function (config = {}) {
     image: { repo: 'redis', tag },
     ports: [{ port: 6379, localPort }],
     args: ['/opt/redis/redis.conf'],
-    configMaps: [
-      {
-        name: 'redis',
+    configMaps: {
+      redis: {
         mountPath: '/opt/redis',
         files: [conf || new URL('redis.conf', import.meta.url)]
       }
-    ]
+    }
   }
 }

@@ -7,10 +7,12 @@ export default async function configureConfigMaps (cfg, owner) {
   const configMaps = owner?.configMaps || cfg.configMaps
   const namespace = owner?.namespace || cfg.namespace
 
-  for (const cm of configMaps) {
-    const metadata = { name: cm.name, namespace }
-    const configMap = { app: owner, kind: 'ConfigMap', metadata, data: {} }
+  for (const [name, cm] of Object.entries(configMaps)) {
+    const metadata = { name, namespace }
+    const data = cm.data || {}
+    const configMap = { app: owner, kind: 'ConfigMap', metadata, data }
 
+    //
     for (const file of cm.files) {
       const isUrl = file instanceof URL
       const key = isUrl ? path.basename(file.toString()) : path.basename(file)

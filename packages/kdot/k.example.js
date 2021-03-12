@@ -17,9 +17,13 @@ export default {
       secrets: [
         { name: 'hiipower', values: ['NUM'] }
       ],
-      configMaps: [
-        { name: 'getit', mountPath: '/etc/getit', files: ['package.json'] }
-      ],
+      configMaps: {
+        getit: { mountPath: '/etc/getit', files: ['package.json'] },
+        okok: {
+          mountPath: '/opt/okok',
+          data: { 'thing.json': JSON.stringify({ okok: true }) }
+        }
+      },
       build: { context, dockerfile: 'packages/kdot/example/Dockerfile' }
     }
   },
