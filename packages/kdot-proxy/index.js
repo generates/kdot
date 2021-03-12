@@ -34,7 +34,7 @@ export default function kdotProxy (config) {
         'external-dns': {
           image: {
             repo: 'k8s.gcr.io/external-dns/external-dns',
-            tag: 'v0.7.3'
+            tag: 'v0.7.6'
           },
           deployStrategy: 'Recreate',
           args: [
