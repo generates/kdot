@@ -19,7 +19,10 @@ function forwardPort (app, pod, portConfig) {
       // pod.
       server = net.createServer(async socket => {
         // Catch any error events on the socket.
-        socket.on('error', err => logger.error(err))
+        socket.on('error', err => {
+          logger.error('Socket error, attempting port forward reconnect', err)
+          reconnect()
+        })
 
         // Create the WebSocket that will transport requests and responses.
         const portForwarder = new PortForward(kc)
