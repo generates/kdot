@@ -41,7 +41,8 @@ export default async function env () {
       }
     }
 
-    //
+    // If the file is the root .env file, save it's content so it can be
+    // appended to nested .env files.
     if (dir === process.cwd()) {
       rootContent = await fs.readFile(file, 'utf8')
       logger.debug('Root content', rootContent)
