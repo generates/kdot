@@ -145,6 +145,10 @@ const input = cli({
       },
       run: kdot.exec
     },
+    env: {
+      usage: 'kdot env',
+      run: kdot.env
+    },
     set: {
       description: 'Set a configuration value for a given configuration',
       options: {
