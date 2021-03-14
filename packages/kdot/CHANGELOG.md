@@ -1,5 +1,13 @@
 # @generates/kdot
 
+## 0.0.54
+
+### Patch Changes
+
+- 76166b3: Adding support for google in kdot-proxy
+- d5425bc: Fix #100: Add reconnect on fwd socket error
+- 03162f3: Adding env command
+
 ## 0.0.53
 
 ### Patch Changes
