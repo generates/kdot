@@ -79,11 +79,12 @@ export default async function build (input) {
       const buildContext = await getBuildContext(app.build.context)
       logger.debug('Context:', buildContext)
 
+      const contextSubPath = `--context-sub-path=${app.build.contextSubPath}`
+
       // Deconstruct the build args so that they can be overridden if necessary.
       const {
         dockerfile = `--dockerfile=${app.build.dockerfile || 'Dockerfile'}`,
         context = `--context=${buildContext}`,
-        contextSubPath = `--context-sub-path=${app.build.contextSubPath}`,
         destination = app.taggedImages.map(image => `--destination=${image}`),
         digestFile = `--digest-file=${app.build.digestFile || defaultDigest}`,
         skipUnusedStaged = '--skip-unused-stages',
@@ -110,7 +111,7 @@ export default async function build (input) {
                 args: [
                   ...dockerfile ? [dockerfile] : [],
                   ...context ? [context] : [],
-                  ...contextSubPath ? [contextSubPath] : [],
+                  ...app.build.contextSubPath ? [contextSubPath] : [],
                   ...destination || [],
                   ...digestFile ? [digestFile] : [],
                   ...skipUnusedStaged ? [skipUnusedStaged] : [],
