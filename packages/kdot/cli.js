@@ -125,6 +125,15 @@ const input = cli({
       description: `
         Delete failed pods in a namespace for a given configuration'
       `,
+      options: {
+        prompt: {
+          aliases: ['p'],
+          description: `
+            Whether to show a confirmation prompt before deleting resources
+          `,
+          default: true
+        }
+      },
       run: kdot.clean
     },
     exec: {
