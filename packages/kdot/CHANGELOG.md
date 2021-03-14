@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.0.55
+
+### Patch Changes
+
+- 4a2bc02: Fixing cleanup command options
+- 25c1164: Fixing contextSubPath config
+
 ## 0.0.54
 
 ### Patch Changes
