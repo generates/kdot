@@ -11,14 +11,15 @@ import configureNamespaces from './namespaces.js'
 import configureRoles from './roles.js'
 import { configureClients, V1Container } from '../k8s.js'
 import toEnv from '../toEnv.js'
+import configureServices from './services.js'
 
 const require = createRequire(import.meta.url)
 const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
 const labels = { managedBy: 'kdot' }
 const containerAttrs = V1Container.attributeTypeMap.map(a => a.name)
 
-function toServicePort ({ localPort, ...port }) {
-  return port
+function toContainerPorts (ports) {
+  if (ports) return Object.values(ports).map(p => ({ containerPort: p.port }))
 }
 
 function taggedImage () {
@@ -142,7 +143,7 @@ export default async function configure ({ ext, ...input }) {
                   ...including(app, ...containerAttrs),
                   name,
                   image: app.taggedImage,
-                  ports: app.ports?.map(p => ({ containerPort: p.port }))
+                  ports: toContainerPorts(app.ports)
                 }
               ],
               ...app.volumes ? { volumes: app.volumes } : {},
@@ -157,20 +158,13 @@ export default async function configure ({ ext, ...input }) {
         }
       })
 
+      // Configure services to act as a network interface for the app.
+      configureServices(cfg, app)
+
+      // Configure ingresses to expose the app to the internet.
+      configureIngresses(cfg, app)
+
       if (app.ports?.length) {
-        const service = {
-          app,
-          kind: 'Service',
-          metadata: { name, namespace: app.namespace, labels },
-          spec: { selector: appLabel, ports: app.ports.map(toServicePort) }
-        }
-
-        // Merge in any additional service properties specified on the app
-        // (e.g. type).
-        merge(service, app.service)
-
-        cfg.resources.push(service)
-
         const hostPorts = app.ports.filter(p => p.hosts)
         if (hostPorts.length) {
           const clusterIssuer = cfg.clusterIssuer || 'kdot-cluster-issuer'
