@@ -7,12 +7,12 @@ export default async function configureConfigMaps (cfg, owner) {
   const configMaps = owner?.configMaps || cfg.configMaps
   const namespace = owner?.namespace || cfg.namespace
 
-  for (const [name, cm] of Object.entries(configMaps)) {
+  for (const [name, given] of Object.entries(configMaps)) {
     const metadata = { name, namespace }
-    const data = cm.data || {}
+    const data = given.data || {}
     const configMap = { app: owner, kind: 'ConfigMap', metadata, data }
 
-    for (const file of cm.files) {
+    for (const file of given.files) {
       const isUrl = file instanceof URL
       const key = isUrl ? path.basename(file.toString()) : path.basename(file)
       const filePath = isUrl ? file : path.resolve(file)
@@ -22,11 +22,11 @@ export default async function configureConfigMaps (cfg, owner) {
     // If the ConfigMap is app-level and has a mountPath, add a volume to the
     // app so that the ConfigMap can be made availble to the app as files that
     // are mounted as a volume.
-    if (owner && cm.mountPath) {
+    if (owner && given.mountPath) {
       owner.volumes = owner.volumes || []
       owner.volumeMounts = owner.volumeMounts || []
-      owner.volumes.push({ name: cm.name, configMap: { name: cm.name } })
-      owner.volumeMounts.push({ name: cm.name, mountPath: cm.mountPath })
+      owner.volumes.push({ name: given.name, configMap: { name: given.name } })
+      owner.volumeMounts.push({ name: given.name, mountPath: given.mountPath })
     }
 
     cfg.resources.push(configMap)

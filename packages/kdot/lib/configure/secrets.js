@@ -14,8 +14,7 @@ export default function configureSecrets (cfg, owner) {
   // be made available to the app as environment variables.
   if (owner) owner.env = owner.env || {}
 
-  for (const given of secrets) {
-    const name = given.name || owner.name
+  for (const [name, given] of Object.entries(secrets)) {
     const metadata = { namespace: given.namespace || namespace, name }
     const secret = { app: owner, kind: 'Secret', metadata, data: {} }
 
