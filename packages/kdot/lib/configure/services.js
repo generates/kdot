@@ -2,7 +2,7 @@ import { merge } from '@generates/merger'
 
 const labels = { managedBy: 'kdot' }
 const toServicePorts = (acc, [name, { localPort, reversePort, ...rest }]) => {
-  acc.concat([{ name, ...rest }])
+  return acc.concat([{ name, ...rest }])
 }
 
 export default async function configureServices (cfg, owner) {
