@@ -9,7 +9,7 @@
   "license": "SEE LICENSE IN LICENSE",
   "type": "module",
   "scripts": {
-    "lint": "eslit",
+    "lint": "eslint .",
     "test": "ultra -r test",
     "test:ci": "ultra --raw -r test",
     "build.docs": "skrt build docs site",
@@ -24,7 +24,6 @@
     "@generates/skrt": "^0.0.6",
     "@ianwalter/bff": "^10.0.5",
     "@ianwalter/eslint-config": "^6.0.0",
-    "@ianwalter/eslit": "^1.0.1",
     "@ianwalter/renovate-config": "^1.4.0",
     "ultra-runner": "^3.8.0"
   },
