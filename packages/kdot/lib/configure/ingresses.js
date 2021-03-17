@@ -1,4 +1,5 @@
 const labels = { managedBy: 'kdot' }
+
 export default async function configureServices (cfg, app) {
   if (app.ports) {
     const { name, namespace } = app

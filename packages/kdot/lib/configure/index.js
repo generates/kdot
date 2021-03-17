@@ -12,6 +12,7 @@ import configureRoles from './roles.js'
 import { configureClients, V1Container } from '../k8s.js'
 import toEnv from '../toEnv.js'
 import configureServices from './services.js'
+import configureIngresses from './ingresses.js'
 
 const require = createRequire(import.meta.url)
 const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
@@ -158,44 +159,16 @@ export default async function configure ({ ext, ...input }) {
         }
       })
 
-      // Configure services to act as a network interface for the app.
+      // Configure a service to act as a network interface for the app.
       configureServices(cfg, app)
 
       // Configure ingresses to expose the app to the internet.
       configureIngresses(cfg, app)
-
-      if (app.ports?.length) {
-        const hostPorts = app.ports.filter(p => p.hosts)
-        if (hostPorts.length) {
-          const clusterIssuer = cfg.clusterIssuer || 'kdot-cluster-issuer'
-          const metadata = {
-            name,
-            namespace: app.namespace,
-            labels,
-            annotations: { 'cert-manager.io/cluster-issuer': clusterIssuer }
-          }
-          const apiVersion = 'networking.k8s.io/v1'
-          const spec = { rules: [], tls: [] }
-          const ingress = { app, apiVersion, kind: 'Ingress', metadata, spec }
-
-          for (const p of hostPorts) {
-            const pathType = p.pathType || 'Prefix'
-            const backend = { service: { name, port: { number: p.port } } }
-            const path = { path: p.path || '/*', pathType, backend }
-            for (const host of p.hosts) {
-              ingress.spec.rules.push({ host, http: { paths: [path] } })
-            }
-
-            // Configure the TLS settings for cert-manager.
-            const secretName = `${name}${p.name ? `-${p.name}` : ''}-cert`
-            ingress.spec.tls.push({ hosts: p.hosts, secretName })
-          }
-
-          cfg.resources.push(ingress)
-        }
-      }
     }
   }
+
+  // Configure top-level services.
+  configureServices(cfg)
 
   return cfg
 }
