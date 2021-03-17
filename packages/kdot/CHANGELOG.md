@@ -1,5 +1,16 @@
 # @generates/kdot
 
+## 0.0.56
+
+### Patch Changes
+
+- 1177ed4: Fixing apply timeout
+- 625c414: Changing secrets from array to object
+- 1177ed4: Updating for port config change
+- 1177ed4: Updating for configMap change
+- 1177ed4: Allowing additional top-level service config
+- b76d828: Changing configMaps from array to object
+
 ## 0.0.55
 
 ### Patch Changes
