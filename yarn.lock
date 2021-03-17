@@ -1602,10 +1602,10 @@
     read-pkg-up "^6.0.0"
     write-pkg "^4.0.0"
 
-"@generates/prompt@^0.0.0":
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/@generates/prompt/-/prompt-0.0.0.tgz#5639a1748d58d7503a0850f4784cb0f3d484cdbf"
-  integrity sha512-Yz1niDLmRwjyXMlxbDT0lY54pJEqli8hLOMTcEBOWlmkXBuANtAhy7e04nfkW8VrDwiWyXrzAckF0iadSWEZsw==
+"@generates/prompt@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@generates/prompt/-/prompt-0.0.2.tgz#92fbc1503c8b82c43c4abc930002d83ceefd077e"
+  integrity sha512-n+06CvVBDGlBGqM991Z5rfGnX9/o/ozT5nBcUcczVeRC7/EYFdMR9z6a7LpU9UH9PaCPo1y07sDS/5ngFsmKag==
   dependencies:
     "@ianwalter/print" "^8.1.0"
     external-editor "^3.1.0"

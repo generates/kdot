@@ -3,7 +3,7 @@
 import pTimeout from 'p-timeout'
 
 export default async function poll ({ request, condition, ...options }) {
-  const { interval = 20, timeout = Infinity, leadingCheck = true } = options
+  const { interval = 20, leadingCheck = true } = options
 
   let retryTimeout
   const promise = new Promise((resolve, reject) => {
@@ -34,15 +34,15 @@ export default async function poll ({ request, condition, ...options }) {
     if (leadingCheck) {
       check()
     } else {
-      retryTimeout = setTimeout(check, options.interval)
+      retryTimeout = setTimeout(check, interval)
     }
   })
 
   // If a timeout is specified, throw an error if it expires before the
   // condition is satisfied.
-  if (timeout !== Infinity) {
+  if (options.timeout) {
     try {
-      return pTimeout(promise, timeout)
+      return pTimeout(promise, options.timeout)
     } catch (error) {
       if (retryTimeout) clearTimeout(retryTimeout)
       throw error

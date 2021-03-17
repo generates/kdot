@@ -69,10 +69,9 @@ function forwardPort (app, pod, portConfig) {
       // Instruct the local server to listen on a port.
       const localPort = portConfig.localPort || portConfig.port
       server.listen(localPort, 'localhost', () => {
-        const portName = portConfig.name ? `(${portConfig.name})` : ''
         logger.success(oneLine`
           Forwarding for ${app.name} http://localhost:${localPort} to
-          ${pod.metadata.name}:${portConfig.port} ${portName}
+          ${pod.metadata.name}:${portConfig.port} (${portConfig.name})
         `)
         resolve(server)
       })
@@ -95,7 +94,8 @@ export default async function fwd (input) {
       try {
         const namespace = app.namespace || cfg.namespace
         const pod = await getRunningPods(namespace, app.name, pollConfig)
-        for (const portConfig of Object.values(app.ports)) {
+        for (const [name, portConfig] of Object.entries(app.ports)) {
+          portConfig.name = name
           await forwardPort(app, pod, portConfig)
         }
       } catch (err) {
