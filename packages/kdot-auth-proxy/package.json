@@ -34,5 +34,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "@generates/kdot-redis": "^0.0.1"
   }
 }

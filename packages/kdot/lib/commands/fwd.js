@@ -95,7 +95,9 @@ export default async function fwd (input) {
       try {
         const namespace = app.namespace || cfg.namespace
         const pod = await getRunningPods(namespace, app.name, pollConfig)
-        for (const p of app.ports) await forwardPort(app, pod, p)
+        for (const portConfig of Object.values(app.ports)) {
+          await forwardPort(app, pod, portConfig)
+        }
       } catch (err) {
         logger.error(err)
       }
