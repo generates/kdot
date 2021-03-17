@@ -1,7 +1,7 @@
 {
   "name": "@generates/kdot-auth-proxy",
   "description": "Resource configuration for kdot-auth-proxy",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": {
     "name": "Ian Walter",
     "url": "https://ianwalter.dev"
@@ -36,6 +36,6 @@
     "access": "public"
   },
   "devDependencies": {
-    "@generates/kdot-redis": "^0.0.1"
+    "@generates/kdot-redis": "^0.0.2"
   }
 }

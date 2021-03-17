@@ -1,7 +1,7 @@
 {
   "name": "@generates/kdot",
   "description": "A tool for managing apps on Kubernetes",
-  "version": "0.0.55",
+  "version": "0.0.56",
   "author": {
     "name": "Ian Walter",
     "url": "https://ianwalter.dev"

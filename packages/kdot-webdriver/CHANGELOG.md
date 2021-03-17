@@ -1,5 +1,11 @@
 # @generates/kdot-webdriver
 
+## 0.0.5
+
+### Patch Changes
+
+- 1177ed4: Updating for port config change
+
 ## 0.0.4
 
 ### Patch Changes
