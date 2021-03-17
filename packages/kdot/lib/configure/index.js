@@ -11,14 +11,16 @@ import configureNamespaces from './namespaces.js'
 import configureRoles from './roles.js'
 import { configureClients, V1Container } from '../k8s.js'
 import toEnv from '../toEnv.js'
+import configureServices from './services.js'
+import configureIngresses from './ingresses.js'
 
 const require = createRequire(import.meta.url)
 const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
 const labels = { managedBy: 'kdot' }
 const containerAttrs = V1Container.attributeTypeMap.map(a => a.name)
 
-function toServicePort ({ localPort, ...port }) {
-  return port
+function toContainerPorts (ports) {
+  if (ports) return Object.values(ports).map(p => ({ containerPort: p.port }))
 }
 
 function taggedImage () {
@@ -142,7 +144,7 @@ export default async function configure ({ ext, ...input }) {
                   ...including(app, ...containerAttrs),
                   name,
                   image: app.taggedImage,
-                  ports: app.ports?.map(p => ({ containerPort: p.port }))
+                  ports: toContainerPorts(app.ports)
                 }
               ],
               ...app.volumes ? { volumes: app.volumes } : {},
@@ -157,51 +159,16 @@ export default async function configure ({ ext, ...input }) {
         }
       })
 
-      if (app.ports?.length) {
-        const service = {
-          app,
-          kind: 'Service',
-          metadata: { name, namespace: app.namespace, labels },
-          spec: { selector: appLabel, ports: app.ports.map(toServicePort) }
-        }
+      // Configure a service to act as a network interface for the app.
+      configureServices(cfg, app)
 
-        // Merge in any additional service properties specified on the app
-        // (e.g. type).
-        merge(service, app.service)
-
-        cfg.resources.push(service)
-
-        const hostPorts = app.ports.filter(p => p.hosts)
-        if (hostPorts.length) {
-          const clusterIssuer = cfg.clusterIssuer || 'kdot-cluster-issuer'
-          const metadata = {
-            name,
-            namespace: app.namespace,
-            labels,
-            annotations: { 'cert-manager.io/cluster-issuer': clusterIssuer }
-          }
-          const apiVersion = 'networking.k8s.io/v1'
-          const spec = { rules: [], tls: [] }
-          const ingress = { app, apiVersion, kind: 'Ingress', metadata, spec }
-
-          for (const p of hostPorts) {
-            const pathType = p.pathType || 'Prefix'
-            const backend = { service: { name, port: { number: p.port } } }
-            const path = { path: p.path || '/*', pathType, backend }
-            for (const host of p.hosts) {
-              ingress.spec.rules.push({ host, http: { paths: [path] } })
-            }
-
-            // Configure the TLS settings for cert-manager.
-            const secretName = `${name}${p.name ? `-${p.name}` : ''}-cert`
-            ingress.spec.tls.push({ hosts: p.hosts, secretName })
-          }
-
-          cfg.resources.push(ingress)
-        }
-      }
+      // Configure ingresses to expose the app to the internet.
+      configureIngresses(cfg, app)
     }
   }
+
+  // Configure top-level services.
+  configureServices(cfg)
 
   return cfg
 }

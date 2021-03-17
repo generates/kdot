@@ -25,8 +25,8 @@ export default async function configureConfigMaps (cfg, owner) {
     if (owner && given.mountPath) {
       owner.volumes = owner.volumes || []
       owner.volumeMounts = owner.volumeMounts || []
-      owner.volumes.push({ name: given.name, configMap: { name: given.name } })
-      owner.volumeMounts.push({ name: given.name, mountPath: given.mountPath })
+      owner.volumes.push({ name, configMap: { name } })
+      owner.volumeMounts.push({ name, mountPath: given.mountPath })
     }
 
     cfg.resources.push(configMap)

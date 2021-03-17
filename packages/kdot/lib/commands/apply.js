@@ -11,6 +11,7 @@ const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const byTopLevelNamespace = r => !r.app && r.kind === 'Namespace'
 const byTopLevel = r => !r.app && r.kind !== 'Namespace'
 const byDeployment = r => r.kind === 'Deployment'
+const setupApplyResource = input => resource => applyResource(resource, input)
 
 function logUpdate (resource) {
   const change = resource.metadata.uid
@@ -19,11 +20,6 @@ function logUpdate (resource) {
   const name = chalk.yellow(resource.metadata.name)
   const message = `${change} ${resource.kind}: ${name}`
   logger.log(emojis[resource.kind] || emojis.k8, message)
-}
-
-function setupApplyResource (input) {
-  const logLevel = input.failFast ? 'fatal' : 'error'
-  return resource => applyResource(resource, { logLevel })
 }
 
 export default async function apply (input) {

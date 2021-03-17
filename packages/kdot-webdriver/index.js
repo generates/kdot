@@ -14,11 +14,11 @@ export default function kdotWebdriver (config = {}) {
             repo: 'selenium/hub',
             tag: '4.0.0-beta-2-prerelease-20210310'
           },
-          ports: [
-            { name: 'pub', port: 4442 },
-            { name: 'sub', port: 4443 },
-            { name: 'hub', port: 4444 }
-          ]
+          ports: {
+            pub: { port: 4442 },
+            sub: { port: 4443 },
+            hub: { port: 4444 }
+          }
         },
         hub
       ),
@@ -38,7 +38,9 @@ export default function kdotWebdriver (config = {}) {
                   SE_EVENT_BUS_SUBSCRIBE_PORT: '4443',
                   VNC_NO_PASSWORD: '1'
                 },
-                ports: [{ port: 5900, localPort: 5900 }]
+                ports: {
+                  app: { port: 5900, localPort: 5900 }
+                }
               },
               chrome
             )
@@ -60,7 +62,9 @@ export default function kdotWebdriver (config = {}) {
                   SE_EVENT_BUS_SUBSCRIBE_PORT: '4443',
                   VNC_NO_PASSWORD: '1'
                 },
-                ports: [{ port: 5900, localPort: 5901 }]
+                ports: {
+                  app: { port: 5900, localPort: 5901 }
+                }
               },
               firefox
             )

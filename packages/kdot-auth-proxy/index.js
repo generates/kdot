@@ -1,9 +1,13 @@
+import kdotRedis from '@generates/kdot-redis'
+
 export default {
   namespace: 'proxy',
   apps: {
     'kdot-auth-proxy': {
       image: { repo: 'generates/kdot-auth-proxy', tag: 'latest' },
-      ports: [{ port: 3003 }],
+      ports: {
+        app: { port: 3003 }
+      },
       env: { PORT: '3003' },
       secrets: [
         {
@@ -15,9 +19,6 @@ export default {
         }
       ]
     },
-    redis: {
-      image: { repo: 'redis', tag: '6' },
-      ports: [{ port: 6379 }]
-    }
+    redis: kdotRedis()
   }
 }
