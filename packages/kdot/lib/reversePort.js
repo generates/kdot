@@ -44,7 +44,7 @@ export default function reversePort (config) {
 
   // Listen for requests from ktunnel.
   stream.on('data', ({ requestId, data, shouldClose }) => {
-    logger.debug('Request', { requestId })
+    logger.debug('Request', { requestId, data: data?.length, shouldClose })
 
     if (shouldClose) {
       // If the client closed the connection, close the session.
@@ -57,9 +57,9 @@ export default function reversePort (config) {
 
         // Forward the data received from ktunnel to the local server.
         conn.write(data, err => {
-          logger.debug('Client write', { requestId })
+          logger.debug('Server request', { requestId })
           if (err) {
-            logger.error('Client write error', requestId, err)
+            logger.error('Server request error', requestId, err)
             stream.write({ requestId, hasErr: true })
           }
         })
@@ -67,14 +67,14 @@ export default function reversePort (config) {
 
       // Pass data returned by the local server to ktunnel.
       conn.on('data', data => {
-        logger.debug('Client data', { requestId })
+        logger.debug('Server response data', { requestId })
         stream.write({ requestId, data })
       })
 
       // When the local server closes the connection, tell ktunnel to close it's
       // connection to the requesting client.
       conn.on('end', () => {
-        logger.debug('Client end', { requestId })
+        logger.debug('Server response end', { requestId })
         stream.write({ requestId, shouldClose: true })
       })
     }
