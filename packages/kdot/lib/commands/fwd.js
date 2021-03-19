@@ -97,14 +97,18 @@ export default async function fwd (input) {
         const pod = await getRunningPods(namespace, app.name, pollConfig)
         for (const [name, portConfig] of Object.entries(app.ports)) {
           portConfig.name = name
+
+          //
+          await forwardPort(app, pod, portConfig)
+
+          //
           if (portConfig.reversePort) {
-            await reversePort({
-              ktunnelPort: app.ports.grpc?.port,
+            reversePort({
+              app: app.name,
               port: portConfig.port,
-              reversePort: portConfig.reversePort
+              reversePort: portConfig.reversePort,
+              ktunnelPort: app.ports.grpc?.port
             })
-          } else {
-            await forwardPort(app, pod, portConfig)
           }
         }
       } catch (err) {

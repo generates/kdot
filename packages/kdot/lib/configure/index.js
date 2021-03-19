@@ -19,6 +19,9 @@ const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
 const labels = { managedBy: 'kdot' }
 const containerAttrs = V1Container.attributeTypeMap.map(a => a.name)
 
+//
+let ktunnelPort = 28688
+
 function toContainerPorts (ports) {
   if (ports) return Object.values(ports).map(p => ({ containerPort: p.port }))
 }
@@ -121,6 +124,14 @@ export default async function configure ({ ext, ...input }) {
       // Add the taggedImage getters to the app object for convenience.
       Object.defineProperty(app, 'taggedImage', { get: taggedImage })
       Object.defineProperty(app, 'taggedImages', { get: taggedImages })
+
+      //
+      if (Object.values(app.ports).find(p => p.reversePort)) {
+        ktunnelPort++
+        app.image = 'generates/ktunnel:latest'
+        app.ports.grpc = { port: ktunnelPort }
+        app.command = ['./ktunnel', 'server', '--port', `${ktunnelPort}`]
+      }
 
       cfg.resources.push({
         app,
