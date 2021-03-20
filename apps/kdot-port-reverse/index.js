@@ -29,13 +29,17 @@ ws.on('data', message => {
       socket.write(message.data)
     }
   } else {
-    logger.error()
+    logger.warn()
   }
 })
 
 server.on('connection', socket => {
+  // Create a unique ID for the connection.
   const id = nanoid()
   logger.debug(`Connection ${id}`)
+
+  // Store the socket so it can be retrieved when theres a response through the
+  // websocket.
   connections[id] = socket
 
   // const data = []
@@ -65,7 +69,10 @@ server.on('connection', socket => {
     }
   })
 
-  socket.on('end', () => ws.send({ id, end: true }))
+  socket.on('end', () => {
+    //
+    delete connections[id]
+  })
 })
 
 server.listen(3000)
