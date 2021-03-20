@@ -8,15 +8,35 @@ const logger = createLogger({ level: 'debug', namespace: 'kdot-port-reverse' })
 const server = net.createServer()
 
 //
+const connections = {}
+
+//
 const wss = new WebSocket.Server({ server })
 
 //
 let ws
 wss.on('connection', websocket => (ws = websocket))
 
+ws.on('data', message => {
+  const socket = connections[message.id]
+  if (socket) {
+    if (message.end) {
+      logger.debug()
+      socket.end()
+      delete connections[message.id]
+    } else {
+      logger.debug()
+      socket.write(message.data)
+    }
+  } else {
+    logger.error()
+  }
+})
+
 server.on('connection', socket => {
   const id = nanoid()
   logger.debug(`Connection ${id}`)
+  connections[id] = socket
 
   // const data = []
   socket.on('data', requestData => {
@@ -45,7 +65,7 @@ server.on('connection', socket => {
     }
   })
 
-  socket.on('end', () => ws.end())
+  socket.on('end', () => ws.send({ id, end: true }))
 })
 
 server.listen(3000)
