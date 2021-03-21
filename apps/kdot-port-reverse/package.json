@@ -8,6 +8,7 @@
     "serve": "node index.js"
   },
   "dependencies": {
+    "@generates/logger": "^0.1.2",
     "common-tags": "^1.8.0",
     "nanoid": "^3.1.22",
     "ws": "^7.4.4"

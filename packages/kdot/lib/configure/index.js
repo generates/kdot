@@ -130,6 +130,7 @@ export default async function configure ({ ext, ...input }) {
         kprPort++
         app.image = 'generates/kdot-port-reverse:latest'
         app.ports.kpr = { port: kprPort }
+        app.env.push({ name: 'TUNNEL_PORT', value: `${kprPort}` })
       }
 
       cfg.resources.push({
