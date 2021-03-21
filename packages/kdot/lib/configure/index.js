@@ -127,10 +127,9 @@ export default async function configure ({ ext, ...input }) {
 
       //
       if (Object.values(app.ports).find(p => p.reversePort)) {
-        // TODO:
-        // kprPort++
-        // app.image = 'generates/ktunnel:latest'
-        // app.ports.kpr = { port: kprPort }
+        kprPort++
+        app.image = 'generates/kdot-port-reverse:latest'
+        app.ports.kpr = { port: kprPort }
       }
 
       cfg.resources.push({
