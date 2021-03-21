@@ -4,7 +4,7 @@ import WebSocket from 'ws'
 import { nanoid } from 'nanoid'
 import { stripIndent } from 'common-tags'
 
-const logger = createLogger({ level: 'debug', namespace: 'kdot-port-reverse' })
+const logger = createLogger({ level: 'info', namespace: 'kdot-port-reverse' })
 
 // Create a server that will listen for incoming HTTP requests that can be
 // relayed to the client via websocket after which the client will relay to the
