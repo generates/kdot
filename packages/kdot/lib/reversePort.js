@@ -1,82 +1,77 @@
 import net from 'net'
-import url from 'url'
-import grpc from '@grpc/grpc-js'
-import protoLoader from '@grpc/proto-loader'
 import { createLogger } from '@generates/logger'
+import WebSocket from 'ws'
 
 const logger = createLogger({ level: 'info', namespace: 'kdot.fwd' })
 
-// Read the protocol buffer.
-const packageDefinition = protoLoader.loadSync(
-  url.fileURLToPath(new URL('tunnel.proto', import.meta.url).href),
-  {
-    keepCase: true,
-    longs: String,
-    enums: String,
-    defaults: true,
-    oneofs: true
-  }
-)
-
-// Load the tunnel RPC service.
-const { grpc_tunnel: tunnel } = grpc.loadPackageDefinition(packageDefinition)
-
-// Create the default credentials.
-const credentials = grpc.credentials.createInsecure()
-
 export default function reversePort (config) {
-  const { ktunnelPort = 28868, app } = config
-
-  // Create the gRPC client to communicate with the ktunnel server.
-  const client = new tunnel.Tunnel(`localhost:${ktunnelPort}`, credentials)
-
-  // Initialize the tunnel to get the duplex stream used to communicate.
-  const stream = client.initTunnel()
+  const { kprPort = 28199, app } = config
 
   //
-  stream.on('error', err => {
-    logger.error('Tunnel error', { app, ktunnelPort }, '\n', err)
-  })
+  const url = `ws://localhost:${kprPort}/`
+  logger.info('Attempting reverse port websocket connection:', url)
+  const ws = new WebSocket(url)
 
-  // Open the connection to ktunnel and tell it what port to listen on by
-  // sending an initial message on the stream.
-  stream.write({ port: config.port })
+  //
+  const connections = {}
 
-  // Listen for requests from ktunnel.
-  stream.on('data', ({ requestId, data, shouldClose }) => {
-    logger.debug('Request', { requestId, data: data?.length, shouldClose })
+  //
+  ws.on('message', message => {
+    const { id, isEnd, data } = JSON.parse(message)
+    logger.debug('Port reverse message', { app, id, isEnd })
 
-    if (shouldClose) {
-      // If the client closed the connection, close the session.
-      logger.debug('Close request', { requestId })
-      stream.write({ requestId, shouldClose })
+    //
+    const conn = connections[id]
+
+    if (isEnd) {
+      const info = { app, id }
+      if (conn) {
+        logger.debug('Connection end', info)
+
+        //
+        conn.end()
+
+        //
+        delete connections[id]
+      } else {
+        logger.warn('Received connection end for unknown connection', info)
+      }
+    } else if (conn) {
+      //
+      conn.write(Buffer.from(data))
     } else {
-      // Otherwise forward the request to the local server.
+      //
       const conn = net.createConnection({ port: config.reversePort }, () => {
-        logger.debug('Connected to server', { requestId })
+        logger.debug('Connected to server', { app, id })
 
-        // Forward the data received from ktunnel to the local server.
-        conn.write(data, err => {
-          logger.debug('Server request', { requestId })
+        // Forward the data received from KPR to the local server.
+        conn.write(Buffer.from(data), err => {
+          logger.debug('Server request', { app, id })
           if (err) {
-            logger.error('Server request error', requestId, err)
-            stream.write({ requestId, hasErr: true })
+            logger.error('Server request error', { app, id }, '\n', err)
+            ws.send(JSON.stringify({ id, isEnd: true }))
           }
+        })
+
+        // Pass data returned by the local server to KPR.
+        conn.on('data', data => {
+          logger.debug('Server response data', { app, id })
+          ws.send(JSON.stringify({ id, data }))
+        })
+
+        // When the local server closes the connection, tell KPR to close it's
+        // connection to the requesting client.
+        conn.on('end', () => {
+          logger.debug('Server response end', { app, id })
+          ws.send(JSON.stringify({ id, isEnd: true }))
+
+          //
+          delete connections[id]
         })
       })
 
-      // Pass data returned by the local server to ktunnel.
-      conn.on('data', data => {
-        logger.debug('Server response data', { requestId })
-        stream.write({ requestId, data })
-      })
-
-      // When the local server closes the connection, tell ktunnel to close it's
-      // connection to the requesting client.
-      conn.on('end', () => {
-        logger.debug('Server response end', { requestId })
-        stream.write({ requestId, shouldClose: true })
-      })
+      //
+      connections[id] = conn
     }
   })
 }

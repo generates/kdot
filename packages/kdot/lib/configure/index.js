@@ -20,7 +20,7 @@ const labels = { managedBy: 'kdot' }
 const containerAttrs = V1Container.attributeTypeMap.map(a => a.name)
 
 //
-let ktunnelPort = 28688
+let kprPort = 28199
 
 function toContainerPorts (ports) {
   if (ports) return Object.values(ports).map(p => ({ containerPort: p.port }))
@@ -127,10 +127,10 @@ export default async function configure ({ ext, ...input }) {
 
       //
       if (Object.values(app.ports).find(p => p.reversePort)) {
-        ktunnelPort++
-        app.image = 'generates/ktunnel:latest'
-        app.ports.grpc = { port: ktunnelPort }
-        app.command = ['./ktunnel', 'server', '--port', `${ktunnelPort}`]
+        // TODO:
+        // kprPort++
+        // app.image = 'generates/ktunnel:latest'
+        // app.ports.kpr = { port: kprPort }
       }
 
       cfg.resources.push({

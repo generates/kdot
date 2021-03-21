@@ -11,36 +11,44 @@ const server = net.createServer()
 const connections = {}
 
 //
-const wss = new WebSocket.Server({ server })
+const port = process.env.TUNNEL_PORT || '28199'
+const wss = new WebSocket.Server({ port })
 
 //
 let ws
-wss.on('connection', websocket => (ws = websocket))
+wss.on('connection', websocket => {
+  logger.info('Websocket connection on port', port)
+  ws = websocket
 
-ws.on('data', message => {
-  const socket = connections[message.id]
-  if (socket) {
-    if (message.end) {
-      logger.debug()
-      socket.end()
-      delete connections[message.id]
+  ws.on('message', message => {
+    const { id, data, isEnd } = JSON.parse(message)
+    logger.debug('Client message', { id, isEnd })
+
+    //
+    const socket = connections[id]
+    if (socket) {
+      if (isEnd) {
+        logger.debug('Ending connection:', id)
+        socket.end()
+        delete connections[id]
+      } else {
+        logger.debug('Relaying data for connection:', id)
+        socket.write(Buffer.from(data))
+      }
     } else {
-      logger.debug()
-      socket.write(message.data)
+      logger.warn('Received data or unknown connection:', id)
     }
-  } else {
-    logger.warn()
-  }
+  })
 })
 
 server.on('connection', socket => {
   // Create a unique ID for the connection.
   const id = nanoid()
-  logger.debug(`Connection ${id}`)
+  logger.info(`Connection ${id}`)
 
   // Store the socket so it can be retrieved when theres a response through the
   // websocket.
-  connections[id] = socket
+  if (ws) connections[id] = socket
 
   // const data = []
   socket.on('data', requestData => {
@@ -50,10 +58,10 @@ server.on('connection', socket => {
     logger.debug('Request data', info)
 
     if (ws) {
-      ws.send({ id, data: requestData })
+      ws.send(JSON.stringify({ id, data: requestData }))
     } else {
       const message = 'Server connection with no client websocket connection'
-      logger.debug(message, { id })
+      logger.warn(message, { id })
 
       const buf = Buffer.from(message, 'utf8')
       socket.write(stripIndent`
@@ -71,8 +79,19 @@ server.on('connection', socket => {
 
   socket.on('end', () => {
     //
+    if (ws) {
+      logger.warn('Requester ended connection', id)
+      ws.send(JSON.stringify({ id, isEnd: true }))
+    }
+
+    //
     delete connections[id]
   })
 })
 
-server.listen(3000)
+server.listen(process.env.PORT, () => {
+  logger.info('kdot-port-reverse started', {
+    port: process.env.PORT,
+    tunnelPort: port
+  })
+})

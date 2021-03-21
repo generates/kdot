@@ -99,7 +99,10 @@ export default async function fwd (input) {
           portConfig.name = name
 
           //
-          await forwardPort(app, pod, portConfig)
+          const localPort = portConfig.localPort || portConfig.port
+          if (localPort !== portConfig.reversePort) {
+            await forwardPort(app, pod, portConfig)
+          }
 
           //
           if (portConfig.reversePort) {
@@ -107,7 +110,7 @@ export default async function fwd (input) {
               app: app.name,
               port: portConfig.port,
               reversePort: portConfig.reversePort,
-              ktunnelPort: app.ports.grpc?.port
+              kprPort: app.ports.kpr?.port
             })
           }
         }
