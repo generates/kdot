@@ -106,12 +106,17 @@ export default async function fwd (input) {
 
           //
           if (portConfig.reversePort) {
-            reversePort({
-              app: app.name,
-              port: portConfig.port,
-              reversePort: portConfig.reversePort,
-              kprPort: app.ports.kpr?.port
-            })
+            setTimeout(
+              () => {
+                reversePort({
+                  app: app.name,
+                  port: portConfig.port,
+                  reversePort: portConfig.reversePort,
+                  kprPort: app.ports.kpr?.port
+                })
+              },
+              5000
+            )
           }
         }
       } catch (err) {
