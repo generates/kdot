@@ -19,30 +19,33 @@ export default function reversePort (config) {
 
   // Listen for messages from the kdot-port-reverse server.
   ws.on('message', message => {
-    const { id, isEnd, data } = JSON.parse(message)
-    logger.debug('Port reverse message', { app, id, isEnd })
+    const { id, event, data } = JSON.parse(message)
+    logger.debug('Port reverse message', { app, id, event })
 
     // Retrieve the connection from the store by ID if it exists.
     const conn = connections[id]
+    const info = { app, id }
 
-    if (isEnd) {
-      const info = { app, id }
-      if (conn) {
-        // The server has indicated that the connection has ended.
-        logger.debug('Connection end', info)
+    if (conn && event === 'end') {
+      //
+      logger.debug('Reqeuster data end', info)
 
-        // End the connection to the local server.
-        conn.end()
+      //
+      conn.end()
+    } else if (conn && event === 'close') {
+      // The server has indicated that the connection has been closed by the
+      // requester.
+      logger.debug('Requester connection closed', info)
 
-        // Remove the connection from the store.
-        delete connections[id]
-      } else {
-        logger.warn('Received connection end for unknown connection', info)
-      }
-    } else if (conn) {
+      // Remove the connection from the store.
+      delete connections[id]
+
+      // Close the connection to the local server.
+      conn.close()
+    } else if (conn && event === 'data') {
       // Relay data to the local server over the existing connection.
       conn.write(Buffer.from(data))
-    } else {
+    } else if (event === 'data') {
       // Create a new connection to the local server so that the request from
       // the cluster can be relayed to it.
       const conn = net.createConnection({ port: config.reversePort }, () => {
@@ -53,24 +56,33 @@ export default function reversePort (config) {
           logger.debug('Server request', { app, id })
           if (err) {
             logger.error('Server request error', { app, id }, '\n', err)
-            ws.send(JSON.stringify({ id, isEnd: true }))
+            ws.send(JSON.stringify({ id, event: 'close', err: err.message }))
           }
         })
 
         // Pass data returned by the local server to kdot-port-reverse.
         conn.on('data', data => {
           logger.debug('Server response data', { app, id })
-          ws.send(JSON.stringify({ id, data }))
+          ws.send(JSON.stringify({ id, event: 'data', data }))
         })
 
-        // When the local server closes the connection, tell kdot-port-reverse
-        // to close it's connection to the requesting client.
+        //
         conn.on('end', () => {
-          logger.debug('Server response end', { app, id })
-          ws.send(JSON.stringify({ id, isEnd: true }))
+          logger.debug('Server data end', { app, id })
+          ws.send(JSON.stringify({ id, event: 'end' }))
+        })
 
-          // Remove the connection from the store.
-          delete connections[id]
+        conn.on('close', () => {
+          if (connections[id]) {
+            // When the local server closes the connection, tell
+            // kdot-port-reverse to close it's connection to the requesting
+            // client.
+            logger.debug('Server response close', { app, id })
+            ws.send(JSON.stringify({ id, event: 'close' }))
+
+            // Remove the connection from the store.
+            delete connections[id]
+          }
         })
       })
 
