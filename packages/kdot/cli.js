@@ -175,6 +175,11 @@ const input = cli({
         }
       },
       run: kdot.get
+    },
+    namespace: {
+      aliases: ['ns'],
+      description: 'Create a namespace',
+      run: kdot.ns
     }
   },
   options: {
@@ -206,7 +211,7 @@ if (input?.helpText) {
   if (command) process.exit(1)
 }
 
-if (input.catch) {
+if (input?.catch) {
   input.catch(err => {
     logger.fatal(err)
     process.exit(1)
