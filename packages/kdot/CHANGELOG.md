@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.0.57
+
+### Patch Changes
+
+- 7362c57: Clarifying delete message
+- 2a10f0f: Fixing env command
+
 ## 0.0.56
 
 ### Patch Changes
