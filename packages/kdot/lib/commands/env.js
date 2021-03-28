@@ -50,7 +50,8 @@ export default async function env () {
       rootContent = await fs.readFile(dot, 'utf8')
       const headerIndex = rootContent.indexOf(inheritableHeader)
       rootContent = rootContent.substring(headerIndex)
-      const blankLineIndex = rootContent.indexOf('\n\n') + 1
+      const blankLineIndex = (rootContent.indexOf('\n\n') + 1) ||
+        rootContent.length
       rootContent = rootContent.substring(0, blankLineIndex)
       rootContent = rootContent.replace(inheritableHeader, inheritedHeader)
       logger.debug('Root content', rootContent)
