@@ -15,13 +15,14 @@ export default async function del (input) {
   const cfg = input.input ? input : await configure(input)
   const { namespace } = cfg
   const cluster = chalk.yellow(kc.currentContext)
+  const hasArgs = input.args.length
 
   // Collect and log the matching resources.
   process.stdout.write('\n')
   const resources = await showResources(cfg)
 
   try {
-    if (input.args.length) {
+    if (hasArgs) {
       if (cfg.input.prompt) {
         // Show resource deletion confirmation prompt.
         const response = await prompt.select(
@@ -79,6 +80,6 @@ export default async function del (input) {
     return
   }
 
-  logger.success('Successfully deleting resources')
+  logger.success(`Successfully deleting ${hasArgs ? 'resources' : 'namespace'}`)
   process.stdout.write('\n')
 }
