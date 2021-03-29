@@ -26,8 +26,8 @@ export default async function apply (input) {
   const cfg = input.input ? input : await configure(input)
 
   function isRequired (r) {
-    const isArg = r.app && cfg.input.args.includes(r.app.name)
-    return !cfg.input.args.length || isArg || r.app?.isDependency || !r.app
+    const isArg = r.app && cfg.input.args?.includes(r.app.name)
+    return !cfg.input.args?.length || isArg || r.app?.isDependency || !r.app
   }
   function byNew (r) {
     return !r.metadata?.uid && isRequired(r)

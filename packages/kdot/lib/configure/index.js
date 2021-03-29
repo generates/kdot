@@ -75,14 +75,14 @@ export default async function configure ({ ext, ...input }) {
 
   // Break apps down into individual Kubernetes resources.
   for (const [name, app] of Object.entries(cfg.apps || {})) {
-    const enabled = app.enabled !== false && input.args.length === 0
+    const enabled = app.enabled !== false && input.args?.length === 0
 
     // Mark the app if it was explicitly specified with the command.
-    app.isSpecified = input.args.includes(name)
+    app.isSpecified = input.args?.includes(name)
 
     // Determine if this app is being depended on by another specified app.
     const hasDependency = n => cfg.apps[n]?.dependsOn?.includes(name)
-    app.isDependency = input.args.some(hasDependency)
+    app.isDependency = input.args?.some(hasDependency)
 
     if (enabled || app.isSpecified || app.isDependency) {
       // Mark the app as being enabled.

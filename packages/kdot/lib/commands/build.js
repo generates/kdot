@@ -74,7 +74,7 @@ export default async function build (input) {
     env.GOOGLE_APPLICATION_CREDENTIALS = '/kaniko/gcr/config.json'
   }
 
-  const bySpecified = input.args.length ? a => a.isSpecified : a => a.enabled
+  const bySpecified = input.args?.length ? a => a.isSpecified : a => a.enabled
   for (const app of Object.values(cfg.apps).filter(bySpecified)) {
     if (app.build) {
       const buildContext = await getBuildContext(app.build.context)

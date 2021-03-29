@@ -29,8 +29,8 @@ async function getStatus (namespace, name) {
 }
 
 export default async function showResources (cfg) {
-  const filter = cfg.input.args.length
-    ? r => r.app && cfg.input.args.includes(r.app.name)
+  const filter = cfg.input.args?.length
+    ? r => r.app && cfg.input.args?.includes(r.app.name)
     : r => r.kind !== 'Namespace'
   const resources = await getResources(cfg, filter)
 

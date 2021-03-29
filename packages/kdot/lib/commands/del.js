@@ -15,7 +15,7 @@ export default async function del (input) {
   const cfg = input.input ? input : await configure(input)
   const { namespace } = cfg
   const cluster = chalk.yellow(kc.currentContext)
-  const hasArgs = input.args.length
+  const hasArgs = input.args?.length
 
   // Collect and log the matching resources.
   process.stdout.write('\n')
