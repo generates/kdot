@@ -27,7 +27,19 @@ export default async function applyResource ({ app, ...resource }, input = {}) {
     }
   } catch (err) {
     const msg = `Failed to apply ${resource.kind}:`
+
+    let req
+    if (err.response?.request?.body) {
+      try {
+        req = JSON.parse(err.response?.request?.body)
+      } catch (err) {
+        // Ignore JSON parse error.
+      }
+    }
+
     logger[logLevel](msg, name, err.response?.body || err)
+    logger.debug('Failed request body', req)
+
     if (input.failFast) process.exit(1)
   }
 }

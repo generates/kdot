@@ -5,6 +5,7 @@ import { oneLine } from 'common-tags'
 import { PortForward, kc } from '../k8s.js'
 import getRunningPods from '../getRunningPods.js'
 import configure from '../configure/index.js'
+import reversePort from '../reversePort.js'
 
 const logger = createLogger({ namespace: 'kdot.fwd', level: 'info' })
 const pollConfig = { interval: 1000, timeout: 300000, limit: 1 }
@@ -97,7 +98,27 @@ export default async function fwd (input) {
         const pod = await getRunningPods(namespace, app.name, pollConfig)
         for (const [name, portConfig] of Object.entries(app.ports)) {
           portConfig.name = name
-          await forwardPort(app, pod, portConfig)
+
+          //
+          const localPort = portConfig.localPort || portConfig.port
+          if (localPort !== portConfig.reversePort) {
+            await forwardPort(app, pod, portConfig)
+          }
+
+          //
+          if (portConfig.reversePort) {
+            setTimeout(
+              () => {
+                reversePort({
+                  app: app.name,
+                  port: portConfig.port,
+                  reversePort: portConfig.reversePort,
+                  kprPort: app.ports.kpr?.port
+                })
+              },
+              5000
+            )
+          }
         }
       } catch (err) {
         logger.error(err)
