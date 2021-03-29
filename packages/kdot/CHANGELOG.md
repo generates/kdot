@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.58
+
+### Patch Changes
+
+- 177974f: Fix #119: dependsOn issue
+
 ## 0.0.57
 
 ### Patch Changes
