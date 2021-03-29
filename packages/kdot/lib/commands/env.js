@@ -51,7 +51,8 @@ export default async function env () {
       const headerIndex = rootContent.indexOf(inheritableHeader)
       rootContent = rootContent.substring(headerIndex)
       const blankLineIndex = rootContent.indexOf('\n\n') + 1
-      rootContent = rootContent.substring(0, blankLineIndex)
+      const endOfContent = rootContent.length
+      rootContent = rootContent.substring(0, blankLineIndex || endOfContent)
       rootContent = rootContent.replace(inheritableHeader, inheritedHeader)
       logger.debug('Root content', rootContent)
     }
