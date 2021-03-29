@@ -97,7 +97,9 @@ export default async function fwd (input) {
         const pod = await getRunningPods(namespace, app.name, pollConfig)
         for (const [name, portConfig] of Object.entries(app.ports)) {
           portConfig.name = name
-          await forwardPort(app, pod, portConfig)
+          if (portConfig.localPort !== false) {
+            await forwardPort(app, pod, portConfig)
+          }
         }
       } catch (err) {
         logger.error(err)

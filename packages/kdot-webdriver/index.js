@@ -15,8 +15,8 @@ export default function kdotWebdriver (config = {}) {
             tag: '4.0.0-beta-2-prerelease-20210310'
           },
           ports: {
-            pub: { port: 4442 },
-            sub: { port: 4443 },
+            pub: { port: 4442, localPort: false },
+            sub: { port: 4443, localPort: false },
             hub: { port: 4444 }
           }
         },
