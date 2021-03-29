@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.59
+
+### Patch Changes
+
+- c47991c: Fix #137: Dont forward on localPort: false
+
 ## 0.0.58
 
 ### Patch Changes
