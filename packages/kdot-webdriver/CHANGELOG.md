@@ -1,5 +1,11 @@
 # @generates/kdot-webdriver
 
+## 0.0.6
+
+### Patch Changes
+
+- c47991c: Fix #137: Dont forward on localPort: false
+
 ## 0.0.5
 
 ### Patch Changes
