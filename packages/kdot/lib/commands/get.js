@@ -6,5 +6,7 @@ const logger = createLogger({ namespace: 'kdot', level: 'info' })
 
 export default async function get (input) {
   const cfg = input.input ? input : await configure(input)
-  logger.info(`cfg.${cfg.input.args[0]}:`, dotter.get(cfg, cfg.input.args[0]))
+  const [path] = cfg.input.args || []
+  const fullPath = 'cfg' + (path ? `.${path}` : '')
+  logger.info(fullPath, dotter.get(cfg, cfg.input.args[0]))
 }

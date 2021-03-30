@@ -1,7 +1,12 @@
 import { merge } from '@generates/merger'
 
 export default function kdotWebdriver (config = {}) {
-  const { chrome, firefox, hub } = config
+  const {
+    tag = '4.0.0-beta-3-prerelease-20210329',
+    hub,
+    chrome,
+    firefox
+  } = config
   const volumes = [{ name: 'dshm', emptyDir: { medium: 'Memory' } }]
   const volumeMounts = [{ name: 'dshm', mountPath: '/dev/shm' }]
   const shm = { volumeMounts, volumes }
@@ -10,10 +15,7 @@ export default function kdotWebdriver (config = {}) {
     apps: {
       hub: merge(
         {
-          image: {
-            repo: 'selenium/hub',
-            tag: '4.0.0-beta-2-prerelease-20210310'
-          },
+          image: { repo: 'selenium/hub', tag },
           ports: {
             pub: { port: 4442, localPort: false },
             sub: { port: 4443, localPort: false },
@@ -27,10 +29,7 @@ export default function kdotWebdriver (config = {}) {
             chrome: merge(
               {
                 dependsOn: ['hub'],
-                image: {
-                  repo: 'selenium/node-chrome',
-                  tag: '4.0.0-beta-2-prerelease-20210310'
-                },
+                image: { repo: 'selenium/node-chrome', tag },
                 ...shm,
                 env: {
                   SE_EVENT_BUS_HOST: 'hub',
@@ -51,10 +50,7 @@ export default function kdotWebdriver (config = {}) {
             firefox: merge(
               {
                 dependsOn: ['hub'],
-                image: {
-                  repo: 'selenium/node-firefox',
-                  tag: '4.0.0-beta-2-prerelease-20210310'
-                },
+                image: { repo: 'selenium/node-firefox', tag },
                 ...shm,
                 env: {
                   SE_EVENT_BUS_HOST: 'hub',
