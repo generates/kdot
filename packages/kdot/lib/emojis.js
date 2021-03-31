@@ -1,6 +1,7 @@
 export default {
   ConfigMap: '🗄️',
   Deployment: '🚀',
+  Pod: '🐋',
   Ingress: '🚪',
   Namespace: '📛',
   PriorityClass: '🔢',

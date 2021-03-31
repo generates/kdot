@@ -38,7 +38,7 @@ export default function kdotWebdriver (config = {}) {
                   VNC_NO_PASSWORD: '1'
                 },
                 ports: {
-                  app: { port: 5900, localPort: 5900 }
+                  app: { port: 5900 }
                 }
               },
               chrome

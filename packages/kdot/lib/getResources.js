@@ -6,8 +6,8 @@ import { k8s, loadAllYaml } from './k8s.js'
 
 const logger = createLogger({ namespace: 'kdot', level: 'info' })
 const toMeta = r => r.metadata
-const toExtractedResource = r => {
-  const props = ['app', 'data']
+export const toExtractedResource = r => {
+  const props = ['app', 'data', 'metadata.managedFields']
   if (r.kind === 'CustomResourceDefinition') props.push('spec')
   return extractor.excluding(r, ...props)
 }
