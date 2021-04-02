@@ -1,5 +1,12 @@
 # @generates/kdot-webdriver
 
+## 0.0.7
+
+### Patch Changes
+
+- 32a1c6b: Specify tag in config for kdot-webdriver
+- 00dbc6b: Adding probes to selenium hub
+
 ## 0.0.6
 
 ### Patch Changes

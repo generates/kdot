@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.0.60
+
+### Patch Changes
+
+- 32a1c6b: Fix get output formatting
+- f0a774a: Add #133: Add verbose flag to show
+
 ## 0.0.59
 
 ### Patch Changes
