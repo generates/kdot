@@ -20,6 +20,17 @@ export default function kdotWebdriver (config = {}) {
             pub: { port: 4442, localPort: false },
             sub: { port: 4443, localPort: false },
             hub: { port: 4444 }
+          },
+          livenessProbe: {
+            httpGet: { path: '/', port: 4444 },
+            initialDelaySeconds: 30,
+            periodSeconds: 5,
+            timeoutSeconds: 1
+          },
+          readinessProbe: {
+            httpGet: { path: '/', port: 4444 },
+            initialDelaySeconds: 15,
+            timeoutSeconds: 1
           }
         },
         hub
