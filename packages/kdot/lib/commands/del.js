@@ -19,12 +19,15 @@ function waitForDelete (cfg, path) {
       watcher
         .watch(
           path,
-          {},
-          (type, resource) => {
-            logger.debug('Received watch event', { type, resource })
+          { allowWatchBookmarks: true },
+          (type, resource, watch) => {
+            logger.debug('Received watch event', { type, resource, watch })
             if (type === 'DELETE') resolve()
           },
-          reject
+          err => {
+            if (err) reject(err)
+            logger.debug('Watch done', path)
+          }
         )
         .catch(reject)
     }),
@@ -108,7 +111,7 @@ export default async function del (input) {
       process.exit(1)
     }
   } catch (err) {
-    const msg = err.message
+    const msg = err?.message
     logger.warn(`Error thrown during delete${msg ? ':' : ''}`, msg)
     logger.debug(err)
     process.stdout.write('\n')
