@@ -14,7 +14,8 @@ export default async function poll ({ request, condition, ...options }) {
         if (request) value = await request()
 
         // Execute the condition with the value returned by the request.
-        const result = await condition(value)
+        let result
+        if (condition) result = await condition(value)
 
         if (result) {
           // If the condition is truthy, resolve with the request value or

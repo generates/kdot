@@ -102,6 +102,11 @@ const input = cli({
             Whether to show a confirmation prompt before deleting resources
           `,
           default: true
+        },
+        wait: {
+          aliases: ['w'],
+          description: 'Whether to wait for the resources to be deleted',
+          default: false
         }
       },
       run: kdot.del
