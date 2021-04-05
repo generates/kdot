@@ -12,7 +12,7 @@ export default async function configureServices (cfg, owner) {
     const ports = Object.entries(owner.ports).reduce(toServicePorts, [])
     const spec = { selector: { app: name }, ports }
     const metadata = { namespace, name, labels }
-    const service = { kind: 'Service', metadata, spec }
+    const service = { kind: 'Service', app: owner, metadata, spec }
 
     // Merge in any additional service properties specified on the app
     // (e.g. type).

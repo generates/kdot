@@ -4,6 +4,7 @@ import { oneLine } from 'common-tags'
 import { kc, k8s, Watch } from '../k8s.js'
 import configure from '../configure/index.js'
 import showResources from '../showResources.js'
+import poll from '../poll.js'
 
 const logger = createLogger({ namespace: 'kdot.del', level: 'info' })
 const noYesOptions = [
@@ -11,32 +12,18 @@ const noYesOptions = [
   { label: 'Yes', value: true }
 ]
 
-function waitForDelete (cfg, path) {
+async function waitForDelete (cfg, resource) {
+  const request = () => k8s.client.read(resource)
   const timeout = cfg.input.timeout || (1 * 60 * 1000) // 5 minutes.
-  return Promise.race([
-    new Promise((resolve, reject) => {
-      const watcher = new Watch(kc)
-      watcher
-        .watch(
-          path,
-          { allowWatchBookmarks: true },
-          (type, resource, watch) => {
-            logger.debug('Received watch event', { type, resource, watch })
-            if (type === 'DELETE') resolve()
-          },
-          err => {
-            if (err) reject(err)
-            logger.debug('Watch done', path)
-          }
-        )
-        .catch(reject)
-    }),
-    new Promise((resolve, reject) => setTimeout(
-      reject,
-      timeout,
-      new Error(`Timeout of ${timeout} milliseconds reached`)
-    ))
-  ])
+  try {
+    await poll({ request, timeout, interval: 500 })
+  } catch (err) {
+    if (err?.response?.statusCode === 404) {
+      logger.debug('waitForDelete', err.response.body)
+    } else {
+      logger.error('waitForDelete', err?.response?.body || err)
+    }
+  }
 }
 
 export default async function del (input) {
@@ -67,7 +54,11 @@ export default async function del (input) {
       // Delete the given app's resources from the cluster.
       await Promise.all(resources.map(async resource => {
         try {
+          // Delete the resource from the cluster.
           await k8s.client.delete(resource)
+
+          // Wait until the resource is completely deleted.
+          if (cfg.input.wait) await waitForDelete(cfg, resource)
         } catch (err) {
           const msg = err.message
           logger.warn(
@@ -94,18 +85,13 @@ export default async function del (input) {
       }
       process.stdout.write('\n')
 
-      //
-      let wait
-      if (cfg.input.wait) {
-        wait = waitForDelete(cfg, `/api/v1/namespaces/${namespace}`)
-      }
-
       // Delete the namespace from the cluster.
-      const ns = r => r.kind === 'Namespace' && r.metadata.name === namespace
-      await k8s.client.delete(cfg.resources.find(ns))
+      const byNs = r => r.kind === 'Namespace' && r.metadata.name === namespace
+      const ns = cfg.resources.find(byNs)
+      await k8s.client.delete(ns)
 
-      //
-      if (wait) await wait
+      // Wait until the resource is completely deleted.
+      if (cfg.input.wait) await waitForDelete(cfg, ns)
     } else {
       logger.error('No apps specified and cannot delete default namespace')
       process.exit(1)
