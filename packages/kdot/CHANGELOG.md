@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.61
+
+### Patch Changes
+
+- 6321e04: Added #114: Add --wait flag to del command
+
 ## 0.0.60
 
 ### Patch Changes
