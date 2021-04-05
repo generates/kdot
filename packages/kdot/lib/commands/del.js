@@ -1,7 +1,7 @@
 import { createLogger, chalk } from '@generates/logger'
 import prompt from '@generates/prompt'
 import { oneLine } from 'common-tags'
-import { kc, k8s, Watch } from '../k8s.js'
+import { kc, k8s } from '../k8s.js'
 import configure from '../configure/index.js'
 import showResources from '../showResources.js'
 import poll from '../poll.js'
@@ -104,6 +104,8 @@ export default async function del (input) {
     return
   }
 
-  logger.success(`Successfully deleting ${hasArgs ? 'resources' : 'namespace'}`)
+  const action = cfg.input.wait ? 'deleted' : 'deleting'
+  const target = hasArgs ? 'resources' : 'namespace'
+  logger.success(`Successfully ${action} ${target}`)
   process.stdout.write('\n')
 }
