@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.62
+
+### Patch Changes
+
+- 8d11b62: Fix #151: Duplicate services showing up
+
 ## 0.0.61
 
 ### Patch Changes
