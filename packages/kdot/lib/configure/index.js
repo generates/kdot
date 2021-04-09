@@ -15,7 +15,7 @@ import configureServices from './services.js'
 import configureIngresses from './ingresses.js'
 
 const require = createRequire(import.meta.url)
-const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
+const logger = createLogger({ namespace: 'kdot.cfg', level: 'info' })
 const labels = { managedBy: 'kdot' }
 const containerAttrs = V1Container.attributeTypeMap.map(a => a.name)
 
@@ -161,9 +161,6 @@ export default async function configure ({ ext, ...input }) {
           }
         }
       })
-
-      // Configure a service to act as a network interface for the app.
-      configureServices(cfg, app)
 
       // Configure ingresses to expose the app to the internet.
       configureIngresses(cfg, app)
