@@ -2,6 +2,7 @@ import { merge } from '@generates/merger'
 
 export default function kdotWebdriver (config = {}) {
   const {
+    preset = 'headless',
     tag = '4.0.0-beta-3-prerelease-20210329',
     hub,
     chrome,
@@ -45,11 +46,20 @@ export default function kdotWebdriver (config = {}) {
                 env: {
                   SE_EVENT_BUS_HOST: 'hub',
                   SE_EVENT_BUS_PUBLISH_PORT: '4442',
-                  SE_EVENT_BUS_SUBSCRIBE_PORT: '4443',
+                  SE_EVENT_BUS_SUBSCRIBE_PORT: '4443'
+                }
+              },
+              preset === 'debug' && {
+                env: {
                   VNC_NO_PASSWORD: '1'
                 },
                 ports: {
                   app: { port: 5900 }
+                }
+              },
+              preset === 'headless' && {
+                env: {
+                  START_XVFB: 'false'
                 }
               },
               chrome
@@ -68,9 +78,19 @@ export default function kdotWebdriver (config = {}) {
                   SE_EVENT_BUS_PUBLISH_PORT: '4442',
                   SE_EVENT_BUS_SUBSCRIBE_PORT: '4443',
                   VNC_NO_PASSWORD: '1'
+                }
+              },
+              preset === 'debug' && {
+                env: {
+                  VNC_NO_PASSWORD: '1'
                 },
                 ports: {
                   app: { port: 5900, localPort: 5901 }
+                }
+              },
+              preset === 'headless' && {
+                env: {
+                  START_XVFB: 'false'
                 }
               },
               firefox
