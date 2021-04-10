@@ -1,5 +1,11 @@
 # @generates/kdot-webdriver
 
+## 0.1.0
+
+### Minor Changes
+
+- af07b9e: Add #150: kdot-webdriver presets
+
 ## 0.0.7
 
 ### Patch Changes
