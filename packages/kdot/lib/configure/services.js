@@ -21,7 +21,7 @@ export default async function configureServices (cfg, owner) {
     merge(service, owner.service)
 
     cfg.resources.push(service)
-  } else if (cfg.services) {
+  } else if (!owner && cfg.services) {
     // Configure top-level services.
     logger.debug('Configure top-level services:', cfg.services)
     for (const [name, given] of Object.entries(cfg.services)) {

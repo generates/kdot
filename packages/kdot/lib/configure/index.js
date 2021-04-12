@@ -162,6 +162,9 @@ export default async function configure ({ ext, ...input }) {
         }
       })
 
+      // Configure a service to act as a network interface for the app.
+      configureServices(cfg, app)
+
       // Configure ingresses to expose the app to the internet.
       configureIngresses(cfg, app)
     }
