@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.0.63
+
+### Patch Changes
+
+- a1abffa: Update dependency @generates/logger to v1
+- 0c3d1eb: Fix #156: Missing services
+
 ## 0.0.62
 
 ### Patch Changes

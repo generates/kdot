@@ -1,5 +1,11 @@
 # @generates/kdot-webdriver
 
+## 0.1.1
+
+### Patch Changes
+
+- 780e594: Adding JAVA_OPTS settings for chrome
+
 ## 0.1.0
 
 ### Minor Changes
