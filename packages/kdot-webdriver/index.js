@@ -1,4 +1,5 @@
 import { merge } from '@generates/merger'
+import { oneLine } from 'common-tags'
 
 export default function kdotWebdriver (config = {}) {
   const {
@@ -46,7 +47,11 @@ export default function kdotWebdriver (config = {}) {
                 env: {
                   SE_EVENT_BUS_HOST: 'hub',
                   SE_EVENT_BUS_PUBLISH_PORT: '4442',
-                  SE_EVENT_BUS_SUBSCRIBE_PORT: '4443'
+                  SE_EVENT_BUS_SUBSCRIBE_PORT: '4443',
+                  JAVA_OPTS: oneLine`
+                    -Djava.net.preferIPv4Stack=true
+                    -Dwebdriver.chrome.whitelistedIps=
+                  `
                 }
               },
               preset === 'debug' && {
