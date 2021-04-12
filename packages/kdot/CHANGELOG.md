@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.64
+
+### Patch Changes
+
+- 220d2d8: Improve wait with getReadyPods instead of getRunningPods
+
 ## 0.0.63
 
 ### Patch Changes
