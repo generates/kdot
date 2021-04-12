@@ -43,7 +43,12 @@ export default async function configureServices (cfg, owner) {
 
       const namespace = given.namespace || app.namespace || cfg.namespace
       const metadata = { name, namespace, labels }
-      const service = { kind: 'Service', metadata, spec: { selector, ports } }
+      const service = {
+        app,
+        kind: 'Service',
+        metadata,
+        spec: { selector, ports }
+      }
       cfg.resources.push(service)
     }
   }

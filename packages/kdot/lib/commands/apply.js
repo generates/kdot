@@ -4,10 +4,10 @@ import { kc } from '../k8s.js'
 import emojis from '../emojis.js'
 import getResources from '../getResources.js'
 import applyResource from '../applyResource.js'
-import getRunningPods from '../getRunningPods.js'
+import getReadyPods from '../getReadyPods.js'
 import configure from '../configure/index.js'
 
-const logger = createLogger({ namespace: 'kdot', level: 'info' })
+const logger = createLogger({ namespace: 'kdot.apply', level: 'info' })
 const byTopLevelNamespace = r => !r.app && r.kind === 'Namespace'
 const byTopLevel = r => !r.app && r.kind !== 'Namespace'
 const byDeployment = r => r.kind === 'Deployment'
@@ -75,11 +75,11 @@ export default async function apply (input) {
   process.stdout.write('\n')
 
   if (cfg.input.wait) {
-    logger.info('Waiting for pods to run...')
+    logger.info('Waiting for pods to be ready...')
     process.stdout.write('\n')
     await Promise.all(resources.filter(byDeployment).map(async deployment => {
       const { namespace, name } = deployment.metadata
-      await getRunningPods(namespace, name, { limit: 1 })
+      await getReadyPods(namespace, name, { limit: 1 })
     }))
   }
 }
