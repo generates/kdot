@@ -1,16 +1,16 @@
 import { createLogger } from '@generates/logger'
 import slugify from '@sindresorhus/slugify'
 // import { kc } from '../k8s.js'
-import configure from '../configure/index.js'
+// import configure from '../configure/index.js'
 import getGitBranch from '../getGitBranch.js'
 import set from './set.js'
 
 const logger = createLogger({ level: 'debug', namespace: 'kdot.ns' })
 
 export default async function ns (input) {
-  const cfg = input.input ? input : await configure(input)
+  // const cfg = input.input ? input : await configure(input)
 
-  //
+  // Determine or generate namespace.
   let [namespace] = input.args
   if (!namespace) {
     const branch = await getGitBranch()
@@ -23,10 +23,11 @@ export default async function ns (input) {
     }
   }
 
-  //
-  input.ext = { namespace }
-
-  await set(input)
+  // Write the namespace to a config JSON file.
+  if (input.set) {
+    input.ext = { namespace }
+    await set(input)
+  }
 
   // Lookup namespace.
 

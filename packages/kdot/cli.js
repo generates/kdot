@@ -192,7 +192,13 @@ const input = cli({
       description: 'Create a namespace',
       options: {
         prefix: {
+          description: `
+            Prefix a string to the namespace generated from the git branch name
+          `,
           default: ''
+        },
+        set: {
+          description: 'Write the namespace to the specified config JSON file'
         }
       },
       run: kdot.ns
