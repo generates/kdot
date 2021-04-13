@@ -121,7 +121,9 @@ const input = cli({
           aliases: ['t']
         },
         namespaceTag: {
-          description: 'Use the config namespace as the build and image tag',
+          description: `
+            Use the config namespace as the image tag for apps being built
+          `,
           default: false
         }
       },
