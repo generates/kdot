@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.0.66
+
+### Patch Changes
+
+- a80d5af: Export configure function
+- efba458: Support exported function in config files
+
 ## 0.0.65
 
 ### Patch Changes
