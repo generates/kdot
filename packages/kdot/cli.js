@@ -190,6 +190,11 @@ const input = cli({
     namespace: {
       aliases: ['ns'],
       description: 'Create a namespace',
+      options: {
+        prefix: {
+          default: ''
+        }
+      },
       run: kdot.ns
     }
   },

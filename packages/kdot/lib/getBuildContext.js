@@ -1,13 +1,14 @@
 import { createLogger } from '@generates/logger'
 import execa from 'execa'
 import parseGitUrl from 'git-url-parse'
+import getGitBranch from './getGitBranch.js'
 
 const logger = createLogger({ level: 'info', namespace: 'kdot.build' })
 
 export default async function getBuildContext (context = {}) {
   let { repo, branch = process.env.GITHUB_HEAD_REF } = context
 
-  if (!repo || !branch) {
+  if (!repo) {
     if (!repo) {
       if (process.env.GITHUB_REPOSITORY) {
         repo = `git://github.com/${process.env.GITHUB_REPOSITORY}.git`
@@ -24,15 +25,7 @@ export default async function getBuildContext (context = {}) {
       }
     }
 
-    if (!branch) {
-      try {
-        const { stdout } = await execa('git', ['branch', '--show-current'])
-        branch = stdout
-      } catch (err) {
-        logger.debug(err)
-        logger.warn("Can't determine build branch")
-      }
-    }
+    if (!branch) branch = await getGitBranch(context)
   }
 
   return `${repo}${branch ? `#refs/heads/${branch}` : ''}`
