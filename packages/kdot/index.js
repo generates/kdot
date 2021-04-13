@@ -12,6 +12,7 @@ import clean from './lib/commands/clean.js'
 import exec from './lib/commands/exec.js'
 import env from './lib/commands/env.js'
 import ns from './lib/commands/ns.js'
+import configure from './lib/configure/index.js'
 import getVersion from './lib/getVersion.js'
 
 export {
@@ -29,5 +30,6 @@ export {
   exec,
   env,
   ns,
+  configure,
   getVersion
 }
