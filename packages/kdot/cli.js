@@ -119,6 +119,12 @@ const input = cli({
       options: {
         timeout: {
           aliases: ['t']
+        },
+        namespaceTag: {
+          description: `
+            Use the config namespace as the image tag for apps being built
+          `,
+          default: false
         }
       },
       run: kdot.build
@@ -186,6 +192,22 @@ const input = cli({
         }
       },
       run: kdot.get
+    },
+    namespace: {
+      aliases: ['ns'],
+      description: 'Create a namespace',
+      options: {
+        prefix: {
+          description: `
+            Prefix a string to the namespace generated from the git branch name
+          `,
+          default: ''
+        },
+        set: {
+          description: 'Write the namespace to the specified config JSON file'
+        }
+      },
+      run: kdot.ns
     }
   },
   options: {
@@ -217,7 +239,7 @@ if (input?.helpText) {
   if (command) process.exit(1)
 }
 
-if (input.catch) {
+if (input?.catch) {
   input.catch(err => {
     logger.fatal(err)
     process.exit(1)

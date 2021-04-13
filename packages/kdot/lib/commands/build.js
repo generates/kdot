@@ -12,6 +12,7 @@ import apply from './apply.js'
 import getBuildContext from '../getBuildContext.js'
 import configure from '../configure/index.js'
 import streamPodLogs from '../streamPodLogs.js'
+import set from './set.js'
 
 const defaultDigest = '/dev/termination-log'
 const logger = createLogger({ namespace: 'kdot.build', level: 'info' })
@@ -79,6 +80,16 @@ export default async function build (input) {
     if (app.build) {
       const buildContext = await getBuildContext(app.build.context)
       logger.debug('Context:', buildContext)
+
+      if (input.namespaceTag) {
+        // Use the namespace as the image tag.
+        app.image.tag = cfg.namespace
+
+        // Update the config JSON to use the namespace as the image tag.
+        const image = { tag: cfg.namespace }
+        const apps = { [app.name]: { image, imagePullPolicy: 'Always' } }
+        await set({ ...input, ext: { apps } })
+      }
 
       const contextSubPath = `--context-sub-path=${app.build.contextSubPath}`
 

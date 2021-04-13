@@ -11,6 +11,7 @@ import cp from './lib/commands/cp.js'
 import clean from './lib/commands/clean.js'
 import exec from './lib/commands/exec.js'
 import env from './lib/commands/env.js'
+import ns from './lib/commands/ns.js'
 import getVersion from './lib/getVersion.js'
 
 export {
@@ -27,5 +28,6 @@ export {
   clean,
   exec,
   env,
+  ns,
   getVersion
 }
