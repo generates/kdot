@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.0.65
+
+### Patch Changes
+
+- 6f20d20: Adding namespace command
+- 8a8ca33: Add #161: --namespace-tag option to build command
+
 ## 0.0.64
 
 ### Patch Changes
