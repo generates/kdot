@@ -1,5 +1,56 @@
 # @generates/kdot
 
+## 0.0.64
+
+### Patch Changes
+
+- 220d2d8: Improve wait with getReadyPods instead of getRunningPods
+
+## 0.0.63
+
+### Patch Changes
+
+- a1abffa: Update dependency @generates/logger to v1
+- 0c3d1eb: Fix #156: Missing services
+
+## 0.0.62
+
+### Patch Changes
+
+- 8d11b62: Fix #151: Duplicate services showing up
+
+## 0.0.61
+
+### Patch Changes
+
+- 6321e04: Added #114: Add --wait flag to del command
+
+## 0.0.60
+
+### Patch Changes
+
+- 32a1c6b: Fix get output formatting
+- f0a774a: Add #133: Add verbose flag to show
+
+## 0.0.59
+
+### Patch Changes
+
+- c47991c: Fix #137: Dont forward on localPort: false
+
+## 0.0.58
+
+### Patch Changes
+
+- 177974f: Fix #119: dependsOn issue
+
+## 0.0.57
+
+### Patch Changes
+
+- 7362c57: Clarifying delete message
+- 2a10f0f: Fixing env command
+
 ## 0.0.56
 
 ### Patch Changes

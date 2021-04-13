@@ -15,7 +15,7 @@ import configureServices from './services.js'
 import configureIngresses from './ingresses.js'
 
 const require = createRequire(import.meta.url)
-const logger = createLogger({ namespace: 'kdot.configure', level: 'info' })
+const logger = createLogger({ namespace: 'kdot.cfg', level: 'info' })
 const labels = { managedBy: 'kdot' }
 const containerAttrs = V1Container.attributeTypeMap.map(a => a.name)
 
@@ -77,11 +77,14 @@ export default async function configure ({ ext, ...input }) {
   for (const [name, app] of Object.entries(cfg.apps || {})) {
     const enabled = app.enabled !== false && input.args?.length === 0
 
-    // Determien if this app is being depended on by another specified app.
+    // Mark the app if it was explicitly specified with the command.
+    app.isSpecified = input.args?.includes(name)
+
+    // Determine if this app is being depended on by another specified app.
     const hasDependency = n => cfg.apps[n]?.dependsOn?.includes(name)
     app.isDependency = input.args?.some(hasDependency)
 
-    if (enabled || input.args?.includes(name) || app.isDependency) {
+    if (enabled || app.isSpecified || app.isDependency) {
       // Mark the app as being enabled.
       app.enabled = true
 

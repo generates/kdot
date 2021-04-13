@@ -1,12 +1,11 @@
 import { createLogger, chalk } from '@generates/logger'
-import getResources from './getResources.js'
+import getResources, { toExtractedResource } from './getResources.js'
 import emojis from './emojis.js'
 import getPods from './getPods.js'
 
 const logger = createLogger({ level: 'info', namespace: 'kdot.show' })
 
-async function getStatus (namespace, name) {
-  const pods = await getPods(namespace, name)
+function getStatus (pods) {
   const states = pods.map(pod => {
     if (pod.status.containerStatuses[0]?.state.running) {
       return 'Running'
@@ -29,8 +28,8 @@ async function getStatus (namespace, name) {
 }
 
 export default async function showResources (cfg) {
-  const filter = cfg.input.args.length
-    ? r => r.app && cfg.input.args.includes(r.app.name)
+  const filter = cfg.input.args?.length
+    ? r => r.app && cfg.input.args?.includes(r.app.name)
     : r => r.kind !== 'Namespace'
   const resources = await getResources(cfg, filter)
 
@@ -38,12 +37,21 @@ export default async function showResources (cfg) {
     const { namespace, name, uid } = resource.metadata
     let status = uid ? chalk.green('Existing') : chalk.dim('Unknown')
 
+    let pods
     if (resource.kind === 'Deployment' && uid) {
-      status = await getStatus(namespace, name)
+      pods = await getPods(namespace, name)
+      status = getStatus(pods)
     }
 
     const message = `${resource.kind} ${chalk.yellow(name)}: ${status}`
     logger.log(emojis[resource.kind] || emojis.k8, message)
+    if (cfg.input.verbose) {
+      logger.log(toExtractedResource(resource))
+      pods?.forEach((pod, index) => {
+        logger.log(emojis.Pod, `Pod ${chalk.yellow(name)}: ${index + 1}`)
+        logger.log(toExtractedResource(pod))
+      })
+    }
   }))
 
   return resources

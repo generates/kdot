@@ -70,10 +70,16 @@ const input = cli({
       run: kdot.stop
     },
     show: {
+      usage: 'kdot show [options] [apps]',
       description: `
-        Show a list of resources in the cluster for a given configuration that
-        is configured by kdot
+        Show a list of resources in the cluster for a given configuration
       `,
+      options: {
+        verbose: {
+          aliases: ['v'],
+          description: 'Show more detailed resource information'
+        }
+      },
       run: kdot.show
     },
     scale: {
@@ -96,6 +102,11 @@ const input = cli({
             Whether to show a confirmation prompt before deleting resources
           `,
           default: true
+        },
+        wait: {
+          aliases: ['w'],
+          description: 'Whether to wait for the resources to be deleted',
+          default: false
         }
       },
       run: kdot.del
