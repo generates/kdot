@@ -35,7 +35,7 @@ function taggedImages () {
   return [this.taggedImage]
 }
 
-export default async function configure ({ ext, ...input }) {
+export default async function configure (input) {
   const cfg = { namespace: 'default', input }
 
   const configs = Array.isArray(input.config) ? input.config : [input.config]
@@ -47,8 +47,8 @@ export default async function configure ({ ext, ...input }) {
 
     try {
       const mod = await import(js)
-      if (typeof mod === 'function') {
-        merge(cfg, await mod.default(cfg))
+      if (typeof mod.default === 'function') {
+        await mod.default(cfg)
       } else {
         merge(cfg, mod.default)
       }
