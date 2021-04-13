@@ -119,6 +119,10 @@ const input = cli({
       options: {
         timeout: {
           aliases: ['t']
+        },
+        namespaceTag: {
+          description: 'Use the config namespace as the build and image tag',
+          default: false
         }
       },
       run: kdot.build
