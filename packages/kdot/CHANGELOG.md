@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.68
+
+### Patch Changes
+
+- 57701f9: Fixing configs param
+
 ## 0.0.67
 
 ### Patch Changes
