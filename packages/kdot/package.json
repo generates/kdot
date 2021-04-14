@@ -61,7 +61,7 @@
     "glob": "^7.1.6",
     "got": "^11.8.1",
     "p-reduce": "^2.1.0",
-    "p-timeout": "^4.1.0",
+    "p-timeout": "^5.0.0",
     "server-destroy": "^1.0.1"
   },
   "kdot": {
