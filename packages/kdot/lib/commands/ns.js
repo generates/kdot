@@ -5,7 +5,7 @@ import slugify from '@sindresorhus/slugify'
 import getGitBranch from '../getGitBranch.js'
 import set from './set.js'
 
-const logger = createLogger({ level: 'debug', namespace: 'kdot.ns' })
+const logger = createLogger({ level: 'info', namespace: 'kdot.ns' })
 
 export default async function ns (input) {
   // const cfg = input.input ? input : await configure(input)
