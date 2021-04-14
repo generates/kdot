@@ -1,8 +1,4 @@
-import 'dotenv/config.js'
-import { createRequire } from 'module'
-import path from 'path'
 import { merge } from '@generates/merger'
-import { createLogger } from '@generates/logger'
 import { including } from '@generates/extractor'
 import configureConfigMaps from './configMaps.js'
 import configureSecrets from './secrets.js'
@@ -13,9 +9,8 @@ import { configureClients, V1Container } from '../k8s.js'
 import toEnv from '../toEnv.js'
 import configureServices from './services.js'
 import configureIngresses from './ingresses.js'
+import load from '../load.js'
 
-const require = createRequire(import.meta.url)
-const logger = createLogger({ namespace: 'kdot.cfg', level: 'info' })
 const labels = { managedBy: 'kdot' }
 const containerAttrs = V1Container.attributeTypeMap.map(a => a.name)
 
@@ -38,32 +33,8 @@ function taggedImages () {
 export default async function configure (input) {
   const cfg = { namespace: 'default', input }
 
-  const configs = Array.isArray(input.config) ? input.config : [input.config]
-  for (const config of configs) {
-    const dirname = path.dirname(config)
-    const basename = path.basename(config)
-    const js = path.resolve(dirname, `k.${basename}.js`)
-    const json = path.resolve(dirname, `k.${basename}.json`)
-
-    try {
-      const mod = await import(js)
-      if (typeof mod.default === 'function') {
-        await mod.default(cfg)
-      } else {
-        merge(cfg, mod.default)
-      }
-    } catch (err) {
-      logger.error('Error importing config file', err)
-    }
-
-    try {
-      merge(cfg, require(json))
-    } catch (err) {
-      logger.debug('Error importing json config file', err)
-    }
-  }
-
-  logger.debug('Initial configuration', cfg)
+  // Load config from config files.
+  merge(cfg, await load(input.config))
 
   // Re-initialize clients with the given context if sepcified.
   if (cfg.context) configureClients(cfg.context)
