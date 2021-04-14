@@ -8,10 +8,10 @@ import { createLogger } from '@generates/logger'
 const require = createRequire(import.meta.url)
 const logger = createLogger({ namespace: 'kdot.cfg', level: 'info' })
 
-export default async function load (...configs) {
+export default async function load (configs) {
   const cfg = {}
 
-  for (const config of configs) {
+  for (const config of Array.isArray(configs) ? configs : [configs]) {
     const dirname = path.dirname(config)
     const basename = path.basename(config)
     const js = path.resolve(dirname, `k.${basename}.js`)
