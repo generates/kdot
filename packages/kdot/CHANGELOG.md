@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.0.67
+
+### Patch Changes
+
+- b93b73a: Add separate config load function
+- 7cd69c6: Fix log level in ns command
+
 ## 0.0.66
 
 ### Patch Changes
