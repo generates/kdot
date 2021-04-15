@@ -2,6 +2,8 @@
 
 import pTimeout from 'p-timeout'
 
+const isNotEmpty = value => Array.isArray(value) ? value.length : value
+
 export default async function poll (options = {}) {
   const { request, condition, interval = 20, leadingCheck = true } = options
 
@@ -17,7 +19,7 @@ export default async function poll (options = {}) {
         let result
         if (condition) result = await condition(value)
 
-        if (result) {
+        if (result || (!condition && isNotEmpty(value))) {
           // If the condition is truthy, resolve with the condition result or
           // request value.
           resolve(result || value)
@@ -43,7 +45,7 @@ export default async function poll (options = {}) {
   // condition is satisfied.
   if (options.timeout) {
     try {
-      const name = `${options.name || 'poll'} ${request.name || 'request'}`
+      const name = `${options.name || 'poll'} ${condition.name || 'request'}`
       const msg = `Timeout after ${options.timeout}ms for ${name}`
       const callback = () => {
         const err = new Error(msg)

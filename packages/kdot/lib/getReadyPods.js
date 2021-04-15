@@ -1,26 +1,14 @@
-import getPods from './getPods.js'
-import poll from './poll.js'
+import getLivingPods from './getLivingPods.js'
 
 function byIsReady (pod) {
   const [status] = pod?.status?.containerStatuses || []
-  return status?.ready && !pod.metadata.deletionTimestamp
+  return status?.ready
 }
 
 export default async function getReadyPods (config = {}) {
-  const { namespace, name } = config
-
-  async function getReadyPodsRequest () {
-    const allPods = await getPods(namespace, name)
-    if (allPods.length && allPods.every(p => p.status?.phase === 'Failed')) {
-      throw new Error(`All retrieved pods are in failed state: ${name}`)
-    }
-    return allPods
-  }
-
-  function condition (allPods) {
+  function getReadyPodsCondition (allPods) {
     const pods = allPods?.filter(byIsReady).slice(0, config.limit) || []
     return config.limit === 1 ? pods.shift() : pods
   }
-
-  return poll({ request: getReadyPodsRequest, condition, ...config })
+  return getLivingPods({ condition: getReadyPodsCondition, ...config })
 }
