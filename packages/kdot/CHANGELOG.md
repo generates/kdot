@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.70
+
+### Patch Changes
+
+- 9136a99: Make --namespace-tag replace tags instead of tag
+
 ## 0.0.69
 
 ### Patch Changes
