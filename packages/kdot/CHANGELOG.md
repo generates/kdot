@@ -1,5 +1,13 @@
 # @generates/kdot
 
+## 0.0.69
+
+### Patch Changes
+
+- 76ea77e: Fix #140
+- f9b946d: Fix #171, #172, #160, #168
+- 046b0d2: Update dependency p-timeout to v5
+
 ## 0.0.68
 
 ### Patch Changes
