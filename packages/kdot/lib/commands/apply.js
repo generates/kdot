@@ -11,7 +11,7 @@ const logger = createLogger({ namespace: 'kdot.apply', level: 'info' })
 const byTopLevelNamespace = r => !r.app && r.kind === 'Namespace'
 const byTopLevel = r => !r.app && r.kind !== 'Namespace'
 const byDeployment = r => r.kind === 'Deployment'
-const setupApplyResource = input => resource => applyResource(resource, input)
+const setupApplyResource = cfg => resource => applyResource(cfg, resource)
 
 function logUpdate (resource) {
   const change = resource.metadata.uid
@@ -55,7 +55,7 @@ export default async function apply (input) {
   }
 
   // Setup the applyResource function with the run configuration.
-  const applyResource = setupApplyResource(cfg.input)
+  const applyResource = setupApplyResource(cfg)
 
   // Apply top-level namespaces before other resources in case they depend on
   // them.
