@@ -72,11 +72,11 @@ export default async function apply (input) {
   // Apply top-level namespaces before other resources in case they depend on
   // them.
   let [filtered, rest] = partition(resources, byTopLevelNamespace)
-  await Promise.all(filtered.map(applyResource));
+  await Promise.all(filtered.map(applyResource))
 
   // Apply top-level resources before app-level resources in case the apps
   // depend on them.
-  [filtered, rest] = partition(rest, byTopLevel)
+  ;[filtered, rest] = partition(rest, byTopLevel)
   await Promise.all(filtered.map(applyResource))
 
   // Apply the app-level resources.
