@@ -83,10 +83,10 @@ export default async function build (input) {
 
       if (input.namespaceTag) {
         // Use the namespace as the image tag.
-        app.image.tag = cfg.namespace
+        app.image.tags = [cfg.namespace]
 
         // Update the config JSON to use the namespace as the image tag.
-        const image = { tag: cfg.namespace }
+        const image = { tags: [cfg.namespace] }
         const apps = { [app.name]: { image, imagePullPolicy: 'Always' } }
         await set({ ...input, ext: { apps } })
       }
