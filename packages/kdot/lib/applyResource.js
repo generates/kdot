@@ -41,9 +41,14 @@ export default async function applyResource (cfg, { app, ...resource }) {
       await k8s.client.create(resource)
       logger.success(`Created ${resource.kind}:`, name)
     }
+
+    return resource
   } catch (err) {
     const msg = `Failed to apply ${resource.kind}:`
     logger[logLevel](msg, name, err.response?.body || err)
-    if (cfg.input.failFast) process.exit(1)
+    if (cfg.input.failFast) {
+      process.stdout.write('\n')
+      process.exit(1)
+    }
   }
 }

@@ -45,7 +45,7 @@ export default async function poll (options = {}) {
   // condition is satisfied.
   if (options.timeout) {
     try {
-      const name = `${options.name || 'poll'} ${condition.name || 'request'}`
+      const name = `${options.name || 'poll'} ${condition?.name || 'request'}`
       const msg = `Timeout after ${options.timeout}ms for ${name}`
       const callback = () => {
         const err = new Error(msg)
