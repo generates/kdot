@@ -1,20 +1,19 @@
 // Based on https://github.com/sindresorhus/p-wait-for
 
 import pTimeout from 'p-timeout'
-import { createLogger } from '@generates/logger'
-
-const logger = createLogger({ level: 'info', namespace: 'kdot.poll' })
 
 export default async function poll ({ request, condition, ...options }) {
   const { interval = 20, leadingCheck = true } = options
 
-  let value
+  let lastResponse
   let retryTimeout
   const promise = new Promise((resolve, reject) => {
     const check = async () => {
       try {
         // If a request is specified, execute it.
+        let value
         if (request) value = await request()
+        if (value) lastResponse = value
 
         // Execute the condition with the value returned by the request.
         let result
@@ -49,7 +48,9 @@ export default async function poll ({ request, condition, ...options }) {
       const name = request.name || 'request'
       const msg = `Poll timeout after ${options.timeout}ms for ${name}`
       const callback = () => {
-        logger.error(msg + (value ? ', last response:' : ''), value || '')
+        const err = new Error(msg)
+        err.response = lastResponse
+        throw err
       }
       return pTimeout(promise, options.timeout, callback)
     } catch (error) {
