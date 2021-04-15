@@ -12,7 +12,7 @@ function byIsRunning (pod) {
 }
 
 export default async function getRunningPods (namespace, name, config = {}) {
-  const request = async () => {
+  async function getRunningPodsRequest () {
     const allPods = await getPods(namespace, name)
     if (allPods.length && allPods.every(p => p.status?.phase === 'Failed')) {
       throw new Error(`All retrieved pods are in failed state: ${name}`)
@@ -21,5 +21,5 @@ export default async function getRunningPods (namespace, name, config = {}) {
     logger.debug('getRunningPods', { name, pods: pods.map(toContainerStatus) })
     return config.limit === 1 ? pods.shift() : pods
   }
-  return poll({ request, condition: hasPods, ...config })
+  return poll({ request: getRunningPodsRequest, condition: hasPods, ...config })
 }

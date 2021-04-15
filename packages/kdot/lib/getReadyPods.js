@@ -12,7 +12,7 @@ function byIsReady (pod) {
 }
 
 export default async function getReadyPods (namespace, name, config = {}) {
-  const request = async () => {
+  async function getReadyPodsRequest () {
     const allPods = await getPods(namespace, name)
     if (allPods.length && allPods.every(p => p.status?.phase === 'Failed')) {
       throw new Error(`All retrieved pods are in failed state: ${name}`)
@@ -21,5 +21,5 @@ export default async function getReadyPods (namespace, name, config = {}) {
     logger.debug('getReadyPods', { name, pods: pods.map(toContainerStatus) })
     return config.limit === 1 ? pods.shift() : pods
   }
-  return poll({ request, condition: hasPods, ...config })
+  return poll({ request: getReadyPodsRequest, condition: hasPods, ...config })
 }
