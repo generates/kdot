@@ -6,6 +6,10 @@ import * as kdot from './index.js'
 
 const logger = createLogger({ level: 'info', namespace: 'kdot.cli' })
 
+const timeout = {
+  aliases: ['t'],
+  description: 'Amount of time in milliseconds to wait before erroring out'
+}
 const input = cli({
   name: 'kdot',
   description: 'A tool for managing apps on Kubernetes',
@@ -28,7 +32,8 @@ const input = cli({
           description: 'Whether to exit on the first failure encountered',
           default: false
         },
-        wait: { aliases: ['w'] }
+        wait: { aliases: ['w'] },
+        timeout
       },
       run: kdot.apply
     },
@@ -117,9 +122,7 @@ const input = cli({
         configuration
       `,
       options: {
-        timeout: {
-          aliases: ['t']
-        },
+        timeout,
         namespaceTag: {
           description: `
             Use the config namespace as the image tag for apps being built

@@ -2,25 +2,27 @@
 
 import pTimeout from 'p-timeout'
 
-export default async function poll ({ request, condition, ...options }) {
-  const { interval = 20, leadingCheck = true } = options
+const isNotEmpty = value => Array.isArray(value) ? value.length : value
 
+export default async function poll (options = {}) {
+  const { request, condition, interval = 20, leadingCheck = true } = options
+
+  let value
   let retryTimeout
   const promise = new Promise((resolve, reject) => {
     const check = async () => {
       try {
         // If a request is specified, execute it.
-        let value
         if (request) value = await request()
 
         // Execute the condition with the value returned by the request.
         let result
         if (condition) result = await condition(value)
 
-        if (result) {
-          // If the condition is truthy, resolve with the request value or
-          // condition result.
-          resolve(value || result)
+        if (result || (!condition && isNotEmpty(value))) {
+          // If the condition is truthy, resolve with the condition result or
+          // request value.
+          resolve(result || value)
         } else {
           // If the condition is falsy, queue another check.
           retryTimeout = setTimeout(check, interval)
@@ -43,7 +45,14 @@ export default async function poll ({ request, condition, ...options }) {
   // condition is satisfied.
   if (options.timeout) {
     try {
-      return pTimeout(promise, options.timeout)
+      const name = `${options.name || 'poll'} ${condition?.name || 'request'}`
+      const msg = `Timeout after ${options.timeout}ms for ${name}`
+      const callback = () => {
+        const err = new Error(msg)
+        err.response = value
+        throw err
+      }
+      return pTimeout(promise, options.timeout, callback)
     } catch (error) {
       if (retryTimeout) clearTimeout(retryTimeout)
       throw error

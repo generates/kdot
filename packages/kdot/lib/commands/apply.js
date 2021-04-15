@@ -10,8 +10,7 @@ import configure from '../configure/index.js'
 const logger = createLogger({ namespace: 'kdot.apply', level: 'info' })
 const byTopLevelNamespace = r => !r.app && r.kind === 'Namespace'
 const byTopLevel = r => !r.app && r.kind !== 'Namespace'
-const byDeployment = r => r.kind === 'Deployment'
-const setupApplyResource = input => resource => applyResource(resource, input)
+const setupApplyResource = cfg => resource => applyResource(cfg, resource)
 
 function logUpdate (resource) {
   const change = resource.metadata.uid
@@ -20,6 +19,19 @@ function logUpdate (resource) {
   const name = chalk.yellow(resource.metadata.name)
   const message = `${change} ${resource.kind}: ${name}`
   logger.log(emojis[resource.kind] || emojis.k8, message)
+}
+
+function partition (items, filter) {
+  const filtered = []
+  const rest = []
+  for (const item of items) {
+    if (filter(item)) {
+      filtered.push(item)
+    } else {
+      rest.push(item)
+    }
+  }
+  return [filtered, rest]
 }
 
 export default async function apply (input) {
@@ -55,20 +67,24 @@ export default async function apply (input) {
   }
 
   // Setup the applyResource function with the run configuration.
-  const applyResource = setupApplyResource(cfg.input)
+  const applyResource = setupApplyResource(cfg)
 
   // Apply top-level namespaces before other resources in case they depend on
   // them.
-  await Promise.all(resources.filter(byTopLevelNamespace).map(applyResource))
+  let [filtered, rest] = partition(resources, byTopLevelNamespace)
+  await Promise.all(filtered.map(applyResource))
 
   // Apply top-level resources before app-level resources in case the apps
   // depend on them.
-  await Promise.all(resources.filter(byTopLevel).map(applyResource))
+  ;[filtered, rest] = partition(rest, byTopLevel)
+  await Promise.all(filtered.map(applyResource))
 
   // Apply the app-level resources.
-  await Promise.all(Object.entries(cfg.apps || {}).map(async ([name]) => {
-    for (const resource of resources.filter(r => r.app?.name === name)) {
-      await applyResource(resource)
+  const deployments = []
+  await Promise.all(Object.keys(cfg.apps || {}).map(async name => {
+    for (let resource of rest.filter(r => r.app?.name === name)) {
+      resource = await applyResource(resource)
+      if (resource?.kind === 'Deployment') deployments.push(resource)
     }
   }))
 
@@ -77,9 +93,10 @@ export default async function apply (input) {
   if (cfg.input.wait) {
     logger.info('Waiting for pods to be ready...')
     process.stdout.write('\n')
-    await Promise.all(resources.filter(byDeployment).map(async deployment => {
+    await Promise.all(deployments.map(async deployment => {
       const { namespace, name } = deployment.metadata
-      await getReadyPods(namespace, name, { limit: 1 })
+      const options = { limit: 1, timeout: cfg.input.timeout }
+      await getReadyPods({ namespace, name, ...options })
     }))
   }
 }
