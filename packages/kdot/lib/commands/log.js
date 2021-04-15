@@ -15,7 +15,8 @@ const colors = [
 ]
 
 async function streamLogs (app, color) {
-  const pods = await getRunningPods(app.namespace, app.name)
+  const { namespace, name } = app
+  const pods = await getRunningPods({ namespace, name })
   for (const pod of pods) {
     const podName = chalk.dim(pod.metadata.name.replace(`${app.name}-`, ''))
     await streamPodLogs({

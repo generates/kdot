@@ -25,7 +25,7 @@ export default async function cp (input) {
   }
 
   const { namespace } = cfg.apps[name]
-  const pod = await getRunningPods(namespace, name, { limit: 1 })
+  const pod = await getRunningPods({ namespace, name, limit: 1 })
   if (pod) {
     await k8s.cp.cpFromPod(
       namespace,

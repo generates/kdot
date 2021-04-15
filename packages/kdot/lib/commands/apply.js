@@ -80,7 +80,7 @@ export default async function apply (input) {
     await Promise.all(resources.filter(byDeployment).map(async deployment => {
       const { namespace, name } = deployment.metadata
       const options = { limit: 1, timeout: cfg.input.timeout }
-      await getReadyPods(namespace, name, options)
+      await getReadyPods({ namespace, name, ...options })
     }))
   }
 }

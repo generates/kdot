@@ -9,15 +9,17 @@ const logger = createLogger({ level: 'info', namespace: 'kdot.exec' })
 export default async function exec (input) {
   const cfg = input.input ? input : await configure(input)
   const [appName, ...command] = cfg.input.args
-  const app = cfg.apps[appName]
+  const { name, namespace } = cfg.apps[appName] || {}
+
+  if (!name) throw new Error(`App not found: ${appName}`)
 
   let pod
   if (cfg.input.pod) {
     // Get specified pod.
-    pod = await k8s.client.readNamespacedPod(cfg.input.pod, app.namespace)
+    pod = await k8s.client.readNamespacedPod(cfg.input.pod, namespace)
   } else {
     // Get first running pod belonging to the app.
-    pod = await getRunningPods(app.namespace, app.name, { limit: 1 })
+    pod = await getRunningPods({ namespace, name, limit: 1 })
   }
 
   // Determine which container to execute in.
@@ -27,7 +29,7 @@ export default async function exec (input) {
     if (!container) {
       throw new Error(oneLine`
         Container ${cfg.input.container} not found in ${pod.metadata.name} for
-        ${app.name}
+        ${name}
       `)
     }
   }
@@ -35,7 +37,7 @@ export default async function exec (input) {
   logger.debug(
     'Exec',
     {
-      app: app.name,
+      app: name,
       pod: pod.metadata.name,
       container: container.name,
       command
@@ -44,7 +46,7 @@ export default async function exec (input) {
 
   // Execute command within the container.
   await k8s.ex.exec(
-    app.namespace,
+    namespace,
     pod.metadata.name,
     container.name,
     command,

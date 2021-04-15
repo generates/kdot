@@ -13,7 +13,7 @@ export default async function applyResource ({ app, ...resource }, input = {}) {
   // running pods before creating the dependent app's Deployment.
   if (resource.kind === 'Deployment' && app?.dependsOn?.length) {
     const pollConfig = { interval: 999, limit: 1, timeout }
-    const toWait = name => getRunningPods(namespace, name, pollConfig)
+    const toWait = name => getRunningPods({ namespace, name, ...pollConfig })
     await Promise.all(app.dependsOn.map(toWait))
   }
 

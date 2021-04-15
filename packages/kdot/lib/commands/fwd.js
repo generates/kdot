@@ -93,8 +93,8 @@ export default async function fwd (input) {
   await Promise.all(apps.map(async app => {
     if (app.ports) {
       try {
-        const namespace = app.namespace || cfg.namespace
-        const pod = await getRunningPods(namespace, app.name, pollConfig)
+        const { namespace, name } = app
+        const pod = await getRunningPods({ namespace, name, ...pollConfig })
         for (const [name, portConfig] of Object.entries(app.ports)) {
           portConfig.name = name
           if (portConfig.localPort !== false) {
