@@ -6,8 +6,10 @@ import getPods from './getPods.js'
 const logger = createLogger({ level: 'info', namespace: 'kdot.show' })
 
 function getStatus (pods) {
-  const states = pods.map(pod => {
-    if (pod.status.containerStatuses[0]?.state.running) {
+  const podStates = pods.map(pod => {
+    if (pod.status.containerStatuses[0]?.ready) {
+      return 'Ready'
+    } else if (pod.status.containerStatuses[0]?.state.running) {
       return 'Running'
     } else if (pod.status.containerStatuses[0]?.state.waiting) {
       return pod.status.containerStatuses[0]?.state.waiting.reason
@@ -17,14 +19,18 @@ function getStatus (pods) {
     return 'Unknown'
   })
 
-  const runningStates = states.filter(state => state === 'Running')
-  const available = `(${runningStates.length}/${states.length} available)`
-  if (runningStates.length === states.length) {
+  const runningStates = ['Ready', 'Running']
+  const readyPods = podStates.filter(state => state === 'Ready')
+  const runningPods = podStates.filter(state => runningStates.includes(state))
+  const available = `(${runningPods.length}/${podStates.length})`
+  if (readyPods.length === podStates.length) {
+    return chalk.green(`Ready ${available}`)
+  } else if (runningPods.length === podStates.length) {
     return chalk.green(`Running ${available}`)
-  } else if (runningStates.length) {
+  } else if (runningPods.length) {
     return chalk.yellow(`Running ${available}`)
   }
-  return chalk.red(`${states[0]} ${available}`)
+  return chalk.red(`${podStates[0]} ${available}`)
 }
 
 export default async function showResources (cfg) {
