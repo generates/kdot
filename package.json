@@ -20,7 +20,7 @@
     "apps/*"
   ],
   "devDependencies": {
-    "@changesets/cli": "^2.11.1",
+    "@changesets/cli": "^2.12.0",
     "@generates/skrt": "^0.0.6",
     "@ianwalter/bff": "^10.0.5",
     "@ianwalter/eslint-config": "^6.0.0",
