@@ -1,0 +1,42 @@
+{
+  "name": "@generates/kdot-postgres",
+  "description": "Resource configuration for non-production PostgreSQL instances",
+  "version": "0.0.0",
+  "author": {
+    "name": "Ian Walter",
+    "url": "https://ianwalter.dev"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "type": "module",
+  "module": "index.js",
+  "files": [
+    "index.js",
+    "redis.conf"
+  ],
+  "homepage": "https://github.com/generates/kdot/tree/main/packages/kdot-postgres#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/generates/kdot.git",
+    "directory": "packages/kdot-postgres"
+  },
+  "keywords": [
+    "kdot",
+    "postgres",
+    "pogstgresql",
+    "pg",
+    "kubernetes"
+  ],
+  "bugs": {
+    "url": "https://github.com/generates/kdot/issues"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/ianwalter"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@generates/merger": "^0.1.3"
+  }
+}
