@@ -1,5 +1,13 @@
 # @generates/kdot
 
+## 0.0.71
+
+### Patch Changes
+
+- 2f7947c: Update dependency @sindresorhus/slugify to v2
+- fb5eef4: Update dependency p-reduce to v3
+- a3c5c38: Showing Ready for pod states
+
 ## 0.0.70
 
 ### Patch Changes
