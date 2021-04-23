@@ -21,7 +21,9 @@
   },
   "keywords": [
     "kdot",
-    "redis",
+    "postgres",
+    "pogstgresql",
+    "pg",
     "kubernetes"
   ],
   "bugs": {
