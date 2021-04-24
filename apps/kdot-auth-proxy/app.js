@@ -1,10 +1,8 @@
-import path from 'path'
 import fs from 'fs'
 import nrg from '@ianwalter/nrg'
 import httpProxy from 'http-proxy'
 
-const hostsFile = process.env.HOSTS_FILE || '../kdot-auth-proxy-conf/hosts.json'
-const json = fs.readFileSync(path.resolve(hostsFile))
+const json = fs.readFileSync('/opt/kdot-auth-proxy-conf/hosts.json')
 const hosts = JSON.parse(json)
 
 const app = nrg.createApp({

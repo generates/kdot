@@ -1,4 +1,4 @@
-FROM node:15.10-buster
+FROM node:15-buster-slim
 
 ENV NODE_ENV production
 
@@ -10,7 +10,7 @@ WORKDIR /opt/kdot-auth-proxy
 COPY yarn.lock .
 COPY package.json .
 COPY apps/kdot-auth-proxy/package.json .
-RUN yarn
+RUN yarn --prod && yarn cache clean
 
 # Copy all of the other files over.
 COPY apps/kdot-auth-proxy .
