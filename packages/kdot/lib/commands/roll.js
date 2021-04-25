@@ -3,6 +3,7 @@ import { k8s } from '../k8s.js'
 import configure from '../configure/index.js'
 import getTargetApps from '../getTargetApps.js'
 import getPods from '../getPods.js'
+import scale from './scale.js'
 
 const logger = createLogger({ level: 'info', namespace: 'kdot.roll' })
 
@@ -11,19 +12,21 @@ export default async function roll (input) {
 
   // Iterate over target apps.
   for (const app of getTargetApps(cfg)) {
-    // Determine the number of replicas.
-    const replicas = app.replicas || 1
+    const { namespace, name, replicas = 1 } = app
 
     // Get pods.
-    const pods = await getPods({ })
+    const pods = await getPods(namespace, name)
 
     for (let i = 0; i <= replicas - 1; i++) {
-      // Check if the current pod has an old config hash.
+      // TODO: Check if the current pod has an old config hash.
       const pod = pods[i]
 
-      // If there are multiple pods, delete one.
-
-      // Otherwise scale the replicas to 2.
+      if (pods.length > 1) {
+        // If there are multiple pods, delete one.
+      } else {
+        // Otherwise scale the replicas to 2.
+        await scale
+      }
 
       // Wait for new pod to be ready.
 
