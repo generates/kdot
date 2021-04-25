@@ -6,8 +6,12 @@ const json = fs.readFileSync('/opt/kdot-auth-proxy-conf/hosts.json')
 const hosts = JSON.parse(json)
 
 const app = nrg.createApp({
+  log: {
+    ...process.env.LOG_LEVEL ? { level: process.env.LOG_LEVEL } : {}
+  },
   oauth: {
     github: {
+      dynamic: true,
       client_id: process.env.GITHUB_CLIENT_ID,
       client_secret: process.env.GITHUB_CLIENT_SECRET,
       callback: '/kdot-auth-proxy/callback',
@@ -73,7 +77,8 @@ app.use(ctx => {
 
       // Redirect the user to authenticate with GitHub.
       ctx.session.redirect = url.href
-      ctx.redirect('/connect/github')
+      const redirectUri = `${ctx.origin}/connect/github/callback`
+      ctx.redirect(`/connect/github?redirect_uri=${redirectUri}`)
     }
   } else {
     // Log an error when the host isn't found since this is likely a
