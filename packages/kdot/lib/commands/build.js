@@ -185,17 +185,18 @@ export default async function build (input) {
     // Determine the result of the build from the status of the build pod.
     const buildPod = await request()
     const [status] = buildPod.status.containerStatuses || []
+    const output = { images: app.taggedImages }
     if (status && buildPod.status.phase === 'Succeeded') {
       // Delete the build pod now that it has completed successfully.
       await k8s.client.delete(pod)
 
       // Log the built image information.
       const digest = status.state.terminated.message.split(':')
-      logger.success(`Built ${app.taggedImage} for ${app.name}: ${digest[1]}`)
+      logger.success(`Built ${app.name}:`, { ...output, digest: digest[1] })
     } else {
       // Don't delete the build pod in case it needs to be inspected.
-      const message = `Build ${app.taggedImage} failed for ${app.name}:`
-      logger.fatal(message, buildPod.status)
+      output.status = buildPod.status
+      logger.fatal(`Build failed for ${app.name}:`, output)
       process.exit(1)
     }
 
