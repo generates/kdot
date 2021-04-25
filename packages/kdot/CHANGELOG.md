@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.73
+
+### Patch Changes
+
+- f9ee17e: Fix #182: Correct image build success ouput
+
 ## 0.0.72
 
 ### Patch Changes
