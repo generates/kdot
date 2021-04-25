@@ -88,6 +88,11 @@ const input = cli({
       },
       run: kdot.show
     },
+    rollout: {
+      aliases: ['roll'],
+      description: 'Rollout app deployment changes',
+      run: kdot.roll
+    },
     scale: {
       description: `
         Scale up or down the number of replicas for an app in the cluster (in

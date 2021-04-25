@@ -3,6 +3,7 @@ import log from './lib/commands/log.js'
 import fwd from './lib/commands/fwd.js'
 import start from './lib/commands/start.js'
 import show from './lib/commands/show.js'
+import roll from './lib/commands/roll.js'
 import del from './lib/commands/del.js'
 import set from './lib/commands/set.js'
 import get from './lib/commands/get.js'
@@ -22,6 +23,7 @@ export {
   fwd,
   start,
   show,
+  roll,
   del,
   set,
   get,
