@@ -36,6 +36,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "@generates/kdot-redis": "^0.0.2"
+    "@generates/kdot-redis": "^0.0.2",
+    "@generates/merger": "^0.1.3"
   }
 }
