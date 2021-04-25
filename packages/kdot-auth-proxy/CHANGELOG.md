@@ -1,5 +1,11 @@
 # @generates/kdot-auth-proxy
 
+## 1.0.0
+
+### Major Changes
+
+- d65c8df: Refactoring API
+
 ## 0.0.2
 
 ### Patch Changes

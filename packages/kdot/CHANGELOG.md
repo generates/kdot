@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.0.72
+
+### Patch Changes
+
+- d65c8df: Fixing ingress path
+
 ## 0.0.71
 
 ### Patch Changes
