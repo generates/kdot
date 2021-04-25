@@ -82,7 +82,8 @@ const input = cli({
       options: {
         verbose: {
           aliases: ['v'],
-          description: 'Show more detailed resource information'
+          description: 'Show more detailed resource information',
+          default: false
         }
       },
       run: kdot.show
