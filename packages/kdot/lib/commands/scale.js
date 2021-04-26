@@ -72,7 +72,7 @@ export default async function scale (input, deployments) {
       // Show that the deployment was successfully scaled.
       logger.success(`Scaled ${name} to ${replicas} replicas`)
     } catch (err) {
-      logger.error(`Failed to scale ${name} to ${replicas} replicas`)
+      logger.error(`Failed to scale ${name} to ${replicas} replicas`, err)
     }
 
     process.stdout.write('\n')
