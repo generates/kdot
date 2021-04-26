@@ -16,7 +16,7 @@ export default async function scale (input, deployments) {
 
   // Make sure the number of replicas was specified. This can probably be moved
   // to cli when it supports required options.
-  if (!replicas) {
+  if (replicas === undefined || !Number.isInteger(replicas)) {
     process.stdout.write('\n')
     logger.fatal('The number of replicas must be specified with the -r flag')
     process.stdout.write('\n')

@@ -108,8 +108,9 @@ const input = cli({
       options: {
         replicas: {
           aliases: ['r'],
-          description: 'The number of replicas to scale to',
-          type: Number
+          description: 'The number of replicas to scale to'
+          // FIXME:
+          // type: Number
         },
         prompt: {
           aliases: ['p'],
