@@ -10,7 +10,7 @@ export default async function applyResource (cfg, { app, ...resource }) {
   const { uid, name } = resource.metadata
   try {
     // If the app depends on other apps, wait for the other apps to have
-    // running pods before creating the dependent app's Deployment.
+    // running pods before creating the dependent app's deployment.
     if (resource.kind === 'Deployment' && app?.dependsOn?.length) {
       const pollConfig = { interval: 999, limit: 1, timeout }
       await Promise.all(app.dependsOn.map(async dependencyName => {

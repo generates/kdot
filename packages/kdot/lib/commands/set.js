@@ -9,6 +9,7 @@ export default async function set (input) {
   // Determine the config file to modify/create.
   const configPath = path.parse(input.config)
   const configFile = path.resolve(configPath.dir, `k.${configPath.base}.json`)
+  process.stdout.write('\n')
 
   // Read the existing JSON config if the config file exists.
   let json = {}
@@ -26,4 +27,5 @@ export default async function set (input) {
   await fs.writeFile(configFile, JSON.stringify(json, undefined, 2))
 
   logger.success(`Updated ${configFile}:`, json)
+  process.stdout.write('\n')
 }

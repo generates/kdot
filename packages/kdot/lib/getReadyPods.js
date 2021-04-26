@@ -8,7 +8,8 @@ function byIsReady (pod) {
 export default async function getReadyPods (config = {}) {
   function getReadyPodsCondition (allPods) {
     const pods = allPods?.filter(byIsReady).slice(0, config.limit) || []
-    return config.limit === 1 ? pods.shift() : pods
+    const hasCorrectAmount = pods.length === config.limit
+    return hasCorrectAmount && (config.limit === 1 ? pods.shift() : pods)
   }
   return getLivingPods({ condition: getReadyPodsCondition, ...config })
 }

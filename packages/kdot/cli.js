@@ -88,11 +88,44 @@ const input = cli({
       },
       run: kdot.show
     },
+    rollout: {
+      aliases: ['roll'],
+      description: 'Rollout app deployment changes',
+      options: {
+        prompt: {
+          aliases: ['p'],
+          description: `
+            Whether to show a confirmation prompt before rolling out pods
+          `,
+          default: true
+        },
+        timeout
+      },
+      run: kdot.roll
+    },
     scale: {
-      description: `
-        Scale up or down the number of replicas for an app in the cluster (in
-        development)
-      `,
+      description: "Scale the number of replicas for an app's deployment",
+      options: {
+        replicas: {
+          aliases: ['r'],
+          description: 'The number of replicas to scale to'
+          // FIXME:
+          // type: Number
+        },
+        prompt: {
+          aliases: ['p'],
+          description: `
+            Whether to show a confirmation prompt before scaling deployments
+          `,
+          default: true
+        },
+        wait: {
+          aliases: ['w'],
+          description: 'Whether to wait for the replica pods to be ready',
+          default: false
+        },
+        timeout
+      },
       run: kdot.scale
     },
     delete: {

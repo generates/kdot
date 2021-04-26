@@ -13,6 +13,7 @@ import getBuildContext from '../getBuildContext.js'
 import configure from '../configure/index.js'
 import streamPodLogs from '../streamPodLogs.js'
 import set from './set.js'
+import getTargetApps from '../getTargetApps.js'
 
 const defaultDigest = '/dev/termination-log'
 const logger = createLogger({ namespace: 'kdot.build', level: 'info' })
@@ -75,8 +76,7 @@ export default async function build (input) {
     env.GOOGLE_APPLICATION_CREDENTIALS = '/kaniko/gcr/config.json'
   }
 
-  const bySpecified = input.args?.length ? a => a.isSpecified : a => a.enabled
-  for (const app of Object.values(cfg.apps).filter(bySpecified)) {
+  for (const app of getTargetApps(cfg)) {
     if (app.build) {
       const buildContext = await getBuildContext(app.build.context)
       logger.debug('Context:', buildContext)
