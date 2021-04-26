@@ -23,7 +23,7 @@ export default async function scale (input, deployments) {
     process.exit(1)
   }
 
-  // Get the Deployment resources for the target apps.
+  // Get the deployment resources for the target apps.
   if (!deployments?.length) deployments = await getTargetDeployments(cfg)
 
   if (cfg.input.prompt && deployments.length) {
@@ -31,7 +31,7 @@ export default async function scale (input, deployments) {
       process.stdout.write('\n')
       await showResources(cfg, deployments)
       const response = await prompt.select(oneLine`
-        Are you sure you want to scale Deployment(s) to ${replicas} replicas?
+        Are you sure you want to scale deployment(s) to ${replicas} replicas?
       `)
       process.stdout.write('\n')
       if (response === 'No') process.exit(0)
@@ -41,16 +41,16 @@ export default async function scale (input, deployments) {
     }
   } else if (!deployments.length) {
     process.stdout.write('\n')
-    logger.fatal('Failed to find app Deployment(s)')
+    logger.fatal('Failed to find app deployment(s)')
     process.stdout.write('\n')
     process.exit(1)
   }
 
-  // Iterate over target Deployments.
+  // Iterate over target deployments.
   await Promise.all(deployments.map(async deployment => {
     const { namespace, name } = deployment.metadata
     try {
-      // Update the number of replicas in the app's Deployment resource.
+      // Update the number of replicas in the app's deployment resource.
       deployment.spec.replicas = replicas
 
       // Write the updated number of replicas to the JSON config.
@@ -69,7 +69,7 @@ export default async function scale (input, deployments) {
         await getReadyPods({ namespace, name, ...options })
       }
 
-      // Show that the Deployment was successfully scaled.
+      // Show that the deployment was successfully scaled.
       logger.success(`Scaled ${name} to ${replicas} replicas`)
     } catch (err) {
       logger.error(`Failed to scale ${name} to ${replicas} replicas`)

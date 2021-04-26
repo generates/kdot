@@ -31,7 +31,7 @@ export default async function roll (input) {
       process.exit(0)
     }
   } else if (!deployments.length) {
-    logger.fatal('Failed to find app Deployments')
+    logger.fatal('Failed to find app deployments')
     process.stdout.write('\n')
     process.exit(1)
   }

@@ -104,7 +104,7 @@ const input = cli({
       run: kdot.roll
     },
     scale: {
-      description: "Scale the number of replicas for an app's Deployment",
+      description: "Scale the number of replicas for an app's deployment",
       options: {
         replicas: {
           aliases: ['r'],
@@ -115,7 +115,7 @@ const input = cli({
         prompt: {
           aliases: ['p'],
           description: `
-            Whether to show a confirmation prompt before scaling Deployments
+            Whether to show a confirmation prompt before scaling deployments
           `,
           default: true
         },
