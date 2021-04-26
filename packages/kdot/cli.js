@@ -94,10 +94,26 @@ const input = cli({
       run: kdot.roll
     },
     scale: {
-      description: `
-        Scale up or down the number of replicas for an app in the cluster (in
-        development)
-      `,
+      description: "Scale the number of replicas for an app's Deployment",
+      options: {
+        replicas: {
+          aliases: ['r'],
+          description: 'The number of replicas to scale to',
+          type: Number
+        },
+        prompt: {
+          aliases: ['p'],
+          description: `
+            Whether to show a confirmation prompt before scaling Deployments
+          `,
+          default: true
+        },
+        wait: {
+          aliases: ['w'],
+          description: 'Whether to wait for the replica pods to be ready',
+          default: false
+        }
+      },
       run: kdot.scale
     },
     delete: {

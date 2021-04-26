@@ -33,11 +33,13 @@ function getStatus (pods) {
   return chalk.red(`${podStates[0]} ${available}`)
 }
 
-export default async function showResources (cfg) {
-  const filter = cfg.input.args?.length
-    ? r => r.app && cfg.input.args?.includes(r.app.name)
-    : r => r.kind !== 'Namespace'
-  const resources = await getResources(cfg, filter)
+export default async function showResources (cfg, resources) {
+  if (!resources) {
+    const filter = cfg.input.args?.length
+      ? r => r.app && cfg.input.args?.includes(r.app.name)
+      : r => r.kind !== 'Namespace'
+    resources = await getResources(cfg, filter)
+  }
 
   await Promise.all(resources.map(async resource => {
     const { namespace, name, uid } = resource.metadata

@@ -4,6 +4,7 @@ import fwd from './lib/commands/fwd.js'
 import start from './lib/commands/start.js'
 import show from './lib/commands/show.js'
 import roll from './lib/commands/roll.js'
+import scale from './lib/commands/scale.js'
 import del from './lib/commands/del.js'
 import set from './lib/commands/set.js'
 import get from './lib/commands/get.js'
@@ -24,6 +25,7 @@ export {
   start,
   show,
   roll,
+  scale,
   del,
   set,
   get,
