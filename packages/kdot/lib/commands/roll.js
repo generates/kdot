@@ -42,14 +42,11 @@ export default async function roll (input) {
       const { namespace, name } = deployment.metadata
       const replicas = deployment.spec.replicas
 
-      // Get pods.
+      // Get all pods.
       const pods = await getPods(namespace, name)
 
-      //
-      if (pods.length > 1) process.stdout.write('\n')
-
       for (let i = 0; i <= replicas - 1; i++) {
-        // TODO: Check if the current pod has an old config hash in case an
+        // FIXME: Check if the current pod has an old config hash in case an
         // apply was just run that increased the replicas and so the pod might
         // already be fresh.
         const pod = { ...pods[i], kind: 'Pod' }
