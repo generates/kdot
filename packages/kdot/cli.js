@@ -91,6 +91,16 @@ const input = cli({
     rollout: {
       aliases: ['roll'],
       description: 'Rollout app deployment changes',
+      options: {
+        prompt: {
+          aliases: ['p'],
+          description: `
+            Whether to show a confirmation prompt before rolling out pods
+          `,
+          default: true
+        },
+        timeout
+      },
       run: kdot.roll
     },
     scale: {
@@ -112,7 +122,8 @@ const input = cli({
           aliases: ['w'],
           description: 'Whether to wait for the replica pods to be ready',
           default: false
-        }
+        },
+        timeout
       },
       run: kdot.scale
     },
