@@ -1,13 +1,13 @@
 import { merge } from '@generates/merger'
 import kdotRedis from '@generates/kdot-redis'
 
-export default function kdotAuthProxy ({ appKeys, hosts, ...config }) {
+export default function kdotAuthProxy ({ appKeys, hosts, origin, ...config }) {
   return merge(
     {
       apps: {
         redis: kdotRedis(),
         'kdot-auth-proxy': {
-          image: { repo: 'generates/kdot-auth-proxy', tags: ['v0.0.3'] },
+          image: { repo: 'generates/kdot-auth-proxy', tags: ['v0.0.4'] },
           ports: {
             app: { port: 3003, hosts: Object.keys(hosts) }
           },
@@ -15,7 +15,8 @@ export default function kdotAuthProxy ({ appKeys, hosts, ...config }) {
             PORT: '3003',
             APP_KEYS: appKeys,
             REDIS_HOST: 'redis',
-            REDIS_PORT: '6379'
+            REDIS_PORT: '6379',
+            ...origin ? { REDIRECT_ORIGIN: origin } : {}
           },
           configMaps: {
             hosts: {
