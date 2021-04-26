@@ -1,5 +1,11 @@
 # @generates/kdot-auth-proxy
 
+## 1.0.1
+
+### Patch Changes
+
+- cd4b4fd: Adding origin config to kdot-auth-proxy
+
 ## 1.0.0
 
 ### Major Changes
