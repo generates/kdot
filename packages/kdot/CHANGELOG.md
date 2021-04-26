@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.1.1
+
+### Patch Changes
+
+- 0e55eda: Adding missing err to error log in scale
+
 ## 0.1.0
 
 ### Minor Changes
