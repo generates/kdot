@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.1.0
+
+### Minor Changes
+
+- 453677b: Adding scale and rollout commands
+
 ## 0.0.73
 
 ### Patch Changes
