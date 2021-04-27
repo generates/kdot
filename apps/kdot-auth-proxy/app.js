@@ -7,7 +7,8 @@ const hosts = JSON.parse(json)
 
 const app = nrg.createApp({
   log: {
-    ...process.env.LOG_LEVEL ? { level: process.env.LOG_LEVEL } : {}
+    ...process.env.LOG_LEVEL ? { level: process.env.LOG_LEVEL } : {},
+    ndjson: process.env.LOG_NDJSON
   },
   oauth: {
     github: {
