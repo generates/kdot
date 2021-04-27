@@ -6,6 +6,9 @@ const json = fs.readFileSync('/opt/kdot-auth-proxy-conf/hosts.json')
 const hosts = JSON.parse(json)
 
 const app = nrg.createApp({
+  sessions: {
+    key: 'kdotAuthProxy'
+  },
   oauth: {
     github: {
       dynamic: ['redirect_uri'],
@@ -37,7 +40,10 @@ app.get(app.context.cfg.oauth.github.callback, ctx => {
   const { profile, ...rest } = ctx.session.grant?.response
   logger.info('Authentication', profile)
   logger.debug(rest)
-  if (ctx.session.redirect) return ctx.redirect(ctx.session.redirect)
+  if (ctx.session.redirect) {
+    logger.info('Redirecting to:', ctx.session.redirect)
+    ctx.redirect(ctx.session.redirect)
+  }
 })
 
 // Allow users to logout of their session.
