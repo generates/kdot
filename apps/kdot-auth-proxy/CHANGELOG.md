@@ -1,5 +1,11 @@
 # kdot-auth-proxy
 
+## 0.0.7
+
+### Patch Changes
+
+- d7f29c2: Fixing #206
+
 ## 0.0.6
 
 ### Patch Changes
