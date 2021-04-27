@@ -16,7 +16,7 @@ export default async function ns (input) {
     const branch = await getGitBranch()
     logger.debug('Branch:', branch)
     if (branch) {
-      namespace = input.prefix + slugify(branch).substr(0, 64)
+      namespace = input.prefix + slugify(branch).substr(0, 63)
       logger.debug('Namespace:', namespace)
     } else {
       throw new Error('No namespace specified and could not be determined')

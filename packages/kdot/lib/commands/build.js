@@ -107,7 +107,7 @@ export default async function build (input) {
       // Create the pod configuration.
       const [firstTag] = app.image?.tags || []
       const tag = app.image?.tag || firstTag || 'latest'
-      const name = app.build.id || `build-${app.name}-${tag}`
+      const name = (app.build.id || `build-${app.name}-${tag}`).substr(0, 63)
       logger.debug('Build pod:', name)
       build.resources.push({
         app,
