@@ -1,5 +1,11 @@
 # @generates/kdot-auth-proxy
 
+## 1.0.3
+
+### Patch Changes
+
+- 0212cd3: Updating nrg
+
 ## 1.0.2
 
 ### Patch Changes
