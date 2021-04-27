@@ -1,5 +1,11 @@
 # @generates/kdot-auth-proxy
 
+## 1.0.2
+
+### Patch Changes
+
+- b69790a: Updating kdot-auth-proxy version
+
 ## 1.0.1
 
 ### Patch Changes

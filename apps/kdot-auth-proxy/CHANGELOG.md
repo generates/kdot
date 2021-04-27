@@ -1,5 +1,11 @@
 # kdot-auth-proxy
 
+## 0.0.5
+
+### Patch Changes
+
+- cc83ece: Setting log.ndjson to LOG_NDJSON env var
+
 ## 0.0.4
 
 ### Patch Changes
