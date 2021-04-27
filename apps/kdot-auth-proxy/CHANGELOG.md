@@ -1,5 +1,11 @@
 # kdot-auth-proxy
 
+## 0.0.6
+
+### Patch Changes
+
+- 0212cd3: Updating nrg
+
 ## 0.0.5
 
 ### Patch Changes
