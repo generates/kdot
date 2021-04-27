@@ -53,10 +53,6 @@ export default async function scale (input, deployments) {
       // Update the number of replicas in the app's deployment resource.
       deployment.spec.replicas = replicas
 
-      // Write the updated number of replicas to the JSON config.
-      process.stdout.moveCursor(0, -1)
-      await set({ ...cfg.input, ext: { apps: { [name]: { replicas } } } })
-
       // Apply the resource changes.
       await applyResource(cfg, deployment)
 
