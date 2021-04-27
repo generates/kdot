@@ -1,5 +1,11 @@
 # @generates/kdot-auth-proxy
 
+## 1.0.4
+
+### Patch Changes
+
+- d7f29c2: Fixing #206
+
 ## 1.0.3
 
 ### Patch Changes
