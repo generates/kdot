@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.1.2
+
+### Patch Changes
+
+- 1a1d9c7: Fix #201: Removed set in scale command
+
 ## 0.1.1
 
 ### Patch Changes
