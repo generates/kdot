@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.1.3
+
+### Patch Changes
+
+- df76fd0: Fix #208
+
 ## 0.1.2
 
 ### Patch Changes
