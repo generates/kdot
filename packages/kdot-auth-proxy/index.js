@@ -7,7 +7,7 @@ export default function kdotAuthProxy ({ appKeys, hosts, origin, ...config }) {
       apps: {
         redis: kdotRedis(),
         'kdot-auth-proxy': {
-          image: { repo: 'generates/kdot-auth-proxy', tags: ['v0.0.7'] },
+          image: { repo: 'generates/kdot-auth-proxy', tags: ['v0.0.8'] },
           ports: {
             app: { port: 3003, hosts: Object.keys(hosts) }
           },

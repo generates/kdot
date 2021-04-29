@@ -1757,10 +1757,10 @@
   dependencies:
     csrf "^3.1.0"
 
-"@ianwalter/nrg-logger@^0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@ianwalter/nrg-logger/-/nrg-logger-0.3.3.tgz#7db8c5de89e073d2649f2ecb2cd8aa76083076e4"
-  integrity sha512-SEBeq3PYmHse1EuwJlulQ8AvaIPQZO1Y7N9FTyFpChCPZCAVPZTIs4Bty4AP8eCv61shPJD4BuL3Vv9cPNaIIA==
+"@ianwalter/nrg-logger@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@ianwalter/nrg-logger/-/nrg-logger-0.4.0.tgz#1c9c894b94b6cbdc5db756f5c79ba7588d7a533c"
+  integrity sha512-cbeFpDFCmNvjk5iGwVPGqrRx/HxLxIuhtFdDgRvgQdJjNiP3MBmsrgMFUdzs0yaKXAck1dnr4ABlhtEkdBhR4w==
   dependencies:
     "@generates/logger" "^1.0.0"
     "@ianwalter/timer" "^2.0.2"
@@ -1812,10 +1812,10 @@
     libphonenumber-js "^1.9.14"
     zxcvbn "^4.4.2"
 
-"@ianwalter/nrg@^0.20.4":
-  version "0.20.4"
-  resolved "https://registry.yarnpkg.com/@ianwalter/nrg/-/nrg-0.20.4.tgz#fbd8c8aca0ad0ecee61ae0633a05e4cdcb31a463"
-  integrity sha512-gGYrKneNt1eW38O1HkOCst5QFgKmJRYXe3M+pvC1+b8snEXcjhZEv8dAjBf/naCf1kM7lNyMb+B/JLqEjiIuMw==
+"@ianwalter/nrg@^0.20.5":
+  version "0.20.5"
+  resolved "https://registry.yarnpkg.com/@ianwalter/nrg/-/nrg-0.20.5.tgz#aa957e4780d2b8be7229fd7226cfd2ff59e0d216"
+  integrity sha512-jgDtZl26+KJPIs/QD9b02pzSQOpYyMtN1l3XuAUpTgntrAQtnMADbsv/erlRWEhQca7VyEOCc4ZbEnQV82h+6Q==
   dependencies:
     "@generates/cli" "^1.0.3"
     "@generates/dotter" "^2.0.0"
@@ -1825,7 +1825,7 @@
     "@generates/modulizer" "^7.0.2"
     "@ianwalter/cloneable" "^2.0.0"
     "@ianwalter/nrg-csrf" "^1.0.0"
-    "@ianwalter/nrg-logger" "^0.3.3"
+    "@ianwalter/nrg-logger" "^0.4.0"
     "@ianwalter/nrg-mq" "^1.2.7"
     "@ianwalter/nrg-router" "^1.1.2"
     "@ianwalter/nrg-session" "^8.0.0"
@@ -1850,7 +1850,7 @@
     koa-send "^5.0.1"
     mailgen "^2.0.13"
     nanoid "^3.1.22"
-    nodemailer "^6.5.0"
+    nodemailer "^6.6.0"
     objection "^2.2.14"
     pg "^8.6.0"
     pkg-dir "^4.2.0"
@@ -7210,10 +7210,10 @@ node-releases@^1.1.70:
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-1.1.70.tgz#66e0ed0273aa65666d7fe78febe7634875426a08"
   integrity sha512-Slf2s69+2/uAD79pVVQo8uSiC34+g8GWY8UH2Qtqv34ZfhYrxpYpfzs9Js9d6O0mbDmALuxaTlplnBTnSELcrw==
 
-nodemailer@^6.5.0:
-  version "6.5.0"
-  resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-6.5.0.tgz#d12c28d8d48778918e25f1999d97910231b175d9"
-  integrity sha512-Tm4RPrrIZbnqDKAvX+/4M+zovEReiKlEXWDzG4iwtpL9X34MJY+D5LnQPH/+eghe8DLlAVshHAJZAZWBGhkguw==
+nodemailer@^6.6.0:
+  version "6.6.0"
+  resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-6.6.0.tgz#ed47bb572b48d9d0dca3913fdc156203f438f427"
+  integrity sha512-ikSMDU1nZqpo2WUPE0wTTw/NGGImTkwpJKDIFPZT+YvvR9Sj+ze5wzu95JHkBMglQLoG2ITxU21WukCC/XsFkg==
 
 nopt@^4.0.1:
   version "4.0.3"

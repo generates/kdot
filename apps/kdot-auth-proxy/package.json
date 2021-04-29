@@ -11,7 +11,7 @@
     "serve": "npm-run-all -p serve:*"
   },
   "dependencies": {
-    "@ianwalter/nrg": "^0.20.4",
+    "@ianwalter/nrg": "^0.20.5",
     "http-proxy": "^1.18.1"
   },
   "devDependencies": {
