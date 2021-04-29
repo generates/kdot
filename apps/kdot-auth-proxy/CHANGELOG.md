@@ -1,5 +1,11 @@
 # kdot-auth-proxy
 
+## 0.0.9
+
+### Patch Changes
+
+- 0aaf32f: Fix #211
+
 ## 0.0.8
 
 ### Patch Changes
