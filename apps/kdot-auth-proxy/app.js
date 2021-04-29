@@ -3,9 +3,6 @@ import nrg from '@ianwalter/nrg'
 import httpProxy from 'http-proxy'
 import { nanoid } from 'nanoid'
 
-const json = fs.readFileSync('/opt/kdot-auth-proxy-conf/hosts.json')
-const hosts = JSON.parse(json)
-
 const app = nrg.createApp({
   sessions: {
     key: 'kdotAuthProxy'
@@ -22,7 +19,14 @@ const app = nrg.createApp({
   }
 })
 
-app.logger.info('Hosts', hosts)
+let hosts = {}
+try {
+  const json = fs.readFileSync('/opt/kdot-auth-proxy-conf/hosts.json')
+  hosts = JSON.parse(json)
+  app.logger.info('Hosts', hosts)
+} catch (err) {
+  app.logger.warn(err)
+}
 
 // Tell koa to use the X-Forwarded-Host header.
 app.proxy = true
@@ -126,8 +130,9 @@ app.use(async ctx => {
   } else {
     // Log an error when the host isn't found since this is likely a
     // configuration issue.
-    const info = { hostname: ctx.request.hostname, headers: ctx.headers }
-    logger.error('Host not found', info)
+    const msg = `Host not found: ${ctx.request.hostname}`
+    logger.warn(msg)
+    ctx.body = msg
   }
 })
 
