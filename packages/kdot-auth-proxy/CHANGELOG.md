@@ -1,5 +1,11 @@
 # @generates/kdot-auth-proxy
 
+## 1.0.7
+
+### Patch Changes
+
+- 4a16a82: Updating k-a-p to v1
+
 ## 1.0.6
 
 ### Patch Changes
