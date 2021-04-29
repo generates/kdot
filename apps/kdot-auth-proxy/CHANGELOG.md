@@ -1,5 +1,11 @@
 # kdot-auth-proxy
 
+## 1.0.0
+
+### Major Changes
+
+- 4a16a82: Add kap root route for default heath checks
+
 ## 0.0.9
 
 ### Patch Changes
