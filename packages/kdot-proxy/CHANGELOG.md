@@ -1,5 +1,11 @@
 # @generates/kdot-proxy
 
+## 0.0.3
+
+### Patch Changes
+
+- 660de25: Updating ingress-nginx version
+
 ## 0.0.2
 
 ### Patch Changes
