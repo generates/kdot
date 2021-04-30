@@ -28,6 +28,11 @@ export default function kdotAuthProxy ({ appKeys, hosts, origin, ...config }) {
             'kdot-auth-proxy': {
               values: ['GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET']
             }
+          },
+          readinessProbe: {
+            httpGet: { path: '/health', port: 3003 },
+            initialDelaySeconds: 5,
+            timeoutSeconds: 3
           }
         }
       }
