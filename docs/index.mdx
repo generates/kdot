@@ -1,6 +1,35 @@
 # kdot
 > A tool for managing apps on Kubernetes
 
+## Introduction
+
+Kubernetes is a really solid platform for running web applications. A lot of
+developers feel that it is overly-complex, but really, it's just that it doesn't
+provide the higher-level abstraction that developers want. This is where `kdot`
+comes in. Kdot allows you to configure "apps" which is a higher-level
+abstraction on top of the lower-level Kubernetes objects of Deployments, Pods,
+Services, etc. Kdot makes smart assumptions based on a smaller amount of
+configuration while still allowing you to configure the lower-level objects if
+necessary.
+
+Kdot isn't just resource configuration though, it tries to provide tools to help
+with all the other common aspects of running a web platform. There is a plugin
+to run CI/CD in your cluster with GitHub Actions, one to enable end-to-end
+testing with WebDriver, one to expose your services to the web behind HTTPS, and
+others aimed at making the development process as frictionless as possible.
+
+## Configuration
+
+Configuration is done with JavaScript using `,js` and `,json` files using the
+format `k.[configName].js`. Using JavaScript allows really simple and flexible
+configuration since different pieces can be imported, reused, and mixed
+together. JSON files provide an easy way to override a configuration using the
+`kdot set` command which is essential for automated workflows like continuous
+integration.
+
+### Apps
+
+
 ## Plugins
 
 The goal is to make the typical software development process easier end-to-end,
