@@ -35,7 +35,7 @@ export default async function load (...configs) {
       logger.debug('Error importing json config file', err)
     }
 
-    //
+    // Load the .env file values for the config's directory.
     await loadEnv(dirname, basename)
   }
 

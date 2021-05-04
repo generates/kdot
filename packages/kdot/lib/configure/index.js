@@ -10,6 +10,7 @@ import toEnv from '../toEnv.js'
 import configureServices from './services.js'
 import configureIngresses from './ingresses.js'
 import load from '../load.js'
+import configureEnv from './env.js'
 
 const labels = { managedBy: 'kdot' }
 const containerAttrs = V1Container.attributeTypeMap.map(a => a.name)
@@ -49,7 +50,10 @@ export default async function configure (input) {
   if (cfg.secrets) configureSecrets(cfg)
 
   // Break apps down into individual Kubernetes resources.
-  for (const [name, app] of Object.entries(cfg.apps || {})) {
+  for (let [name, app] of Object.entries(cfg.apps || {})) {
+    // If the app is a promise, use the value that is resolved instead.
+    if (app.then) app = await app
+
     const enabled = app.enabled !== false && input.args?.length === 0
 
     // Mark the app if it was explicitly specified with the command.
@@ -87,7 +91,7 @@ export default async function configure (input) {
       if (app.role) configureRoles(cfg, app)
 
       // Map environment variables from key-value pairs to Objects in an Array.
-      if (app.env) app.env = Object.entries(app.env).map(toEnv)
+      if (app.env) configureEnv(app)
 
       // Add PriorityClass resources if the app has a priority assigned to it.
       const hasPriority = Number.isInteger(app.priority)
