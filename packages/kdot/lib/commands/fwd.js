@@ -46,7 +46,8 @@ function forwardPort (app, pod, portConfig) {
           server.destroy()
 
           // Attempt to get a running pod.
-          const pod = await getRunningPods(namespace, app.name, pollConfig)
+          const name = app.name
+          const pod = await getRunningPods({ namespace, name, ...pollConfig })
 
           // Create a new port forward to the new pod.
           server = await forwardPort(app, pod, portConfig)
