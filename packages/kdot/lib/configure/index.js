@@ -51,7 +51,7 @@ export default async function configure (input) {
   // Break apps down into individual Kubernetes resources.
   for (let [name, app] of Object.entries(cfg.apps || {})) {
     // If the app is a promise, use the value that is resolved instead.
-    if (app.then) app = await app
+    if (app.then) cfg.apps[name] = app = await app
 
     const enabled = app.enabled !== false && input.args?.length === 0
 
