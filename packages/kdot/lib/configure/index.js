@@ -53,7 +53,7 @@ export default async function configure (input) {
     // If the app is a promise, use the value that is resolved instead.
     if (app.then) cfg.apps[name] = app = await app
 
-    const enabled = app.enabled !== false && input.args?.length === 0
+    const enabled = app.enabled !== false && !input.args?.length > 0
 
     // Mark the app if it was explicitly specified with the command.
     app.isSpecified = input.args?.includes(name)
@@ -61,7 +61,6 @@ export default async function configure (input) {
     // Determine if this app is being depended on by another specified app.
     const hasDependency = n => cfg.apps[n]?.dependsOn?.includes(name)
     app.isDependency = input.args?.some(hasDependency)
-
     if (enabled || app.isSpecified || app.isDependency) {
       // Mark the app as being enabled.
       app.enabled = true

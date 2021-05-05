@@ -1,5 +1,3 @@
-import 'dotenv/config.js'
-
 import path from 'path'
 import { createRequire } from 'module'
 import { merge } from '@generates/merger'
@@ -7,7 +5,7 @@ import { createLogger } from '@generates/logger'
 import { loadEnv } from './loadEnv.js'
 
 const require = createRequire(import.meta.url)
-const logger = createLogger({ namespace: 'kdot.cfg', level: 'info' })
+const logger = createLogger({ namespace: 'kdot.load', level: 'info' })
 
 export default async function load (...configs) {
   const cfg = {}

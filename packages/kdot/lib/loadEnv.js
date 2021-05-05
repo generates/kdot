@@ -10,7 +10,10 @@ export const loaded = []
 export const env = {}
 
 export async function loadEnv (dirname, basename) {
-  if (!loaded.includes(dirname)) {
+  if (loaded.includes(dirname)) {
+    logger.debug('Skipping already loaded .env for directory:', dirname)
+  } else {
+    logger.debug('Loading .env for directory:', dirname)
     try {
       // Read the .env file for the directory.
       const content = await fs.readFile(path.join(dirname, '.env'), 'utf8')
@@ -18,6 +21,7 @@ export async function loadEnv (dirname, basename) {
       // Load the .env file data into the env object using the basename as a
       // namespace path.
       dotter.set(env, basename, dotenv.parse(content))
+      logger.debug(`env.${basename}`, env[basename])
 
       // Keep track of the directories that have had their .env files loaded
       // already.
