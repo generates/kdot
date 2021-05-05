@@ -34,7 +34,8 @@ export default async function configure (input) {
   const cfg = { namespace: 'default', input }
 
   // Load config from config files.
-  merge(cfg, await load(...input.config))
+  const configs = Array.isArray(input.config) ? input.config : [input.config]
+  merge(cfg, await load(...configs))
 
   // Re-initialize clients with the given context if sepcified.
   if (cfg.context) configureClients(cfg.context)

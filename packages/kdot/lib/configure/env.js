@@ -6,7 +6,6 @@ const logger = createLogger({ namespace: 'kdot.env', level: 'info' })
 export default function configureEnv (app) {
   logger.debug('Configure env for:', app.name)
 
-
   // Use key-values in the env map namespaced by the app name or fallback to
   // the root env map.
   const appEnv = env[app.name] || env
@@ -15,7 +14,9 @@ export default function configureEnv (app) {
     if (value.env) {
       // If an "env" key is specified, try to get the value from the
       // environment variable or from the env map.
-      const envValue = process.env[value.env] || appEnv[value.env]
+      const envValue = process.env[value.env] ||
+        appEnv[value.env] ||
+        env[value.env]
 
       logger.debug('Env', { name, value, envValue })
 
