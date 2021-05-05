@@ -4,6 +4,8 @@ import { env } from '../loadEnv.js'
 const logger = createLogger({ namespace: 'kdot.env', level: 'info' })
 
 export default function configureEnv (app) {
+  logger.debug('Configure env for:', app.name)
+
   // Use key-values in the env map namespaced by the app name or fallback to
   // the root env map.
   const appEnv = env[app.name] || env
