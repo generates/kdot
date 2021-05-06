@@ -19,17 +19,18 @@ export async function loadEnv (dirname, basename) {
       // Read the .env file for the directory.
       const content = await fs.readFile(path.join(dirname, '.env'), 'utf8')
 
-      if (dirname) {
+      if (dirname && dirname !== '.') {
         // If a dirname is passed treat the config as a nested config and load
         // the .env file data into the env object using the basename as a
         // namespace path.
         dotter.set(env, basename, dotenv.parse(content))
+        logger.debug(`env.${basename}`, env[basename])
       } else {
         // If no dirname is passed treat the config as the root config and load
         // the .env file data into the root of the env object.
         merge(env, dotenv.parse(content))
+        logger.debug('env', env)
       }
-      logger.debug(`env.${basename}`, env[basename])
 
       // Keep track of the directories that have had their .env files loaded
       // already.
