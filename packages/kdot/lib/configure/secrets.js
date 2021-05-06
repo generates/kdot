@@ -30,7 +30,7 @@ export default function configureSecrets (cfg, owner) {
     if (given.values) {
       for (const value of given.values) {
         if (typeof value === 'string') {
-          const envValue = process.env[value] || appEnv[value]
+          const envValue = process.env[value] || appEnv[value] || env[value]
           if (envValue) {
             addSecret = true
             secret.data[value] = encode(envValue)
@@ -43,7 +43,7 @@ export default function configureSecrets (cfg, owner) {
           }
         } else if (typeof value === 'object') {
           for (const [secretKey, envKey] of Object.entries(value)) {
-            const envValue = process.env[envKey] || appEnv[envKey]
+            const envValue = process.env[envKey] || appEnv[envKey] || env[value]
             if (envValue) {
               addSecret = true
               secret.data[secretKey] = encode(envValue)
