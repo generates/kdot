@@ -3,6 +3,7 @@ import path from 'path'
 import dotenv from 'dotenv'
 import dotter from '@generates/dotter'
 import { createLogger } from '@generates/logger'
+import { merge } from '@ianwalter/merge'
 
 const logger = createLogger({ namespace: 'kdot.load.env', level: 'info' })
 
@@ -18,9 +19,14 @@ export async function loadEnv (dirname, basename) {
       // Read the .env file for the directory.
       const content = await fs.readFile(path.join(dirname, '.env'), 'utf8')
 
-      // Load the .env file data into the env object using the basename as a
-      // namespace path.
-      dotter.set(env, basename, dotenv.parse(content))
+      if (dirname) {
+        // Load the .env file data into the env object using the basename as a
+        // namespace path.
+        dotter.set(env, basename, dotenv.parse(content))
+      } else {
+        //
+        merge(env, dotenv.parse(content))
+      }
       logger.debug(`env.${basename}`, env[basename])
 
       // Keep track of the directories that have had their .env files loaded
