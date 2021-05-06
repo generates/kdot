@@ -3,7 +3,7 @@ import path from 'path'
 import dotenv from 'dotenv'
 import dotter from '@generates/dotter'
 import { createLogger } from '@generates/logger'
-import { merge } from '@ianwalter/merge'
+import { merge } from '@generates/merger'
 
 const logger = createLogger({ namespace: 'kdot.load.env', level: 'info' })
 
@@ -20,11 +20,13 @@ export async function loadEnv (dirname, basename) {
       const content = await fs.readFile(path.join(dirname, '.env'), 'utf8')
 
       if (dirname) {
-        // Load the .env file data into the env object using the basename as a
+        // If a dirname is passed treat the config as a nested config and load
+        // the .env file data into the env object using the basename as a
         // namespace path.
         dotter.set(env, basename, dotenv.parse(content))
       } else {
-        //
+        // If no dirname is passed treat the config as the root config and load
+        // the .env file data into the root of the env object.
         merge(env, dotenv.parse(content))
       }
       logger.debug(`env.${basename}`, env[basename])
