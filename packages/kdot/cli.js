@@ -16,9 +16,7 @@ const input = cli({
   usage: 'kdot [command] [args/apps] [options]',
   commands: {
     apply: {
-      description: `
-        Create or update resources in a cluster for a given configuration
-      `,
+      description: 'Create or update resources in a cluster',
       options: {
         prompt: {
           aliases: ['p'],
@@ -55,34 +53,28 @@ const input = cli({
     },
     forward: {
       aliases: ['fwd'],
-      description: `
-        Forward local ports to apps in the cluster for a given configuration
-      `,
+      description: 'Forward local ports to apps in the cluster',
       run: kdot.fwd
     },
     logs: {
       aliases: ['log'],
-      description: `
-        Stream logs from apps in the cluster for a given configuration to stdout
-      `,
+      description: 'Stream logs from apps in the cluster to stdout',
       run: kdot.log
     },
     stop: {
       description: `
         Stop forwarding ports and streaming logs when start was run in detached
-        mode (in development)
+        mode (under construction)
       `,
       run: kdot.stop
     },
     show: {
       usage: 'kdot show [options] [apps]',
-      description: `
-        Show a list of resources in the cluster for a given configuration
-      `,
+      description: 'Show a list of resources in the cluster',
       options: {
         verbose: {
           aliases: ['v'],
-          description: 'Show more detailed resource information',
+          description: 'Whether to show more detailed resource information',
           default: false
         }
       },
@@ -131,8 +123,7 @@ const input = cli({
     delete: {
       aliases: ['del'],
       description: `
-        Delete a namespace or resources for a given app in the cluster for a
-        given configuration
+        Delete a namespace or resources for a given app in the cluster
       `,
       options: {
         prompt: {
@@ -151,16 +142,11 @@ const input = cli({
       run: kdot.del
     },
     build: {
-      description: `
-        Build container images in the cluster using Kaniko for apps in a given
-        configuration
-      `,
+      description: 'Build container images in the cluster using Kaniko',
       options: {
         timeout,
         namespaceTag: {
-          description: `
-            Use the config namespace as the image tag for apps being built
-          `,
+          description: 'Whether to use the config namespace as the image tag',
           default: false
         }
       },
@@ -169,16 +155,14 @@ const input = cli({
     copy: {
       description: `
         Copy files locally from a container belonging to an app running in the
-        cluster for a given configuration
+        cluster
       `,
       aliases: ['cp'],
       run: kdot.cp
     },
     cleanup: {
       aliases: ['clean'],
-      description: `
-        Delete failed pods in a namespace for a given configuration'
-      `,
+      description: 'Delete failed pods in the configured namespace',
       options: {
         prompt: {
           aliases: ['p'],
@@ -193,8 +177,8 @@ const input = cli({
     exec: {
       usage: 'kdot exec [app] [options] [command]',
       description: `
-        Execute a command within a contain belonging to an app running in the
-        cluster for a given configuration
+        Execute a command within a container belonging to an app running in the
+        cluster
       `,
       aliases: ['e'],
       options: {
@@ -209,11 +193,16 @@ const input = cli({
       run: kdot.exec
     },
     env: {
+      description: `
+        Copy nested example.env files into .env files so that they can be used
+        to specify environment variables
+      `,
       usage: 'kdot env',
       run: kdot.env
     },
     set: {
-      description: 'Set a configuration value for a given configuration',
+      description: 'Set a configuration value',
+      usage: 'TODO:',
       options: {
         prop: {
           description: ''
@@ -222,7 +211,8 @@ const input = cli({
       run: kdot.set
     },
     get: {
-      description: 'Log a configuration value for a given configuration',
+      description: 'Log a configuration value',
+      usage: 'TODO:',
       options: {
         prop: {
           description: ''
