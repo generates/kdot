@@ -1,10 +1,10 @@
 import { createLogger, chalk } from '@generates/logger'
 import prompt from '@generates/prompt'
+import workerpool from 'workerpool'
 import { kc } from '../k8s.js'
 import emojis from '../emojis.js'
 import getResources from '../getResources.js'
 import applyResource from '../applyResource.js'
-import getReadyPods from '../getReadyPods.js'
 import configure from '../configure/index.js'
 
 const logger = createLogger({ namespace: 'kdot.apply', level: 'info' })
@@ -93,10 +93,12 @@ export default async function apply (input) {
   if (cfg.input.wait) {
     logger.info('Waiting for pods to be ready...')
     process.stdout.write('\n')
+
+    const pool = workerpool.pool('../worker.js')
     await Promise.all(deployments.map(async deployment => {
       const { namespace, name } = deployment.metadata
       const options = { limit: 1, timeout: cfg.input.timeout }
-      await getReadyPods({ namespace, name, ...options })
+      pool.exec('getReadyPods', { namespace, name, options })
     }))
   }
 }
