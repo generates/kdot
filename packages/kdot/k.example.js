@@ -1,4 +1,4 @@
-const context = 'git://github.com/generates/kdot.git#refs/heads/actions-runner'
+import { load } from '@generates/kdot'
 
 export default {
   namespace: 'dev',
@@ -22,8 +22,9 @@ export default {
       configMaps: {
         getit: { mountPath: '/etc/getit', files: ['package.json'] }
       },
-      build: { context, dockerfile: 'packages/kdot/example/Dockerfile' }
-    }
+      build: { dockerfile: 'packages/kdot/example/Dockerfile' }
+    },
+    admin: load('tests/fixtures/admin/admin')
   },
   secrets: {
     blackerberry: { values: ['SWEETER_JUICE'] }

@@ -1,6 +1,7 @@
 import { createLogger } from '@generates/logger'
 import { oneLine } from 'common-tags'
 import encode from '../encode.js'
+import { env } from '../loadEnv.js'
 
 const logger = createLogger({ namespace: 'kdot.cfg.secrets', level: 'info' })
 
@@ -14,6 +15,10 @@ export default function configureSecrets (cfg, owner) {
   // be made available to the app as environment variables.
   if (owner) owner.env = owner.env || {}
 
+  // Use key-values in the env map namespaced by the app name or fallback to
+  // the root env map.
+  const appEnv = env[owner?.name] || env
+
   for (const [name, given] of Object.entries(secrets)) {
     const metadata = { namespace: given.namespace || namespace, name }
     const secret = { app: owner, kind: 'Secret', metadata, data: {} }
@@ -25,7 +30,7 @@ export default function configureSecrets (cfg, owner) {
     if (given.values) {
       for (const value of given.values) {
         if (typeof value === 'string') {
-          const envValue = process.env[value]
+          const envValue = process.env[value] || appEnv[value] || env[value]
           if (envValue) {
             addSecret = true
             secret.data[value] = encode(envValue)
@@ -38,7 +43,7 @@ export default function configureSecrets (cfg, owner) {
           }
         } else if (typeof value === 'object') {
           for (const [secretKey, envKey] of Object.entries(value)) {
-            const envValue = process.env[envKey]
+            const envValue = process.env[envKey] || appEnv[envKey] || env[value]
             if (envValue) {
               addSecret = true
               secret.data[secretKey] = encode(envValue)
