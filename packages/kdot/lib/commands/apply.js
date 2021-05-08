@@ -98,7 +98,7 @@ export default async function apply (input) {
     await Promise.all(deployments.map(async deployment => {
       const { namespace, name } = deployment.metadata
       const options = { limit: 1, timeout: cfg.input.timeout }
-      pool.exec('getReadyPods', { namespace, name, options })
+      await pool.exec('getReadyPods', { namespace, name, options })
     }))
   }
 }
