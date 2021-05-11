@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.1.4
+
+### Patch Changes
+
+- b2e4056: Fixing call to getRunningPods in port forward reconnect logic
+- 7ffd8e9: Update dependency @generates/prompt to ^0.0.3
+
 ## 0.1.3
 
 ### Patch Changes
