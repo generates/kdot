@@ -1593,10 +1593,10 @@
     "@generates/modulizer" "^7.0.2"
     koa-compose "^4.1.0"
 
-"@generates/prompt@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@generates/prompt/-/prompt-0.0.2.tgz#92fbc1503c8b82c43c4abc930002d83ceefd077e"
-  integrity sha512-n+06CvVBDGlBGqM991Z5rfGnX9/o/ozT5nBcUcczVeRC7/EYFdMR9z6a7LpU9UH9PaCPo1y07sDS/5ngFsmKag==
+"@generates/prompt@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@generates/prompt/-/prompt-0.0.3.tgz#7461903ed9976c639eeb740e35f0926a2afa4d05"
+  integrity sha512-GGuGL2aayKydd7p8ic/k08I2zvZfETjyiJE8waddXAiWuJWFv3qQ/w44l3kszA2B+tQ218NsgA/1rvW3DBemJA==
   dependencies:
     "@ianwalter/print" "^8.1.0"
     external-editor "^3.1.0"
