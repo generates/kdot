@@ -8,14 +8,13 @@ export default {
           fieldRef: { fieldPath: 'metadata.name' }
         }
       },
-      secrets: [
-        {
-          name: 'actions-runner-token',
+      secrets: {
+        'actions-runner-token': {
           values: [
             { TOKEN: 'ACTIONS_RUNNER_TOKEN' }
           ]
         }
-      ]
+      }
     }
   }
 }
