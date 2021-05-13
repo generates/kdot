@@ -18,7 +18,8 @@ export default async function load (...configs) {
     await loadEnv(dirname, basename)
 
     try {
-      const js = path.resolve(dirname, `k.${basename}.js`)
+      let js = path.resolve(dirname, `k.${basename}.js`)
+      if (basename.includes('.')) js = path.resolve(config)
       const mod = await import(js)
       if (typeof mod.default === 'function') {
         await mod.default(cfg)
