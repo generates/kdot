@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.1.5
+
+### Patch Changes
+
+- 6eb14a1: Allowing specifying extension for config
+
 ## 0.1.4
 
 ### Patch Changes
