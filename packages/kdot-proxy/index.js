@@ -44,12 +44,13 @@ export default function kdotProxy (config) {
             ...googleProject ? [`--google-project=${googleProject}`] : [],
             ...externalDnsArgs
           ],
-          secrets: [{
-            name: secret.name,
-            values: [
-              ...isCloudflareDns ? [{ CF_API_TOKEN: secret.value }] : []
-            ]
-          }],
+          secrets: {
+            [secret.name]: {
+              env: [
+                ...isCloudflareDns ? [{ CF_API_TOKEN: secret.value }] : []
+              ]
+            }
+          },
           role: {
             cluster: true,
             rules: [
@@ -106,11 +107,12 @@ export default function kdotProxy (config) {
               }
             }
           }],
-          secrets: [{
-            namespace: 'cert-manager',
-            name: secret.name,
-            values: [{ [secret.key]: secret.value }]
-          }]
+          secrets: {
+            [secret.name]: {
+              namespace: 'cert-manager',
+              env: [{ [secret.key]: secret.value }]
+            }
+          }
         }
       : {}
   }

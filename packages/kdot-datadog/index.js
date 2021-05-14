@@ -21,9 +21,10 @@ export default function kdotDatadog (config = {}) {
     // TODO: When plugins implemented:
     // namespace: 'datadog',
     externalResources,
-    secrets: [{
-      name: 'datadog-agent',
-      values: [{ 'api-key': 'DATADOG_API_KEY' }]
-    }]
+    secrets: {
+      'datadog-agent': {
+        env: [{ 'api-key': 'DATADOG_API_KEY' }]
+      }
+    }
   }
 }

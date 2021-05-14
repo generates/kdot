@@ -27,8 +27,8 @@ export default function configureSecrets (cfg, owner) {
     // created if they don't exist and be used by apps as environment
     // variables.
     let addSecret = false
-    if (given.values) {
-      for (const value of given.values) {
+    if (given.env) {
+      for (const value of given.env) {
         if (typeof value === 'string') {
           const envValue = process.env[value] || appEnv[value] || env[value]
           if (envValue) {
