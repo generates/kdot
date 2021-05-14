@@ -1,5 +1,11 @@
 # @generates/kdot-auth-proxy
 
+## 1.0.8
+
+### Patch Changes
+
+- 10e3a51: BREAKING: Improving secret config
+
 ## 1.0.7
 
 ### Patch Changes
