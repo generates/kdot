@@ -2,7 +2,7 @@ import path from 'path'
 import { createRequire } from 'module'
 import { merge } from '@generates/merger'
 import { createLogger } from '@generates/logger'
-import { loadEnv } from './loadEnv.js'
+import { env, loadEnv } from './loadEnv.js'
 
 const require = createRequire(import.meta.url)
 const logger = createLogger({ namespace: 'kdot.load', level: 'info' })
@@ -16,7 +16,8 @@ export default async function load (...configs) {
     const hasExt = basename.includes('.')
 
     // Load the .env file values for the config's directory.
-    await loadEnv(dirname, basename)
+    cfg.envNs = basename.replaceAll('.', '')
+    await loadEnv(dirname, cfg.envNs)
 
     try {
       let js = path.resolve(dirname, `k.${basename}.js`)

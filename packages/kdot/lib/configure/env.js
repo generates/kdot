@@ -8,7 +8,7 @@ export default function configureEnv (app) {
 
   // Use key-values in the env map namespaced by the app name or fallback to
   // the root env map.
-  const appEnv = env[app.name] || env
+  const appEnv = env[app.envNs] || env
 
   app.env = Object.entries(app.env).map(([name, value]) => {
     if (value.env) {

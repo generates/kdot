@@ -17,7 +17,7 @@ export default function configureSecrets (cfg, owner) {
 
   // Use key-values in the env map namespaced by the app name or fallback to
   // the root env map.
-  const appEnv = env[owner?.name] || env
+  const appEnv = env[owner?.envNs] || env
 
   for (const [name, given] of Object.entries(secrets)) {
     const metadata = { namespace: given.namespace || namespace, name }
