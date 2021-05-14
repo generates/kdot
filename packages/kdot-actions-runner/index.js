@@ -1,5 +1,5 @@
 export default {
-  namespace: 'ci',
+  namespace: 'actions',
   apps: {
     'actions-runner': {
       image: { repo: 'generates/actions-runner', tag: 'v2.277.1' },
