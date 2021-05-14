@@ -13,13 +13,14 @@ export default async function load (...configs) {
   for (const config of configs) {
     const dirname = path.dirname(config)
     const basename = path.basename(config)
+    const hasExt = basename.includes('.')
 
     // Load the .env file values for the config's directory.
     await loadEnv(dirname, basename)
 
     try {
       let js = path.resolve(dirname, `k.${basename}.js`)
-      if (basename.includes('.')) js = path.resolve(config)
+      if (hasExt) js = path.resolve(config)
       const mod = await import(js)
       if (typeof mod.default === 'function') {
         await mod.default(cfg)
@@ -31,7 +32,11 @@ export default async function load (...configs) {
     }
 
     try {
-      const json = path.resolve(dirname, `k.${basename}.json`)
+      let json = path.resolve(dirname, `k.${basename}.json`)
+      if (hasExt) {
+        const jsonBasename = basename.replace(path.extname(basename), '.json')
+        json = path.resolve(dirname, jsonBasename)
+      }
       merge(cfg, require(json))
     } catch (err) {
       logger.debug('Error importing json config file', err)
