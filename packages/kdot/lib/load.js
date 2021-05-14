@@ -10,7 +10,7 @@ const logger = createLogger({ namespace: 'kdot.load', level: 'info' })
 export default async function load (...configs) {
   const cfg = {}
 
-  for (const config of configs) {
+  await Promise.all(configs.map(async config => {
     const dirname = path.dirname(config)
     const basename = path.basename(config)
     const hasExt = basename.includes('.')
@@ -41,7 +41,7 @@ export default async function load (...configs) {
     } catch (err) {
       logger.debug('Error importing json config file', err)
     }
-  }
+  }))
 
   logger.debug('Loaded configuration', cfg)
 
