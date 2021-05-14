@@ -26,7 +26,7 @@ export default function kdotAuthProxy ({ appKeys, hosts, origin, ...config }) {
           },
           secrets: {
             'kdot-auth-proxy': {
-              values: ['GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET']
+              env: ['GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET']
             }
           }
         }

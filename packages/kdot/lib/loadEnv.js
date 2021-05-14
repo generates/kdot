@@ -10,8 +10,7 @@ const logger = createLogger({ namespace: 'kdot.load.env', level: 'info' })
 export const loaded = []
 export const env = {}
 
-export async function loadEnv (dirname, basename) {
-  const name = basename.replaceAll('.', '')
+export async function loadEnv (dirname, envNs) {
   if (loaded.includes(dirname)) {
     logger.debug('Skipping already loaded .env for directory:', dirname)
   } else {
@@ -24,8 +23,8 @@ export async function loadEnv (dirname, basename) {
         // If a dirname is passed treat the config as a nested config and load
         // the .env file data into the env object using the basename as a
         // namespace path.
-        dotter.set(env, name, dotenv.parse(content))
-        logger.debug(`env.${name}`, env[name])
+        dotter.set(env, envNs, dotenv.parse(content))
+        logger.debug(`env.${envNs}`, env[envNs])
       } else {
         // If no dirname is passed treat the config as the root config and load
         // the .env file data into the root of the env object.

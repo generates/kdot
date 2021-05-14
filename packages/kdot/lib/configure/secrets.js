@@ -17,7 +17,7 @@ export default function configureSecrets (cfg, owner) {
 
   // Use key-values in the env map namespaced by the app name or fallback to
   // the root env map.
-  const appEnv = env[owner?.name] || env
+  const appEnv = env[owner?.envNs] || env
 
   for (const [name, given] of Object.entries(secrets)) {
     const metadata = { namespace: given.namespace || namespace, name }
@@ -27,8 +27,8 @@ export default function configureSecrets (cfg, owner) {
     // created if they don't exist and be used by apps as environment
     // variables.
     let addSecret = false
-    if (given.values) {
-      for (const value of given.values) {
+    if (given.env) {
+      for (const value of given.env) {
         if (typeof value === 'string') {
           const envValue = process.env[value] || appEnv[value] || env[value]
           if (envValue) {

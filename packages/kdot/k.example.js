@@ -17,7 +17,7 @@ export default {
       dependsOn: ['redis'],
       env: { PORT: '8000', APP_ENV: 'production' },
       secrets: {
-        hiipower: { values: ['NUM'] }
+        hiipower: { env: ['NUM'] }
       },
       configMaps: {
         getit: { mountPath: '/etc/getit', files: ['package.json'] }
@@ -27,7 +27,7 @@ export default {
     admin: load('tests/fixtures/admin/admin')
   },
   secrets: {
-    blackerberry: { values: ['SWEETER_JUICE'] }
+    blackerberry: { env: ['SWEETER_JUICE'] }
   },
   build: {
     user: process.env.DOCKER_USER,

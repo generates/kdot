@@ -10,7 +10,7 @@ export default {
       },
       secrets: {
         'actions-runner-token': {
-          values: [
+          env: [
             { TOKEN: 'ACTIONS_RUNNER_TOKEN' }
           ]
         }
