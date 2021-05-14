@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.2.0
+
+### Minor Changes
+
+- b0dfe22: Adding ability to specify build environment variables
+
 ## 0.1.7
 
 ### Patch Changes
