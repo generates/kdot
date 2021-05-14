@@ -2,7 +2,7 @@ import path from 'path'
 import { createRequire } from 'module'
 import { merge } from '@generates/merger'
 import { createLogger } from '@generates/logger'
-import { env, loadEnv } from './loadEnv.js'
+import { loadEnv } from './loadEnv.js'
 
 const require = createRequire(import.meta.url)
 const logger = createLogger({ namespace: 'kdot.load', level: 'info' })
