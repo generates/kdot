@@ -1,5 +1,11 @@
 # @generates/kdot-actions-runner
 
+## 1.0.2
+
+### Patch Changes
+
+- 10e3a51: BREAKING: Improving secret config
+
 ## 1.0.1
 
 ### Patch Changes
