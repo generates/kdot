@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.1.6
+
+### Patch Changes
+
+- d5b0a2a: Fixing load of json files for full paths and fixing loadEnv for nested dirs
+- a9cf66c: Running loading of configs in parallel
+
 ## 0.1.5
 
 ### Patch Changes
