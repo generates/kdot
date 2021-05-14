@@ -45,11 +45,13 @@ export default function kdotProxy (config) {
             ...externalDnsArgs
           ],
           secrets: {
-            [secret.name]: {
-              env: [
-                ...isCloudflareDns ? [{ CF_API_TOKEN: secret.value }] : []
-              ]
-            }
+            ...isCloudflareDns
+              ? {
+                  [secret.name]: {
+                    env: [{ CF_API_TOKEN: secret.value }]
+                  }
+                }
+              : {}
           },
           role: {
             cluster: true,
