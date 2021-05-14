@@ -81,6 +81,9 @@ export default async function build (input) {
       const buildContext = await getBuildContext(app.build.context)
       logger.debug('Context:', buildContext)
 
+      // Merge any configured build environment variables.
+      merge(env, cfg.build.env, app.build.env)
+
       if (input.namespaceTag) {
         // Use the namespace as the image tag.
         app.image.tags = [cfg.namespace]
