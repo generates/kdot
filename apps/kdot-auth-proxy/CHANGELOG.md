@@ -1,5 +1,11 @@
 # kdot-auth-proxy
 
+## 1.0.1
+
+### Patch Changes
+
+- 165d729: Disabling CSRF in kdot-auth-proxy
+
 ## 1.0.0
 
 ### Major Changes

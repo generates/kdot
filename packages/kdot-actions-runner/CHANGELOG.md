@@ -1,5 +1,11 @@
 # @generates/kdot-actions-runner
 
+## 1.0.3
+
+### Patch Changes
+
+- 1761719: Changing actions runner namespace from ci to actions
+
 ## 1.0.2
 
 ### Patch Changes
