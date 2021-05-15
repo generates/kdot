@@ -106,7 +106,9 @@ app.use(async ctx => {
         ctx.respond = false
 
         // Proxy the request to the app's service.
-        return proxy.web(ctx.req, ctx.res, { target: target.url })
+        return proxy.web(ctx.req, ctx.res, { target: target.url }, err => {
+          if (err) logger.error(err)
+        })
       } else {
         // Return a 401 Unauthorized response.
         logger.error('Unauthorized', { target, profile })
