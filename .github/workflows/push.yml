@@ -22,10 +22,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Install node
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
       - name: Install zx
         run: npm i -g zx
       - name: Set tag
