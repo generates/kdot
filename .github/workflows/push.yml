@@ -27,7 +27,7 @@ jobs:
           APP: kdot-auth-proxy
         run: |
           node scripts/setTag.cjs
-          echo "APP_TAG=$APP_TAG" >> $GITHUB_ENV
+          echo "APP_TAG=${APP_TAG}" >> $GITHUB_ENV
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
