@@ -32,6 +32,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: generates/kdot-auth-proxy:${{ env.APP_TAG }}
+          tags: generates/kdot-auth-proxy:${{ env.APP_TAG }},generates/kdot-auth-proxy:latest
           file: ./apps/kdot-auth-proxy/Dockerfile
 
