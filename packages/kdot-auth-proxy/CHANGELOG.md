@@ -1,5 +1,11 @@
 # @generates/kdot-auth-proxy
 
+## 1.0.10
+
+### Patch Changes
+
+- 8286629: Adding callback to proxy call for kdot-auth-proxy
+
 ## 1.0.9
 
 ### Patch Changes
