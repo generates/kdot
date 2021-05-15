@@ -5,7 +5,8 @@ import { nanoid } from 'nanoid'
 
 const app = nrg.createApp({
   sessions: {
-    key: 'kdotAuthProxy'
+    key: 'kdotAuthProxy',
+    csrf: false
   },
   oauth: {
     github: {
