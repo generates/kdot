@@ -1,5 +1,11 @@
 # kdot-auth-proxy
 
+## 1.0.2
+
+### Patch Changes
+
+- 8286629: Adding callback to proxy call for kdot-auth-proxy
+
 ## 1.0.1
 
 ### Patch Changes
