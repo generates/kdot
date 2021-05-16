@@ -1757,10 +1757,10 @@
   dependencies:
     camelcase "^5.0.0"
 
-"@ianwalter/nrg-csrf@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@ianwalter/nrg-csrf/-/nrg-csrf-1.0.0.tgz#743e95a9e81fa2e1836b2bcbc6345b95c62335ab"
-  integrity sha512-xqN3Ll74ezk6XyTx9c01TX/pfXd/4ycqUhb7D3wEAVzveCGleb3kHUUWgEfmaimrUhYkeXYjJ9AXMpRsPYPc9g==
+"@ianwalter/nrg-csrf@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@ianwalter/nrg-csrf/-/nrg-csrf-1.0.1.tgz#7d4be482311738f7cb897d5c55c73d85d7b9d2bc"
+  integrity sha512-3ypydQ68c+JDvp5HeMowXTtZv5aXZ34AqN5zany9zCGrgDVC/B769bpbigawikoDvXNf8vXrbjsACbyYJWxktw==
   dependencies:
     csrf "^3.1.0"
 
@@ -1820,10 +1820,10 @@
     libphonenumber-js "^1.9.14"
     zxcvbn "^4.4.2"
 
-"@ianwalter/nrg@^0.22.0":
-  version "0.22.0"
-  resolved "https://registry.yarnpkg.com/@ianwalter/nrg/-/nrg-0.22.0.tgz#0a15e48693c7cba79f9c341b7a3354a16e63e51b"
-  integrity sha512-GF4Rw3zK7zwM1vVsSc6QIa0mXvaFMgb46GoFCaJaBQGSQCTfrIdIZ86XHhlcM/Idy/V+gA+7+izpJMYxPIJUMA==
+"@ianwalter/nrg@^0.22.1":
+  version "0.22.1"
+  resolved "https://registry.yarnpkg.com/@ianwalter/nrg/-/nrg-0.22.1.tgz#85ca8af38c23e0b2e97161013fe008feef8f0cc6"
+  integrity sha512-ILE9mBPVpnSH9qDuYX8B35R72OzjE7X9JrMSIA5SesqbUqYrH1Qn7DMJQuXEWv6qh4pEAgc+FkLpLKGrNa7vkg==
   dependencies:
     "@generates/cli" "^1.0.3"
     "@generates/dotter" "^2.0.0"
@@ -1832,7 +1832,7 @@
     "@generates/merger" "^0.1.3"
     "@generates/modulizer" "^7.0.2"
     "@ianwalter/cloneable" "^2.0.0"
-    "@ianwalter/nrg-csrf" "^1.0.0"
+    "@ianwalter/nrg-csrf" "^1.0.1"
     "@ianwalter/nrg-logger" "^0.4.0"
     "@ianwalter/nrg-mq" "^1.2.7"
     "@ianwalter/nrg-router" "^1.1.2"

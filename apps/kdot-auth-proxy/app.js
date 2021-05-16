@@ -1,6 +1,5 @@
 import fs from 'fs'
 import nrg from '@ianwalter/nrg'
-import httpProxy from 'http-proxy'
 import { nanoid } from 'nanoid'
 
 const app = nrg.createApp({
@@ -33,9 +32,6 @@ try {
 
 // Tell koa to use the X-Forwarded-Host header.
 app.proxy = true
-
-// Initialize the proxy.
-const proxy = httpProxy.createProxyServer()
 
 // Warn the user if OAUTH is not enabled.
 if (!app.context.cfg.oauth.enabled) {
@@ -104,7 +100,7 @@ app.use(async (ctx, next) => {
       if (isInOrg || target.users?.includes(profile.login)) {
         // Proxy the request to the app's service.
         logger.debug('Proxying to:', target.url)
-        return nrg.relay({ baseUrl: target.url })(ctx, next)
+        return nrg.relay({ baseUrl: target.url, addHeaders: true })(ctx, next)
       } else {
         // Return a 401 Unauthorized response.
         logger.error('Unauthorized', { target, profile })
