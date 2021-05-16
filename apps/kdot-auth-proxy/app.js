@@ -22,7 +22,9 @@ const app = nrg.createApp({
 
 let hosts = {}
 try {
-  const json = fs.readFileSync('/opt/kdot-auth-proxy-conf/hosts.json')
+  const hostsFile = process.env.HOSTS_FILE ||
+    '/opt/kdot-auth-proxy-conf/hosts.json'
+  const json = fs.readFileSync(hostsFile)
   hosts = JSON.parse(json)
   app.logger.info('Hosts', hosts)
 } catch (err) {
@@ -72,7 +74,7 @@ app.get(app.context.cfg.oauth.github.callback, async ctx => {
 app.get('/kdot-auth-proxy/logout', ...nrg.logout)
 
 // Handle the authorization check and proxy.
-app.use(async ctx => {
+app.use(async (ctx, next) => {
   const logger = ctx.logger.ns('kdot.auth')
 
   // Determine the target from the Host header.
@@ -100,15 +102,9 @@ app.use(async ctx => {
     if (profile) {
       const isInOrg = target.org && profile.orgs.includes(target.org)
       if (isInOrg || target.users?.includes(profile.login)) {
-        logger.debug('Proxying to:', target.url)
-
-        // Tell koa not to respond since http-proxy will handle the response.
-        ctx.respond = false
-
         // Proxy the request to the app's service.
-        return proxy.web(ctx.req, ctx.res, { target: target.url }, err => {
-          if (err) logger.error(err)
-        })
+        logger.debug('Proxying to:', target.url)
+        return nrg.relay({ baseUrl: target.url })(ctx, next)
       } else {
         // Return a 401 Unauthorized response.
         logger.error('Unauthorized', { target, profile })
@@ -138,5 +134,7 @@ app.use(async ctx => {
     ctx.body = msg
   }
 })
+
+app.use(nrg.addToResponse)
 
 export default app
