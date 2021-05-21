@@ -16,7 +16,7 @@ export default async function load (...configs) {
     const hasExt = basename.includes('.')
 
     // Load the .env file values for the config's directory.
-    cfg.envNs = basename.replaceAll('.', '')
+    cfg.envNs = basename.split('.').join()
     await loadEnv(dirname, cfg.envNs)
 
     try {
