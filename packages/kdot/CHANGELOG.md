@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.2.1
+
+### Patch Changes
+
+- 38d0615: Replace replaceAll with split join for Node v14
+
 ## 0.2.0
 
 ### Minor Changes
