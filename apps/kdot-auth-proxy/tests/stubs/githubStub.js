@@ -6,7 +6,7 @@ app.get('/auth', ctx => {
   //
   const redirect = new URL(ctx.query.redirect_uri)
 
-  //
+  // Return the state value in the redirect.
   redirect.searchParams.set('state', ctx.query.state)
 
   // Grant is expecting a code to be returned even though it won’t be used.
