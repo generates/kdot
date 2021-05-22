@@ -1,7 +1,7 @@
 import fs from 'fs'
 import httpProxy from 'http-proxy'
 
-const json = fs.readFileSync(new URL('hosts.json', import.meta.url))
+const json = fs.readFileSync(new URL('../hosts.json', import.meta.url))
 const hosts = JSON.parse(json)
 
 let port = 3004

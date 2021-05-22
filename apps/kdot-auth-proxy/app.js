@@ -1,6 +1,5 @@
 import fs from 'fs'
 import nrg from '@ianwalter/nrg'
-import httpProxy from 'http-proxy'
 import { nanoid } from 'nanoid'
 
 const app = nrg.createApp({
@@ -15,14 +14,20 @@ const app = nrg.createApp({
       client_secret: process.env.GITHUB_CLIENT_SECRET,
       callback: '/kdot-auth-proxy/callback',
       response: ['tokens', 'profile'],
-      scope: ['read:org']
+      scope: ['read:org'],
+      // Configuration necessary for using the stub server instead of real GitHub.
+      authorize_url: process.env.GITHUB_AUTHORIZE_URL,
+      access_url: process.env.GITHUB_ACCESS_URL,
+      profile_url: process.env.GIthub_PROFILE_URL
     }
   }
 })
 
 let hosts = {}
 try {
-  const json = fs.readFileSync('/opt/kdot-auth-proxy-conf/hosts.json')
+  const hostsFile = process.env.HOSTS_FILE ||
+    '/opt/kdot-auth-proxy-conf/hosts.json'
+  const json = fs.readFileSync(hostsFile)
   hosts = JSON.parse(json)
   app.logger.info('Hosts', hosts)
 } catch (err) {
@@ -31,9 +36,6 @@ try {
 
 // Tell koa to use the X-Forwarded-Host header.
 app.proxy = true
-
-// Initialize the proxy.
-const proxy = httpProxy.createProxyServer()
 
 // Warn the user if OAUTH is not enabled.
 if (!app.context.cfg.oauth.enabled) {
@@ -72,7 +74,7 @@ app.get(app.context.cfg.oauth.github.callback, async ctx => {
 app.get('/kdot-auth-proxy/logout', ...nrg.logout)
 
 // Handle the authorization check and proxy.
-app.use(async ctx => {
+app.use(async (ctx, next) => {
   const logger = ctx.logger.ns('kdot.auth')
 
   // Determine the target from the Host header.
@@ -98,17 +100,12 @@ app.use(async ctx => {
     }
 
     if (profile) {
-      const isInOrg = target.org && profile.orgs.includes(target.org)
+      const byOrg = o => target.orgs.includes(o)
+      const isInOrg = target.orgs && profile.orgs?.find(byOrg)
       if (isInOrg || target.users?.includes(profile.login)) {
-        logger.debug('Proxying to:', target.url)
-
-        // Tell koa not to respond since http-proxy will handle the response.
-        ctx.respond = false
-
         // Proxy the request to the app's service.
-        return proxy.web(ctx.req, ctx.res, { target: target.url }, err => {
-          if (err) logger.error(err)
-        })
+        logger.debug('Proxying to:', target.url)
+        return nrg.relay({ baseUrl: target.url, addHeaders: true })(ctx, next)
       } else {
         // Return a 401 Unauthorized response.
         logger.error('Unauthorized', { target, profile })
@@ -138,5 +135,7 @@ app.use(async ctx => {
     ctx.body = msg
   }
 })
+
+app.use(nrg.addToResponse)
 
 export default app
