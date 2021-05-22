@@ -26,7 +26,7 @@ app.post('/access', ctx => {
 })
 
 app.get('/profile', ctx => {
-  //
+  // Return profile data.
   ctx.body = {
     login: 'ianwalter',
     id: 456123,
