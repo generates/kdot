@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.2.2
+
+### Patch Changes
+
+- 606f258: Add #240: Catch error if deleting build pod fails
+
 ## 0.2.1
 
 ### Patch Changes
