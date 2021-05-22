@@ -17,7 +17,7 @@ app.get('/auth', ctx => {
 })
 
 app.post('/access', ctx => {
-  //
+  // Return an access token to Grant.
   ctx.body = {
     access_token: 'bAtch1Cam3Vp',
     token_type: 'bearer',
