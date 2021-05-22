@@ -15,7 +15,7 @@ const app = nrg.createApp({
       callback: '/kdot-auth-proxy/callback',
       response: ['tokens', 'profile'],
       scope: ['read:org'],
-      //
+      // Configuration necessary for using the stub server instead of real GitHub.
       authorize_url: process.env.GITHUB_AUTHORIZE_URL,
       access_url: process.env.GITHUB_ACCESS_URL,
       profile_url: process.env.GIthub_PROFILE_URL
