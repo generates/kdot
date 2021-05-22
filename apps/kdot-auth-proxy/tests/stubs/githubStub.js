@@ -3,7 +3,7 @@ import nrg from '@ianwalter/nrg'
 const app = nrg.createApp({ name: 'GitHub Stub', port: 3007 })
 
 app.get('/auth', ctx => {
-  //
+  // Extract the redirect URL from the request.
   const redirect = new URL(ctx.query.redirect_uri)
 
   // Return the state value in the redirect.
