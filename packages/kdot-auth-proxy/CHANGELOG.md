@@ -1,5 +1,11 @@
 # @generates/kdot-auth-proxy
 
+## 1.0.11
+
+### Patch Changes
+
+- f85f253: Using nrg.relay in kdot-auth-proxy
+
 ## 1.0.10
 
 ### Patch Changes
