@@ -9,7 +9,7 @@ app.get('/auth', ctx => {
   //
   redirect.searchParams.set('state', ctx.query.state)
 
-  //
+  // Grant is expecting a code to be returned even though it won’t be used.
   redirect.searchParams.set('code', 'abc123')
 
   // Redirect to the constructed redirect URL.
