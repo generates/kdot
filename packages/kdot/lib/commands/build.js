@@ -194,7 +194,7 @@ export default async function build (input) {
       try {
         await k8s.client.delete(pod)
       } catch (err) {
-        logger.warn('Error deleting build pod:', err)
+        logger.warn('Deleting build pod failed:', err)
       }
 
       // Log the built image information.
