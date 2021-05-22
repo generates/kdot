@@ -12,7 +12,7 @@ app.get('/auth', ctx => {
   //
   redirect.searchParams.set('code', 'abc123')
 
-  //
+  // Redirect to the constructed redirect URL.
   ctx.redirect(redirect.href)
 })
 
