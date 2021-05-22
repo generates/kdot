@@ -1,6 +1,6 @@
 import nrg from '@ianwalter/nrg'
 
-const app = nrg.createApp({ name: 'Test Server', port: 3006 })
+const app = nrg.createApp({ name: 'Termination Stub', port: 3006 })
 
 // Tell koa to use the X-Forwarded-Host header.
 app.proxy = true

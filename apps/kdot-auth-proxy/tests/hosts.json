@@ -9,6 +9,11 @@
   "org.example.com": {
     "url": "http://localhost:3006",
     "proxyUrl": "http://localhost:3005",
-    "org": "binxhealth"
+    "orgs": [
+      "binxhealth"
+    ],
+    "users": [
+      "ianwalter"
+    ]
   }
 }

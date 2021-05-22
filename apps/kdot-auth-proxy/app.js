@@ -14,7 +14,11 @@ const app = nrg.createApp({
       client_secret: process.env.GITHUB_CLIENT_SECRET,
       callback: '/kdot-auth-proxy/callback',
       response: ['tokens', 'profile'],
-      scope: ['read:org']
+      scope: ['read:org'],
+      //
+      authorize_url: process.env.GITHUB_AUTHORIZE_URL,
+      access_url: process.env.GITHUB_ACCESS_URL,
+      profile_url: process.env.GIthub_PROFILE_URL
     }
   }
 })
@@ -96,7 +100,8 @@ app.use(async (ctx, next) => {
     }
 
     if (profile) {
-      const isInOrg = target.org && profile.orgs.includes(target.org)
+      const byOrg = o => target.orgs.includes(o)
+      const isInOrg = target.orgs && profile.orgs?.find(byOrg)
       if (isInOrg || target.users?.includes(profile.login)) {
         // Proxy the request to the app's service.
         logger.debug('Proxying to:', target.url)
