@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.2.3
+
+### Patch Changes
+
+- 6d4cab2: Fixing slugify on namespace
+
 ## 0.2.2
 
 ### Patch Changes
