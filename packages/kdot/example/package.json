@@ -5,6 +5,6 @@
   "type": "module",
   "license": "UNLICENSED",
   "dependencies": {
-    "@ianwalter/nrg": "^0.22.0"
+    "@ianwalter/nrg": "^0.25.0"
   }
 }
