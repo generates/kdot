@@ -1,5 +1,12 @@
 # @generates/kdot
 
+## 0.2.4
+
+### Patch Changes
+
+- 7d7a956: Update dependency @sindresorhus/slugify to ^2.1.0
+- 3f8fe8a: Fixing dangling dash issue on ns command
+
 ## 0.2.3
 
 ### Patch Changes
