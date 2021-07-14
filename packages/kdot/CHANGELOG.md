@@ -1,5 +1,11 @@
 # @generates/kdot
 
+## 0.2.5
+
+### Patch Changes
+
+- dad050b: Adding dangling dash fix to build name too
+
 ## 0.2.4
 
 ### Patch Changes
