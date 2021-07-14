@@ -27,14 +27,25 @@ export default async function cp (input) {
   const { namespace } = cfg.apps[name]
   const pod = await getRunningPods({ namespace, name, limit: 1 })
   if (pod) {
-    await k8s.cp.cpFromPod(
-      namespace,
-      pod.metadata.name,
-      name,
-      from,
-      to
-    )
-    logger.success(`Successfully copied ${name}:${from} to ${to}`)
+    if (input.to) {
+      await k8s.cp.cpToPod(
+        namespace,
+        pod.metadata.name,
+        name,
+        from,
+        to
+      )
+      logger.success(`Successfully copied ${from} to ${name}:${to}`)
+    } else {
+      await k8s.cp.cpFromPod(
+        namespace,
+        pod.metadata.name,
+        name,
+        from,
+        to
+      )
+      logger.success(`Successfully copied ${name}:${from} to ${to}`)
+    }
   } else {
     logger.fatal('Could not get running pod', { namespace, name })
     process.exit(1)
