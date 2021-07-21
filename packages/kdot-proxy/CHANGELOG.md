@@ -1,5 +1,11 @@
 # @generates/kdot-proxy
 
+## 0.0.5
+
+### Patch Changes
+
+- 369f33a: Add support for digitalocean dns api key for external-dns
+
 ## 0.0.4
 
 ### Patch Changes
