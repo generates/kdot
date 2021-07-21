@@ -18,6 +18,7 @@ export default function kdotProxy (config) {
   }
 
   const isCloudflareDns = dnsProvider === 'cloudflare'
+  const isDigitalOceanDns = dnsProvider === 'digitalocean'
 
   let ingressNginx = 'https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.45.0/deploy/static/provider/do/deploy.yaml'
   if (lbProvider === 'google') {
@@ -45,13 +46,16 @@ export default function kdotProxy (config) {
             ...externalDnsArgs
           ],
           secrets: {
-            ...isCloudflareDns
-              ? {
-                  [secret.name]: {
-                    env: [{ CF_API_TOKEN: secret.value }]
-                  }
-                }
-              : {}
+            ...isCloudflareDns && {
+              [secret.name]: {
+                env: [{ CF_API_TOKEN: secret.value }]
+              }
+            },
+            ...isDigitalOceanDns && {
+              [secret.name]: {
+                env: [{ DO_TOKEN: secret.value }]
+              }
+            }
           },
           role: {
             cluster: true,
