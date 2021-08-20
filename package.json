@@ -26,7 +26,7 @@
     "@ianwalter/eslint-config": "^6.2.0",
     "@ianwalter/renovate-config": "^1.4.5",
     "ultra-runner": "^3.10.5",
-    "zx": "^1.14.1"
+    "zx": "^3.1.0"
   },
   "skrt": {
     "layout": "docs/Layout.jsx"
