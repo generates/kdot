@@ -19,7 +19,7 @@ jobs:
       - name: Install
         run: yarn
       - name: Changesets
-        uses: changesets/action@b3300fad33b6ab794313da28d27424c0e2f78991
+        uses: changesets/action@b98cec97583b917ff1dc6179dd4d230d3e439894
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
