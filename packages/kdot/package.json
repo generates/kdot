@@ -54,7 +54,7 @@
     "@ianwalter/requester": "^2.5.0",
     "@kubernetes/client-node": "^0.14.3",
     "@sindresorhus/slugify": "^2.1.0",
-    "common-tags": "^1.8.0",
+    "common-tags": "^1.8.2",
     "dotenv": "^10.0.0",
     "execa": "^5.1.1",
     "git-url-parse": "^11.4.4",
