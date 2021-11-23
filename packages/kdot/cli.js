@@ -153,11 +153,18 @@ const input = cli({
       run: kdot.build
     },
     copy: {
+      aliases: ['cp'],
       description: `
         Copy files locally from a container belonging to an app running in the
         cluster
       `,
-      aliases: ['cp'],
+      options: {
+        to: {
+          aliases: ['t'],
+          description: 'Whether to copy to instead of from the container',
+          default: false
+        }
+      },
       run: kdot.cp
     },
     cleanup: {
