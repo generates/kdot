@@ -57,7 +57,7 @@
     "common-tags": "^1.8.0",
     "dotenv": "^10.0.0",
     "execa": "^5.1.1",
-    "git-url-parse": "^11.4.4",
+    "git-url-parse": "^11.6.0",
     "glob": "^7.1.6",
     "got": "^11.8.1",
     "p-reduce": "^3.0.0",
