@@ -59,7 +59,7 @@
     "execa": "^5.1.1",
     "git-url-parse": "^11.4.4",
     "glob": "^7.1.6",
-    "got": "^11.8.1",
+    "got": "^12.6.0",
     "p-reduce": "^3.0.0",
     "p-timeout": "^5.0.0",
     "server-destroy": "^1.0.1"
