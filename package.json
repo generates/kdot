@@ -23,7 +23,7 @@
     "@changesets/cli": "^2.18.0",
     "@generates/skrt": "^0.0.7",
     "@ianwalter/bff": "^11.0.0",
-    "@ianwalter/eslint-config": "^6.2.0",
+    "@ianwalter/eslint-config": "^7.2.0",
     "@ianwalter/renovate-config": "^1.4.6",
     "ultra-runner": "^3.10.5",
     "zx": "^1.14.1"
