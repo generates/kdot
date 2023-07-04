@@ -7793,10 +7793,10 @@ p-some@^5.0.0:
     aggregate-error "^3.0.0"
     p-cancelable "^2.0.0"
 
-p-timeout@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/p-timeout/-/p-timeout-5.0.0.tgz#0f5dc08422e7243f8317669c461734cd1257a8dc"
-  integrity sha512-z+bU/N7L1SABsqKnQzvAnINgPX7NHdzwUV+gHyJE7VGNDZSr03rhcPODCZSWiiT9k+gf74QPmzcZzqJRvxYZow==
+p-timeout@^5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/p-timeout/-/p-timeout-5.1.0.tgz#b3c691cf4415138ce2d9cfe071dba11f0fee085b"
+  integrity sha512-auFDyzzzGZZZdHz3BtET9VEz0SE/uMEAx7uWfGPucfzEwwe/xH0iVeZibQmANYE/hp9T2+UUZT5m+BKyrDp3Ew==
 
 p-try@^1.0.0:
   version "1.0.0"
